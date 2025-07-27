@@ -2,10 +2,10 @@
 
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY_NC_SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-[![Python package](https://github.com/Belfagor2005/tvRaiPreview/actions/workflows/pylint.yml/badge.svg)](https://github.com/Belfagor2005/tvRaiPreview/actions/workflows/pylint.yml)
+[![Python package](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml/badge.svg)](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml)
 
 
-<img src="https://github.com/Belfagor2005/tvRaiPreview/blob/main/usr/lib/enigma2/python/Plugins/Extensions/tvRaiPreview/logo.png">
+<img src="https://github.com/Belfagor2005/tvRaiPreview/blob/main/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/logo.png">
 
 
 # Rai Play View Plugin
