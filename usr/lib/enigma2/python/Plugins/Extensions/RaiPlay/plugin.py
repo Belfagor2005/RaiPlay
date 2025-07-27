@@ -46,7 +46,7 @@ import requests
 from Components.ActionMap import ActionMap
 from Components.Button import Button
 from Components.Label import Label
-from Components.Sources.List import List
+# from Components.Sources.List import List
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryPixmapAlphaTest, MultiContentEntryText
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
@@ -320,7 +320,7 @@ class SafeScreen(Screen):
             import gc
             gc.collect()
         except Exception as e:
-            print(f"Cleanup error: {str(e)}")
+            print("Cleanup error: " + str(e))
 
     def force_close(self):
         """Force close if normal close fails"""
@@ -1067,9 +1067,9 @@ class RaiPlayAPI:
 
     def getSportVideos(self, key, dominio, page=0):
         # print("[DEBUG] === START getSportVideos (Kodi replica) ===")
-        # print(f"[DEBUG] Key: {key}")
-        # print(f"[DEBUG] Dominio: {dominio}")
-        # print(f"[DEBUG] Page: {page}")
+        # print("[DEBUG] Key: " + str(key))
+        # print("[DEBUG] Dominio: " + str(dominio))
+        # print("[DEBUG] Page: " + str(page))
 
         pageSize = 50
         payload = {
@@ -1110,15 +1110,15 @@ class RaiPlayAPI:
             print("[DEBUG] Status code: {response.status_code}")
 
             if response.status_code != 200:
-                print(f"[ERROR] API status: {response.status_code}")
-                print(f"[DEBUG] Response: {response.text[:500]}")
+                print("[ERROR] API status: " + str(response.status_code))
+                print("[DEBUG] Response: " + response.text[:500])
                 return []
 
             data = response.json()
             videos = []
             hits = data.get("hits", [])
 
-            print(f"[DEBUG] Found {len(hits)} items in response")
+            print("[DEBUG] Found " + str(len(hits)) + " items in response")
 
             for h in hits:
                 if h.get("data_type") == "video":
@@ -1141,7 +1141,7 @@ class RaiPlayAPI:
                     })
 
             total = data.get("total", 0)
-            print(f"[DEBUG] Total items: {total}, pageSize: {pageSize}")
+            print("[DEBUG] Total items: " + str(total) + ", pageSize: " + str(pageSize))
 
             items_so_far = (page * pageSize) + len(videos)
             has_next_page = items_so_far < total
@@ -1158,7 +1158,7 @@ class RaiPlayAPI:
             return videos
 
         except Exception as e:
-            print(f"[ERROR] getSportVideos exception: {str(e)}")
+            print("[ERROR] getSportVideos exception: " + str(e))
             import traceback
             traceback.print_exc()
             return []
@@ -1199,7 +1199,7 @@ class RaiPlayAPI:
             relinker_match = re.search(r'relinkerServlet\.htm\?cont=(\d+)', html_content)
             if relinker_match:
                 cont_id = relinker_match.group(1)
-                return f"https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont={cont_id}"
+                return "https://mediapolis.rai.it/relinker/relinkerServlet.htm?cont=" + cont_id
 
             return None
         except Exception as e:
@@ -1753,7 +1753,7 @@ class RaiPlayOnDemand(SafeScreen):
         category = self.categories[idx]
 
         if category['url'] == "search":
-            # inserire qui la ricerca - 
+            # inserire qui la ricerca -
             self.session.open(MessageBox, _("Functionality not yet implemented"), MessageBox.TYPE_INFO)
         else:
             self.session.open(RaiPlayOnDemandCategory, category['title'], category['url'], category['sub-type'])
@@ -2933,7 +2933,7 @@ class RaiPlaySport(SafeScreen):
         self.goBack()
 
     def returnFromVideos(self, last_page):
-        print(f"Returned from videos, last page was {last_page}")
+        print("Returned from videos, last page was " + str(last_page))
 
     def okRun(self):
         """Manages user selection"""
@@ -3027,9 +3027,9 @@ class RaiPlaySportVideos(SafeScreen):
             for video in self.videos:
                 title = video['title']
                 if video.get('is_page'):
-                    title = _("Next page") + f" ({video['page']})"
+                    title = _("Next page") + " (" + str(video['page']) + ")"
                 elif video.get('date'):
-                    title = f"{video['date']} - {title}"
+                    title = video['date'] + " - " + title
                 self.names.append(title)
 
             show_list(self.names, self['text'])
@@ -3037,7 +3037,7 @@ class RaiPlaySportVideos(SafeScreen):
             self.show_error = False
 
         except Exception as e:
-            print(f"Error loading videos: {str(e)}")
+            print("Error loading videos: " + str(e))
             self['info'].setText(_('Error loading data'))
             self.show_error = True
 
