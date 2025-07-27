@@ -51,7 +51,15 @@ class Console(Screen):
             <eLabel text="Restart GUI" position="1626,1004" zPosition="2" size="250,40" font="Regular;28" halign="center" valign="center" backgroundColor="#16000000" foregroundColor="#00ffffff" transparent="1"/>
         </screen>'''
 
-    def __init__(self, session, title='Console', cmdlist=None, finishedCallback=None, closeOnSuccess=False, showStartStopText=True, skin=None):
+    def __init__(
+            self,
+            session,
+            title='Console',
+            cmdlist=None,
+            finishedCallback=None,
+            closeOnSuccess=False,
+            showStartStopText=True,
+            skin=None):
         Screen.__init__(self, session)
         self.finishedCallback = finishedCallback
         self.closeOnSuccess = closeOnSuccess
@@ -62,16 +70,18 @@ class Console(Screen):
         self['text'] = ScrollLabel('')
         self['key_red'] = StaticText(_('Cancel'))
         self['key_green'] = StaticText(_('Hide'))
-        self["actions"] = ActionMap(["WizardActions", "DirectionActions", 'ColorActions'],
-                                    {
-                                        "ok": self.cancel if not self.finished else None,
-                                        "up": self["text"].pageUp,
-                                        "down": self["text"].pageDown,
-                                        "red": self.cancel,
-                                        "green": self.toggleHideShow,
-                                        "blue": self.restartenigma,
-                                        "exit": self.cancel,
-                                    }, -1)
+        self["actions"] = ActionMap(["WizardActions",
+                                     "DirectionActions",
+                                     'ColorActions'],
+                                    {"ok": self.cancel if not self.finished else None,
+                                     "up": self["text"].pageUp,
+                                     "down": self["text"].pageDown,
+                                     "red": self.cancel,
+                                     "green": self.toggleHideShow,
+                                     "blue": self.restartenigma,
+                                     "exit": self.cancel,
+                                     },
+                                    -1)
         self.cmdlist = isinstance(cmdlist, list) and cmdlist or [cmdlist]
         self.newtitle = title == 'Console' and _('Console') or title
         self.cancel_msg = None
@@ -82,9 +92,11 @@ class Console(Screen):
         try:  # DreamOS By RAED
             self.container.appClosed.append(self.runFinished)
             self.container.dataAvail.append(self.dataAvail)
-        except:
-            self.container.appClosed_conn = self.container.appClosed.connect(self.runFinished)
-            self.container.dataAvail_conn = self.container.dataAvail.connect(self.dataAvail)
+        except BaseException:
+            self.container.appClosed_conn = self.container.appClosed.connect(
+                self.runFinished)
+            self.container.dataAvail_conn = self.container.dataAvail.connect(
+                self.dataAvail)
         self.onLayoutFinish.append(self.startRun)
 
     def updateTitle(self):
@@ -93,7 +105,8 @@ class Console(Screen):
     def startRun(self):
         if self.showStartStopText:
             self['text'].setText(_('Execution progress') + '\n\n')
-        print('[Console] executing in run', self.run, 'the command:', self.cmdlist[self.run])
+        print('[Console] executing in run', self.run,
+              'the command:', self.cmdlist[self.run])
         if self.container.execute(self.cmdlist[self.run]):
             print('[Console] Command executed successfully')
             self.runFinished(-1)
@@ -113,7 +126,7 @@ class Console(Screen):
             self.finished = True
             try:
                 lastpage = self['text'].isAtLastPage()
-            except:
+            except BaseException:
                 lastpage = self['text']
             if self.cancel_msg:
                 self.cancel_msg.close()
@@ -140,7 +153,12 @@ class Console(Screen):
         if self.finished:
             self.closeConsole()
         else:
-            self.cancel_msg = self.session.openWithCallback(self.cancelCallback, MessageBox, _('Cancel execution?'), type=MessageBox.TYPE_YESNO, default=False)
+            self.cancel_msg = self.session.openWithCallback(
+                self.cancelCallback,
+                MessageBox,
+                _('Cancel execution?'),
+                type=MessageBox.TYPE_YESNO,
+                default=False)
 
     def cancelCallback(self, ret=None):
         self.cancel_msg = None
@@ -148,7 +166,7 @@ class Console(Screen):
             try:  # DreamOS By RAED
                 self.container.appClosed.remove(self.runFinished)
                 self.container.dataAvail.remove(self.dataAvail)
-            except:
+            except BaseException:
                 self.container.appClosed_conn = None
                 self.container.dataAvail_conn = None
             self.container.kill()
@@ -159,7 +177,7 @@ class Console(Screen):
             try:  # DreamOS By RAED
                 self.container.appClosed.remove(self.runFinished)
                 self.container.dataAvail.remove(self.dataAvail)
-            except:
+            except BaseException:
                 self.container.appClosed_conn = None
                 self.container.dataAvail_conn = None
             self.close()
@@ -167,7 +185,8 @@ class Console(Screen):
             self.show()
 
     def dataAvail(self, str):
-        print("Received data:", str)  # Aggiungi un print per vedere cosa ricevi
+        # Aggiungi un print per vedere cosa ricevi
+        print("Received data:", str)
         if PY3:
             self['text'].appendText(str.decode())
         else:
