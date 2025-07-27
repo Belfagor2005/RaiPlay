@@ -1,0 +1,14 @@
+<keymap>
+	<map context="RaiplayActions">
+		<key id="KEY_OK" mapto="ok" flags="m"/>
+		<key id="KEY_EXIT" mapto="cancel" flags="m"/>
+		<key id="KEY_HOME" mapto="cancel" flags="m"/>
+		<key id="\x1b" mapto="cancel" flags="m"/>
+		<key id="KEY_BACK" mapto="back" flags="mr" />
+		<key id="KEY_RED" mapto="red" flags="m"/>
+		<key id="KEY_GREEN" mapto="green" flags="m"/>		
+		<key id="KEY_YELLOW" mapto="yellow" flags="m"/>		
+		<key id="KEY_BLUE" mapto="blue" flags="m"/>
+		<key id="KEY_INFO" mapto="showEventInfo" flags="m"/>
+	</map>
+</keymap>

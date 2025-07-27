@@ -1,8 +1,8 @@
 #!/bin/sh
 echo "Checking for an older version of TiVustream Settings in the system..."
-if [ -d /usr/lib/enigma2/python/Plugins/Extensions/tvRaiPreview ]
+if [ -d /usr/lib/enigma2/python/Plugins/Extensions/RaiPlay ]
 then
-rm -rf /usr/lib/enigma2/python/Plugins/Extensions/tvRaiPreview > /dev/null 2>&1
+rm -rf /usr/lib/enigma2/python/Plugins/Extensions/RaiPlay > /dev/null 2>&1
 echo "An older version of TiVustream Settings was found and removed"
 echo "Proceeding to installation..."
 else

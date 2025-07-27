@@ -1,153 +1,114 @@
 #!/bin/bash
 
-## setup command=wget -q --no-check-certificate https://raw.githubusercontent.com/Belfagor2005/tvRaiPreview/main/installer.sh -O - | /bin/sh
-
-## Only These 2 lines to edit with new version ######
-version='1.5'
-changelog='\nRecoded Category'
+## setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/Belfagor2005/RaiPlay/main/installer.sh -O - | /bin/sh
+## Only This 2 lines to edit with new version ######
+version='1.4'
+changelog='\nAdd Live Upgrade\nFix screen'
 ##############################################################
-
-TMPPATH=/tmp/tvRaiPreview-main
+TMPPATH=/tmp/RaiPlay-main
 FILEPATH=/tmp/main.tar.gz
 
-# Determine plugin path based on architecture
 if [ ! -d /usr/lib64 ]; then
-    PLUGINPATH=/usr/lib/enigma2/python/Plugins/Extensions/tvRaiPreview
+	PLUGINPATH=/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay
 else
-    PLUGINPATH=/usr/lib64/enigma2/python/Plugins/Extensions/tvRaiPreview
+	PLUGINPATH=/usr/lib64/enigma2/python/Plugins/Extensions/RaiPlay
 fi
 
-# Cleanup function
-cleanup() {
-    [ -d "$TMPPATH" ] && rm -rf "$TMPPATH"
-    [ -f "$FILEPATH" ] && rm -f "$FILEPATH"
-    [ -d "$PLUGINPATH" ] && rm -rf "$PLUGINPATH"
-}
-
-# Check package manager type
+## check depends packges
 if [ -f /var/lib/dpkg/status ]; then
-    STATUS=/var/lib/dpkg/status
-    OSTYPE=DreamOs
-    PKG_MANAGER="apt-get"
+   STATUS=/var/lib/dpkg/status
+   OSTYPE=DreamOs
 else
-    STATUS=/var/lib/opkg/status
-    OSTYPE=Dream
-    PKG_MANAGER="opkg"
+   STATUS=/var/lib/opkg/status
+   OSTYPE=Dream
 fi
-
 echo ""
-cleanup
-
-# Install wget if missing
-if ! command -v wget >/dev/null 2>&1; then
-    echo "Installing wget..."
-    if [ "$OSTYPE" = "DreamOs" ]; then
-        apt-get update && apt-get install -y wget
-    else
-        opkg update && opkg install wget
-    fi
-fi
-
-# Detect Python version
 if python --version 2>&1 | grep -q '^Python 3\.'; then
-    echo "Python3 image detected"
-    PYTHON=PY3
-    Packagesix=python3-six
-    Packagerequests=python3-requests
+	echo "You have Python3 image"
+	PYTHON=PY3
+	Packagesix=python3-six
+	Packagerequests=python3-requests
 else
-    echo "Python2 image detected"
-    PYTHON=PY2
-    Packagerequests=python-requests
+	echo "You have Python2 image"
+	PYTHON=PY2
+	Packagerequests=python-requests
 fi
 
-# Install required packages
-install_pkg() {
-    local pkg=$1
-    if ! grep -qs "Package: $pkg" "$STATUS"; then
-        echo "Installing $pkg..."
-        if [ "$OSTYPE" = "DreamOs" ]; then
-            apt-get update && apt-get install -y "$pkg"
-        else
-            opkg update && opkg install "$pkg"
-        fi
-    fi
-}
+if [ $PYTHON = "PY3" ]; then
+	if grep -qs "Package: $Packagesix" cat $STATUS ; then
+		echo ""
+	else
+		opkg update && opkg --force-reinstall --force-overwrite install python3-six
+	fi
+fi
+echo ""
+if grep -qs "Package: $Packagerequests" cat $STATUS ; then
+	echo ""
+else
+	echo "Need to install $Packagerequests"
+	echo ""
+	if [ $OSTYPE = "DreamOs" ]; then
+		apt-get update && apt-get install python-requests -y
+	elif [ $PYTHON = "PY3" ]; then
+		opkg update && opkg --force-reinstall --force-overwrite install python3-requests
+	elif [ $PYTHON = "PY2" ]; then
+		opkg update && opkg --force-reinstall --force-overwrite install python-requests
+	fi
+fi
+echo ""
 
-[ "$PYTHON" = "PY3" ] && install_pkg "$Packagesix"
-install_pkg "$Packagerequests"
+## Remove tmp directory
+## [ -r $TMPPATH ] && rm -f $TMPPATH > /dev/null 2>&1
 
-# Download and install plugin
-mkdir -p "$TMPPATH"
-cd "$TMPPATH" || exit 1
-set -e
+## Remove tmp directory
+## [ -r $FILEPATH ] && rm -f $FILEPATH > /dev/null 2>&1
 
-echo -e "\n# Your image is ${OSTYPE}\n"
+## Remove old plugin directory
+## [ -r $PLUGINPATH ] && rm -rf $PLUGINPATH
 
-# Install additional dependencies for non-DreamOs systems
-if [ "$OSTYPE" != "DreamOs" ]; then
-    for pkg in ffmpeg gstplayer exteplayer3 enigma2-plugin-systemplugins-serviceapp; do
-        install_pkg "$pkg"
-    done
+## Download and install plugin
+## check depends packges
+mkdir -p $TMPPATH
+cd $TMPPATH
+# set -e
+if [ -f /var/lib/dpkg/status ]; then
+   echo "# Your image is OE2.5/2.6 #"
+   echo ""
+else
+   echo "# Your image is OE2.0 #"
+   echo ""
 fi
 
-echo "Downloading tvRaiPreview..."
-wget --no-check-certificate 'https://github.com/Belfagor2005/tvRaiPreview/archive/refs/heads/main.tar.gz' -O "$FILEPATH"
-if [ $? -ne 0 ]; then
-    echo "Failed to download tvRaiPreview package!"
-    exit 1
+if [ $OSTYPE != "DreamOs" ]; then
+	opkg update && opkg --force-reinstall --force-overwrite install ffmpeg gstplayer exteplayer3 enigma2-plugin-systemplugins-serviceapp
 fi
+sleep 2
 
-# tar -xzf "$FILEPATH"
-mkdir -p "$TMPPATH"
-cd "$TMPPATH" || exit 1
+wget --no-check-certificate --no-cache --no-dns-cache 'https://github.com/Belfagor2005/RaiPlay/archive/refs/heads/main.tar.gz'
+tar -xzf main.tar.gz
+cp -r 'RaiPlay-main/usr' '/'
+# set +e
+cd
+sleep 2
 
-echo "Extracting only 'usr' from archive..."
-tar -xzf "$FILEPATH" --strip-components=1
-
-cp -r 'usr' '/'
-
-if [ $? -ne 0 ]; then
-    echo "Failed to extract tvRaiPreview package!"
-    exit 1
+## Check if plugin installed correctly
+if [ ! -d $PLUGINPATH ]; then
+	echo "Some thing wrong .. Plugin not installed"
+	rm -rf $TMPPATH > /dev/null 2>&1	
+	exit 1
 fi
-
-# cp -r 'tvRaiPreview-main/usr' '/'
-set +e
-
-# Verify installation
-if [ ! -d "$PLUGINPATH" ]; then
-    echo "Error: Plugin installation failed!"
-    cleanup
-    exit 1
-fi
-
-# Cleanup
-cleanup
+rm -rf $TMPPATH > /dev/null 2>&1
 sync
-
-# System info
-FILE="/etc/image-version"
-box_type=$(head -n 1 /etc/hostname 2>/dev/null || echo "Unknown")
-distro_value=$(grep '^distro=' "$FILE" 2>/dev/null | awk -F '=' '{print $2}')
-distro_version=$(grep '^version=' "$FILE" 2>/dev/null | awk -F '=' '{print $2}')
-python_vers=$(python --version 2>&1)
-
-cat <<EOF
-#########################################################
-#               INSTALLED SUCCESSFULLY                  #
-#                developed by LULULLA                   #
-#               https://corvoboys.org                   #
-#########################################################
-#           your Device will RESTART Now                #
-#########################################################
-^^^^^^^^^^Debug information:
-BOX MODEL: $box_type
-OO SYSTEM: $OSTYPE
-PYTHON: $python_vers
-IMAGE NAME: ${distro_value:-Unknown}
-IMAGE VERSION: ${distro_version:-Unknown}
-EOF
-
+echo ""
+echo ""
+echo "#########################################################"
+echo "#       RaiPlay Live INSTALLED SUCCESSFULLY        #"
+echo "#                developed by LULULLA                   #"
+echo "#                                                       #"
+echo "#                  https://corvoboys.org                #"
+echo "#########################################################"
+echo "#           your Device will RESTART Now                #"
+echo "#########################################################"
 sleep 5
 killall -9 enigma2
 exit 0
