@@ -3,6 +3,7 @@
 	<widget name="title" position="220,84" size="1027,58" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
 	<widget name="info" position="220,165" size="1030,50" font="Regular;30" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5" />
 	<!-- Graph -->
+	<widget name="poster" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/icon.png" position="1363,252" size="390,510" scale="1" zPosition="4" backgroundColor="#30000000" transparent="1" borderWidth="3" borderColor="#00ffffff" flags="wfBorder" alphatest="on" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/main2.png" position="0,0" size="1920,1080" zPosition="1" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/tvs.png" position="220,35" size="279,50" alphatest="blend" zPosition="5" />
 	<ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/sep.png" position="220,145" size="1030,8" zPosition="5" />
