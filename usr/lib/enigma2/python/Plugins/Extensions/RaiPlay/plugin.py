@@ -5,7 +5,7 @@ from __future__ import print_function
 #########################################################
 #                                                       #
 #  Rai Play View Plugin                                 #
-#  Version: 1.5                                         #
+#  Version: 1.1                                         #
 #  Created by Lululla                                   #
 #  License: CC BY-NC-SA 4.0                             #
 #  https://creativecommons.org/licenses/by-nc-sa/4.0/   #
@@ -101,7 +101,6 @@ from enigma import (
 from . import _
 from . import Utils
 from .lib.html_conv import html_unescape
-# from .Console import Console as xConsole
 
 from Components.config import ConfigSubsection, ConfigYesNo
 
@@ -120,8 +119,9 @@ if sys.version_info >= (2, 7, 9):
 	except:
 		sslContext = None
 
-currversion = '1.0'
+currversion = '1.1'
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
+DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
 pluglogo = join(plugin_path, "res/pics/logo.png")
 pngx = join(plugin_path, "res/pics/plugins.png")
 pngl = join(plugin_path, "res/pics/plugin.png")
@@ -129,7 +129,7 @@ pngs = join(plugin_path, "res/pics/setting.png")
 desc_plugin = '..:: TiVu Rai Play by Lululla %s ::.. ' % currversion
 name_plugin = 'TiVu Rai Play'
 ntimeout = 10
-DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
+
 screenwidth = getDesktop(0).size()
 skin_path = join(plugin_path, "res/skins/")
 if screenwidth.width() == 1920:
@@ -350,10 +350,9 @@ class SafeScreen(Screen):
 		self.onShown.append(self.firstSelection)
 
 	def firstSelection(self):
-		"""Forza l'aggiornamento alla prima visualizzazione"""
+		"""Force refresh on first view"""
 		try:
 			if hasattr(self, "names") and len(self.names) > 0:
-				# self["text"].setCurrentIndex(0)
 				self["text"].moveToIndex(0)
 				self.selectionChanged()
 		except Exception as e:
@@ -387,10 +386,10 @@ class SafeScreen(Screen):
 
 			if current_index != self.last_index:
 				self.last_index = current_index
-				# self.updatePoster()
 				self.setPoster()
 		except Exception as e:
 			print("Error in selectionChanged: " + str(e))
+			self.setFallbackPoster()
 
 	def updatePoster(self):
 		"""Update poster based on current selection"""
@@ -444,24 +443,6 @@ class SafeScreen(Screen):
 			print("Error updating poster: " + str(e))
 			self.setFallbackPoster()
 
-	"""
-	# def setPoster(self, picInfo=None):
-		# try:
-			# if self.closing:
-				# return
-
-			# ptr = self.picload.getData()
-			# if ptr:
-				# print("Setting new poster image")
-				# self["poster"].instance.setPixmap(ptr)
-				# self["poster"].show()
-			# else:
-				# print("No pixmap data received")
-				# self.setFallbackPoster()
-		# except Exception as e:
-			# print("Error setting poster: " + str(e))
-	"""
-
 	def setPoster(self):
 		"""Callback when image is ready"""
 		if self.closing:
@@ -504,7 +485,7 @@ class SafeScreen(Screen):
 			size = self['poster'].instance.size()
 			self.picload = ePicLoad()
 			self.scale = AVSwitch().getFramebufferScale()
-			self.picload.setPara([size.width(), size.height(), self.scale[0], self.scale[1], 0, 1, '#00000000'])
+			self.picload.setPara([size.width(), size.height(), self.scale[0], self.scale[1], 1, 1, '#00000000'])
 			if exists('/var/lib/dpkg/status'):
 				self.picload.startDecode(png, False)
 			else:
@@ -514,6 +495,8 @@ class SafeScreen(Screen):
 				self['poster'].instance.setPixmap(ptr)
 				self['poster'].show()
 			return
+		else:
+			self.setFallbackPoster()
 
 	def downloadError(self, error=""):
 		try:
@@ -523,6 +506,7 @@ class SafeScreen(Screen):
 			print('error download: ', error)
 		except Exception as e:
 			print('error downloadError poster', e)
+			self.setFallbackPoster()
 
 	def setFallbackPoster(self):
 		"""Set default poster when image loading fails"""
@@ -599,18 +583,18 @@ class RaiPlayAPI:
 		self.RELINKER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
 		self.HTTP_HEADER = {'User-Agent': self.RELINKER_USER_AGENT}
 
-		palinsestoUrl = "https://www.raiplay.it/palinsesto/app/old/[nomeCanale]/[dd-mm-yyyy].json"
-		palinsestoUrlHtml = "https://www.raiplay.it/palinsesto/guidatv/lista/[idCanale]/[dd-mm-yyyy].html"
-		onAirUrl = "https://www.raiplay.it/palinsesto/onAir.json"
-		RaiPlayAzTvShowPath = "/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"
+		# palinsestoUrl = "https://www.raiplay.it/palinsesto/app/old/[nomeCanale]/[dd-mm-yyyy].json"
+		# palinsestoUrlHtml = "https://www.raiplay.it/palinsesto/guidatv/lista/[idCanale]/[dd-mm-yyyy].html"
+		# onAirUrl = "https://www.raiplay.it/palinsesto/onAir.json"
+		# RaiPlayAzTvShowPath = "/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"
 
 		# Raiplay RADIO
 		self.CHANNELS_RADIO_URL = "http://www.raiplaysound.it/dirette.json"
-		noThumbUrl = "http://www.raiplayradio.it/dl/components/img/radio/player/placeholder_img.png"
-		baseUrl = "http://www.raiplayradio.it/"
-		localizeUrl = "http://mediapolisgs.rai.it/relinker/relinkerServlet.htm?cont=201342"
-		palinsestoUrl = "http://www.raiplaysound.it/dl/palinsesti/Page-a47ba852-d24f-44c2-8abb-0c9f90187a3e-json.html?canale=[nomeCanale]&giorno=[dd-mm-yyyy]&mode=light"
-		RaiRadioAzTvShowPath = "/dl/RaiTV/RaiRadioMobile/Prod/Config/programmiAZ-elenco.json"
+		# noThumbUrl = "http://www.raiplayradio.it/dl/components/img/radio/player/placeholder_img.png"
+		# baseUrl = "http://www.raiplayradio.it/"
+		# localizeUrl = "http://mediapolisgs.rai.it/relinker/relinkerServlet.htm?cont=201342"
+		# palinsestoUrl = "http://www.raiplaysound.it/dl/palinsesti/Page-a47ba852-d24f-44c2-8abb-0c9f90187a3e-json.html?canale=[nomeCanale]&giorno=[dd-mm-yyyy]&mode=light"
+		# RaiRadioAzTvShowPath = "/dl/RaiTV/RaiRadioMobile/Prod/Config/programmiAZ-elenco.json"
 
 		# Rai Sport urls
 		self.RaiSportMainUrl = 'https://www.rainews.it/archivio/sport'
@@ -788,7 +772,6 @@ class RaiPlayAPI:
 				timex = program.get("timePublished", "")
 				desc = program.get("testoBreve", "") or program.get("description", "")
 				video_url = program.get("pathID", "") if program.get("hasVideo", False) else None
-				# thumb = self.api.getThumbnailUrl2(program)
 				if program.get("images", {}).get("portrait", ""):
 					thumb = self.getThumbnailUrl(program["images"]["portrait"])
 				elif program.get("images", {}).get("landscape", ""):
@@ -1082,107 +1065,6 @@ class RaiPlayAPI:
 			traceback.print_exc()
 			return []
 
-	"""
-	# def getOnDemandCategory(self, url):
-		# print("[DEBUG] getOnDemandCategory for URL: " + url)
-		# data = Utils.getUrl(url)
-		# if not data:
-			# print("[ERROR] No data received for URL: " + url)
-			# return []
-
-		# try:
-			# response = loads(data)
-			# print("[DEBUG] JSON response keys: " + str(list(response.keys())))
-
-			# items = []
-
-			# if "items" in response and isinstance(response["items"], list):
-				# for i, item in enumerate(response["items"]):
-					# print("[DEBUG] Item #" + str(i) + ": " + item.get("name", "no-name"))
-					# raw_url = item.get("path_id") or item.get("url") or ""
-					# url_fixed = self.fixPath(raw_url) if raw_url else None
-
-					# item_data = {
-						# "name": item.get("name", ""),
-						# "url": url_fixed,
-						# "icon": self.getFullUrl(item.get("images", {}).get("landscape", "")),
-						# "sub-type": item.get("type", "")
-					# }
-					# print("[DEBUG] Adding item: " + item_data["name"] + "\n" + str(item_data["url"]) + "\n" + str(item_data["icon"]))
-					# items.append(item_data)
-
-				# print("[DEBUG] Total items found: " + str(len(items)))
-				# return items
-
-			# if "contents" in response and isinstance(response["contents"], list):
-				# # Case: list of categories
-				# for block in response["contents"]:
-					# print("[DEBUG] Processing block: " + block.get("name", "no-name"))
-					# nested_contents = block.get("contents", [])
-					# print("[DEBUG] Nested contents count: " + str(len(nested_contents)))
-
-					# for i, item in enumerate(nested_contents):
-						# print("[DEBUG] Item #" + str(i) + ": " + item.get("name", "no-name"))
-						# raw_url = item.get("path_id") or item.get("url") or ""
-						# url_fixed = self.fixPath(raw_url) if raw_url else None
-
-						# item_data = {
-							# "name": item.get("name", ""),
-							# "url": url_fixed,
-							# "icon": self.getFullUrl(item.get("images", {}).get("landscape", "")),
-							# "sub-type": item.get("type", "")
-						# }
-						# print("[DEBUG] Adding item: " + item_data["name"] + "\n" + str(item_data["url"]) + "\n" + str(item_data["icon"]))
-						# items.append(item_data)
-
-			# else:
-				# for i, block in enumerate(response.get("blocks", [])):
-					# print("[DEBUG] Processing blocks block #" + str(i) + " type: " + str(block.get("type")))
-					# block_type = block.get("type")
-
-					# # Case: genres
-					# if block_type == "RaiPlay Slider Generi Block":
-						# for j, item in enumerate(block.get("contents", [])):
-							# raw_url = item.get("path_id") or item.get("url") or ""
-							# url_fixed = self.fixPath(raw_url) if raw_url else None
-
-							# item_data = {
-								# "name": item.get("name", ""),
-								# "url": url_fixed,
-								# "icon": self.getFullUrl(item.get("image", "")),
-								# "sub-type": item.get("sub_type", "")
-							# }
-							# print("[DEBUG] Adding genre item: " + item_data["name"] + "\n" + str(item_data["url"]) + "\n" + str(item_data["icon"]))
-							# items.append(item_data)
-
-					# # Case: multimedia block with `sets`
-					# elif block_type == "RaiPlay Multimedia Block":
-						# for j, item in enumerate(block.get("sets", [])):
-							# print("[DEBUG] Set #" + str(j) + ": " + item.get("name", "no-name"))
-							# raw_url = item.get("path_id") or item.get("url") or ""
-							# url_fixed = self.fixPath(raw_url) if raw_url else None
-
-							# item_data = {
-								# "name": item.get("name", ""),
-								# "url": url_fixed,
-								# "icon": self.getFullUrl(item.get("images", {}).get("landscape", "")),
-								# "sub-type": item.get("type", "")
-							# }
-							# print("[DEBUG] Adding set item: " + item_data["name"] + "\n" + str(item_data["url"]) + "\n" + str(item_data["icon"]))
-							# items.append(item_data)
-
-					# else:
-						# print("[DEBUG] Skipping unknown block type: " + str(block_type))
-
-			# print("[DEBUG] Total items found: " + str(len(items)))
-			# return items
-
-		# except Exception as e:
-			# print("[ERROR] in getOnDemandCategory: " + str(e))
-			# traceback.print_exc()
-			# return []
-	"""
-
 	def getThumbnailUrl(self, pathId):
 		if pathId == "":
 			url = self.NOTHUMB_URL
@@ -1288,7 +1170,7 @@ class RaiPlayAPI:
 			return None
 
 	def getProgramItems(self, url):
-		"""Recupera gli elementi di un programma (episodi)"""
+		"""Retrieve program elements (episodes)"""
 		data = Utils.getUrl(url)
 		if not data:
 			return []
@@ -1524,12 +1406,12 @@ class RaiPlayAPI:
 		try:
 			url = "https://www.rainews.it/atomatic/news-search-service/api/v3/search"
 
-			# Invia la richiesta POST
+			# Send request POST
 			req = requests.Request('POST', url, headers=headers, data=postData)
 			prepared = req.prepare()
-			print("[DEBUG] Sending request to:", prepared.url)
-			print("[DEBUG] Headers:", prepared.headers)
-			print("[DEBUG] Body:", prepared.body)
+			# print("[DEBUG] Sending request to:", prepared.url)
+			# print("[DEBUG] Headers:", prepared.headers)
+			# print("[DEBUG] Body:", prepared.body)
 
 			s = requests.Session()
 			response = s.send(prepared, timeout=15)
@@ -1557,10 +1439,8 @@ class RaiPlayAPI:
 
 					# Get title
 					title = h.get("title", "")
-
 					# Get date if available
 					create_date = h.get("create_date", "")
-
 					# Append video
 					videos.append({
 						'title': title,
@@ -1573,7 +1453,6 @@ class RaiPlayAPI:
 
 			items_so_far = (page * pageSize) + len(videos)
 			has_next_page = items_so_far < total
-
 			# Only add "Next page" if there are more items and we have videos
 			if has_next_page and videos and len(videos) > 0:
 				videos.append({
@@ -1681,7 +1560,7 @@ class RaiPlayAPI:
 
 		# 2. Check specific paths
 		paths_to_check = [
-			"image",          # Campo diretto
+			"image",
 			"images.landscape",
 			"images.portrait",
 			"images.square",
@@ -2487,7 +2366,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
 		try:
 			items = self.api.getOnDemandCategory(self.url)
 			self.items = []
-			self.icons = []  # Assicurati che questa lista sia inizializzata
+			self.icons = []
 
 			# Popola sia gli items che le icons
 			for item in items:
@@ -2497,9 +2376,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
 					continue
 
 				url_full = self.api.getFullUrl(url)
-				# icon_url = item.get('icon', '')
-				# if not icon_url:
-					# icon_url = self.api.NOTHUMB_URL
+
 				icon_url = self.api.getThumbnailUrl2(item)
 				self.icons.append(icon_url)
 
@@ -2868,9 +2745,9 @@ class RaiPlayOnDemandProgramItems(SafeScreen):
 			# icon_url = self.api.getThumbnailUrl2(item)
 
 			if images.get("portrait", ""):
-				icon_url = self.api.getThumbnailUrl2(images["portrait"])
+				icon_url = self.api.getThumbnailUrl(images["portrait"])
 			elif images.get("landscape", ""):
-				icon_url = self.api.getThumbnailUrl2(images["landscape"])
+				icon_url = self.api.getThumbnailUrl(images["landscape"])
 			else:
 				icon_url = self.api.getThumbnailUrl2(item)
 
@@ -3031,9 +2908,9 @@ class RaiPlayTGList(SafeScreen):
 
 				# Immagine
 				if item.get("images", {}).get("portrait", ""):
-					icon_url = self.api.getThumbnailUrl2(item["images"]["portrait"])
+					icon_url = self.api.getThumbnailUrl(item["images"]["portrait"])
 				elif item.get("images", {}).get("landscape", ""):
-					icon_url = self.api.getThumbnailUrl2(item["images"]["landscape"])
+					icon_url = self.api.getThumbnailUrl(item["images"]["landscape"])
 				else:
 					icon_url = self.api.getThumbnailUrl2(item)
 
@@ -3087,12 +2964,7 @@ class RaiPlayTGR(SafeScreen):
 		self['title'] = Label(_("Regional TGR"))
 		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
 														   'cancel': self.close}, -2)
-		# self.picload = ePicLoad()
 		self._gotPageLoad()
-		# try:
-			# self.picload.PictureData.get().append(self.updatePoster)
-		# except:
-			# self.picload_conn = self.picload.PictureData.connect(self.updatePoster)
 
 	def _gotPageLoad(self):
 		self.names = []
@@ -3120,98 +2992,6 @@ class RaiPlayTGR(SafeScreen):
 		show_list(self.names, self['text'])
 		self['info'].setText(_('Please select ...'))
 		self['key_green'].show()
-		# self.onLayoutFinish.append(self.onLayoutFinished)
-		# self.updatePoster()
-
-	# def onLayoutFinished(self):
-		# try:
-			# size = self["poster"].instance.size()
-			# self.poster_width = size.width()
-			# self.poster_height = size.height()
-			# print("Poster dimensions: %dx%d" % (self.poster_width, self.poster_height))
-		# except:
-			# pass
-
-	# def selectionChanged(self):
-		# """Handle selection changes and update poster"""
-		# try:
-			# current_index = self["text"].getSelectionIndex()
-			# print("Selection changed: %s -> %s" % (str(self.last_index), str(current_index)))
-
-			# if current_index != self.last_index:
-				# self.last_index = current_index
-				# self.updatePoster()
-		# except Exception as e:
-			# print("Error in selectionChanged: " + str(e))
-
-	# def updatePoster(self):
-		# """Update poster based on current selection"""
-		# try:
-			# idx = self["text"].getSelectionIndex()
-			# if idx is None:
-				# return
-
-			# icons = self.icons[idx]
-
-			# # if self.closing or not hasattr(self, "icons"):
-				# # print("Cannot update poster - closing or no icons")
-				# # return
-
-			# # idx = self["text"].getSelectionIndex()
-			# # if idx is None or idx < 0 or idx >= len(self.icons):
-				# # print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
-				# # self.setFallbackPoster()
-				# # return
-
-			# # icon_url = self.icons[idx]
-			# # print("Updating poster for index %d: %s" % (idx, str(icon_url)))
-
-			# # # Handle different icon formats
-			# # if isinstance(icon_url, dict):
-				# # final_url = icon_url.get("url", "")
-			# # else:
-				# # final_url = icon_url
-
-			# # # Use API to get full URL if available
-			# # if hasattr(self, "api") and hasattr(self.api, "getFullUrl"):
-				# # final_url = self.api.getFullUrl(final_url)
-
-			# # # Safety checks
-			# # if not final_url or not final_url.startswith("http"):
-				# # final_url = DEFAULT_ICON
-				# # print("Using default icon")
-
-			# # # Configure decoder
-			# self.picload.setPara((
-				# self.poster_width,
-				# self.poster_height,
-				# 1,  # scale
-				# 1,  # aspect ratio
-				# False,
-				# 1,
-				# "#FF000000"  # background
-			# ))
-
-			# # Start decoding
-			# self.picload.startDecode(icons)
-		# except Exception as e:
-			# print("Error updating poster: " + str(e))
-			# self.setFallbackPoster()
-
-	# def setFallbackPoster(self):
-		# """Set default poster when image loading fails"""
-		# try:
-			# self.picload.setPara((
-				# self.poster_width,
-				# self.poster_height,
-				# 1, 1, False, 1, "#FF000000"
-			# ))
-			# self.picload.startDecode(DEFAULT_ICON)
-		# except:
-			# try:
-				# self["poster"].instance.setPixmapFromFile(DEFAULT_ICON)
-			# except:
-				# pass
 
 	def okRun(self):
 		idx = self["text"].getSelectionIndex()
@@ -3711,24 +3491,6 @@ class RaiPlaySport(SafeScreen):
 class RaiPlaySportVideos(SafeScreen):
 	def __init__(self, session, name, key, dominio, page=0, parent=None):
 		SafeScreen.__init__(self, session)
-
-		# self.skin = """
-			# <screen name="RaiPlaySportVideos" position="center,center" size="1280,720" title="..::RaiPlay Sport Videos::.." backgroundColor="#20000000" flags="wfNoBorder">
-				# <eLabel backgroundColor="#002d3d5b" cornerRadius="20" position="0,0" size="1280,720" zPosition="-2" />
-				# <widget name="title" position="0,6" size="1280,58" font="Regular;30" halign="left" valign="center" foregroundColor="#002a79b8" backgroundColor="black" transparent="1" zPosition="5" />
-				# <widget name="info" position="1,78" size="1280,50" font="Regular;30" halign="center" valign="center" foregroundColor="yellow" backgroundColor="#202020" transparent="0" zPosition="5" />
-				# <widget name="poster" pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/icon.png" position="1363,252" size="390,510" scale="1" zPosition="4" backgroundColor="#30000000" transparent="1" borderWidth="3" borderColor="#00ffffff" alphatest="on" />
-				# <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/sep.png" position="0,70" size="1280,8" zPosition="5" />
-				# <ePixmap pixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/sep.png" position="0,625" size="1280,8" zPosition="5" />
-				# <widget name="text" position="0,135" size="1280,491" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/sliderb.png" />
-				# <eLabel backgroundColor="red" position="31,685" size="300,6" zPosition="10" />
-				# <eLabel backgroundColor="green" position="947,687" size="300,6" zPosition="10" />
-				# <widget name="key_red" position="29,643" size="300,40" font="Regular;30" halign="center" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-				# <widget name="key_green" position="945,643" size="300,40" font="Regular;30" halign="center" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-			# </screen>
-		# """
-		# self.session = session
-
 		skin = join(skin_path, 'settings.xml')
 		with codecs.open(skin, "r", encoding="utf-8") as f:
 			self.skin = f.read()
@@ -3744,7 +3506,7 @@ class RaiPlaySportVideos(SafeScreen):
 		self.urls = []
 		self.icons = []
 		self.show_error = False
-		list = self.videos
+		# list = self.videos
 		self.last_index = -1
 		self.api = RaiPlayAPI()
 		self['poster'] = Pixmap()

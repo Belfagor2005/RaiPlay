@@ -15,16 +15,11 @@ def localeInit():
     if os.path.exists('/var/lib/dpkg/status'):
         lang = language.getLanguage()[:2]
         os_environ['LANGUAGE'] = lang
-    gettext.bindtextdomain(
-        PluginLanguageDomain,
-        resolveFilename(
-            SCOPE_PLUGINS,
-            PluginLanguagePath))
+    gettext.bindtextdomain(PluginLanguageDomain, resolveFilename(SCOPE_PLUGINS, PluginLanguagePath))
 
 
 if os.path.exists('/var/lib/dpkg/status'):
-    def _(txt): return gettext.dgettext(
-        PluginLanguageDomain, txt) if txt else ""
+    _ = lambda txt: gettext.dgettext(PluginLanguageDomain, txt) if txt else ""
     localeInit()
     language.addCallback(localeInit)
 else:
@@ -32,7 +27,6 @@ else:
         if gettext.dgettext(PluginLanguageDomain, txt):
             return gettext.dgettext(PluginLanguageDomain, txt)
         else:
-            print(("[%s] fallback to default translation for %s" %
-                  (PluginLanguageDomain, txt)))
+            print(("[%s] fallback to default translation for %s" % (PluginLanguageDomain, txt)))
             return gettext.gettext(txt)
     language.addCallback(localeInit)
