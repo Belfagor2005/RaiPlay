@@ -2226,7 +2226,11 @@ class RaiPlayOnDemand(SafeScreen):
 			# inserire qui la ricerca -
 			self.session.open(MessageBox, _("Functionality not yet implemented"), MessageBox.TYPE_INFO)
 		else:
-			self.session.open(RaiPlayOnDemandCategory, category['title'], category['url'], category['sub-type'])
+			# self.session.open(RaiPlayOnDemandCategory, category['title'], category['url'], category['sub-type'])
+			title = category.get("title") or ""
+			url = category.get("url") or ""
+			subtype = category.get("sub-type") or ""
+			self.session.open(RaiPlayOnDemandCategory, str(title), str(url), str(subtype))
 
 	def doClose(self):
 		try:
@@ -3750,7 +3754,7 @@ class Playstream1(SafeScreen):
 
 		self.name = Utils.cleanName(name)
 		self.url = url
-		self.setTitle(name)
+		self.setTitle(self.name)
 
 		self['list'] = setPlaylist([])
 		self['info'] = Label('Select Player Stream')
