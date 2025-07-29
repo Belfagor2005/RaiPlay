@@ -850,9 +850,20 @@ class RaiPlayAPI:
 					name = item.get("name", "")
 
 					# Filter out unwanted categories
-					if name in ("Home", "TV Guide / Replay", "Live", "Login / Register",
-								"Recently Watched", "My Favorites", "Watch Later", "Watch Offline",
-								"Tutorial", "FAQ", "Contact Us", "Privacy Policy"):
+					if name in (
+						"Home",
+						"TV Guide / Replay",
+						"Live",
+						"Login / Register",
+						"Recently Watched",
+						"My Favorites",
+						"Watch Later",
+						"Watch Offline",
+						"Tutorial",
+						"FAQ",
+						"Contact Us",
+						"Privacy Policy"
+					):
 						continue
 
 					path_id = item.get("PathID", "")
@@ -1631,8 +1642,10 @@ class RaiPlayMain(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Play Main"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.closerm}, -1)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.closerm,
+		}, -1)
 
 		self.picload = ePicLoad()
 		self._gotPageLoad()
@@ -1808,8 +1821,10 @@ class RaiPlayLiveTV(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Play Live"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		# self._gotPageLoad()
 		self.onLayoutFinish.append(self._gotPageLoad)
 
@@ -1859,8 +1874,10 @@ class RaiPlayLiveRadio(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Play Live Radio"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -1908,8 +1925,10 @@ class RaiPlayReplayDates(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Play Replay TV"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -1959,8 +1978,10 @@ class RaiPlayReplayPrograms(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(date)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2108,8 +2129,10 @@ class RaiPlayReplayChannels(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(date)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 		self.error_shown = False
 
@@ -2176,8 +2199,10 @@ class RaiPlayOnDemand(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Play On Demand"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2236,8 +2261,10 @@ class RaiPlayProgramBlocks(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2289,8 +2316,10 @@ class RaiPlayBlockItems(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2354,8 +2383,10 @@ class RaiPlayOnDemandCategory(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2490,8 +2521,10 @@ class RaiPlayOnDemandAZ(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2542,8 +2575,10 @@ class RaiPlayOnDemandIndex(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2604,8 +2639,10 @@ class RaiPlayOnDemandProgram(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2719,8 +2756,10 @@ class RaiPlayOnDemandProgramItems(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2792,8 +2831,10 @@ class RaiPlayTG(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name_plugin)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2859,8 +2900,10 @@ class RaiPlayTGList(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(category)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -2962,8 +3005,10 @@ class RaiPlayTGR(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Regional TGR"))
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3028,8 +3073,10 @@ class tgrRai2(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3104,8 +3151,10 @@ class tgrRai3(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3175,8 +3224,10 @@ class tvRai2(SafeScreen):
 		self['key_green'] = Button(_('Play'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {
+			'ok': self.okRun,
+			'cancel': self.close,
+		}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3250,8 +3301,10 @@ class tvRai3(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self["actions"] = ActionMap(["OkCancelActions"], {
+			"ok": self.okRun,
+			"cancel": self.close,
+		}, -1)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3313,8 +3366,8 @@ class tvRai4(SafeScreen):
 		self['key_green'] = Button(_('Play'))
 
 		self['title'] = Label(name)
-		self['actions'] = ActionMap(['OkCancelActions',], {'ok': self.okRun,
-														   'cancel': self.close}, -2)
+		self['actions'] = ActionMap(['OkCancelActions'], {'ok': self.okRun,
+														  'cancel': self.close}, -2)
 		self._gotPageLoad()
 
 	def _gotPageLoad(self):
@@ -3381,7 +3434,7 @@ class RaiPlaySport(SafeScreen):
 		self['key_green'] = Button(_('Select'))
 
 		self['title'] = Label(_("Rai Sport"))
-		self['actions'] = ActionMap(['OkCancelActions',], {
+		self['actions'] = ActionMap(['OkCancelActions'], {
 			'ok': self.okRun,
 			'cancel': self.goBack,
 		}, -2)
@@ -3703,20 +3756,27 @@ class Playstream1(SafeScreen):
 		self['info'] = Label('Select Player Stream')
 		self['key_red'] = Button(_('Back'))
 		self['key_green'] = Button(_('Select'))
-		self['actions'] = ActionMap(['OkCancelActions',
-									 'InfobarShowHideActions',
-									 'InfobarActions',
-									 'InfobarSeekActions'], {'red': self.cancel,
-															 'green': self.okClicked,
-															 'back': self.cancel,
-															 'cancel': self.cancel,
-															 'leavePlayer': self.cancel,
-															 # 'yellow': self.taskManager,
-															 # 'rec': self.runRec,
-															 # 'instantRecord': self.runRec,
-															 # 'ShortRecord': self.runRec,
-															 'ok': self.okClicked}, -2)
-
+		self["actions"] = ActionMap(
+			[
+				"OkCancelActions",
+				"InfobarShowHideActions",
+				"InfobarActions",
+				"InfobarSeekActions"
+			],
+			{
+				"red": self.cancel,
+				"green": self.okClicked,
+				"back": self.cancel,
+				"cancel": self.cancel,
+				"leavePlayer": self.cancel,
+				# "yellow": self.taskManager,
+				# "rec": self.runRec,
+				# "instantRecord": self.runRec,
+				# "ShortRecord": self.runRec,
+				"ok": self.okClicked
+			},
+			-2
+		)
 		self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
 		self.onLayoutFinish.append(self.openTest)
 
@@ -3832,17 +3892,32 @@ class Playstream2(Screen, InfoBarMenu, InfoBarBase, InfoBarSeek, InfoBarNotifica
 		TvInfoBarShowHide.__init__(self)
 		InfoBarAudioSelection.__init__(self)
 		InfoBarSubtitleSupport.__init__(self)
-		self['actions'] = ActionMap(['WizardActions', 'MoviePlayerActions', 'MovieSelectionActions', 'MediaPlayerActions', 'EPGSelectActions', 'MediaPlayerSeekActions', 'ColorActions',
-									 'ButtonSetupActions', 'InfobarShowHideActions', 'InfobarActions', 'InfobarSeekActions'], {
-			'leavePlayer': self.cancel,
-			# 'epg': self.showIMDB,
-			# 'info': self.showIMDB,
-			# 'info': self.cicleStreamType,
-			'tv': self.cicleStreamType,
-			'stop': self.leavePlayer,
-			'cancel': self.cancel,
-			'back': self.cancel
-		}, -1)
+		self["actions"] = ActionMap(
+			[
+				"WizardActions",
+				"MoviePlayerActions",
+				"MovieSelectionActions",
+				"MediaPlayerActions",
+				"EPGSelectActions",
+				"MediaPlayerSeekActions",
+				"ColorActions",
+				"ButtonSetupActions",
+				"InfobarShowHideActions",
+				"InfobarActions",
+				"InfobarSeekActions"
+			],
+			{
+				"leavePlayer": self.cancel,
+				# "epg": self.showIMDB,
+				# "info": self.showIMDB,
+				# "info": self.cicleStreamType,
+				"tv": self.cicleStreamType,
+				"stop": self.leavePlayer,
+				"cancel": self.cancel,
+				"back": self.cancel
+			},
+			-1
+		)
 		self.allowPiP = False
 		self.service = None
 		InfoBarSeek.__init__(self, actionmap='InfobarSeekActions')
