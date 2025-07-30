@@ -143,19 +143,19 @@ if not exists(join(skin_path, "settings.xml")):
 
 
 # Global patch to disable summary screens completely
-def disable_summary_screens():
-    original_screen_init = Screen.__init__
+# def disable_summary_screens():
+    # original_screen_init = Screen.__init__
 
-    def new_screen_init(self, session, *args, **kwargs):
-        # Disable summary screens for all screens
-        self.hasSummary = False
-        self.createSummary = lambda: None
-        # Call original constructor
-        original_screen_init(self, session, *args, **kwargs)
-    Screen.__init__ = new_screen_init
+    # def new_screen_init(self, session, *args, **kwargs):
+        # # Disable summary screens for all screens
+        # self.hasSummary = False
+        # self.createSummary = lambda: None
+        # # Call original constructor
+        # original_screen_init(self, session, *args, **kwargs)
+    # Screen.__init__ = new_screen_init
 
 
-disable_summary_screens()
+# disable_summary_screens()
 
 
 def returnIMDB(text_clear):
