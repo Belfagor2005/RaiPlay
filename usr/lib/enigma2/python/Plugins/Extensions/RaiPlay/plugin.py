@@ -147,11 +147,11 @@ if not exists(join(skin_path, "settings.xml")):
     # original_screen_init = Screen.__init__
 
     # def new_screen_init(self, session, *args, **kwargs):
-        # # Disable summary screens for all screens
-        # self.hasSummary = False
-        # self.createSummary = lambda: None
-        # # Call original constructor
-        # original_screen_init(self, session, *args, **kwargs)
+    # # Disable summary screens for all screens
+    # self.hasSummary = False
+    # self.createSummary = lambda: None
+    # # Call original constructor
+    # original_screen_init(self, session, *args, **kwargs)
     # Screen.__init__ = new_screen_init
 
 
