@@ -148,11 +148,11 @@ if not exists(join(skin_path, "settings.xml")):
     # original_screen_init = Screen.__init__
 
     # def new_screen_init(self, session, *args, **kwargs):
-    # # Disable summary screens for all screens
-    # self.hasSummary = False
-    # self.createSummary = lambda: None
-    # # Call original constructor
-    # original_screen_init(self, session, *args, **kwargs)
+        # # Disable summary screens for all screens
+        # self.hasSummary = False
+        # self.createSummary = lambda: None
+        # # Call original constructor
+        # original_screen_init(self, session, *args, **kwargs)
     # Screen.__init__ = new_screen_init
 
 
@@ -389,8 +389,7 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(
-                self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -505,8 +504,7 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
-                      (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
@@ -3490,7 +3488,7 @@ class tgrRai2(SafeScreen):
                 else:
                     url1 = "http://www.tgr.rai.it" + url
                 url = url1
-                name = html_unescape(name)
+                # name = html_unescape(name)
                 self.names.append(str(name))
                 self.urls.append(url)
             self['info'].setText(_('Please select ...'))
@@ -3582,7 +3580,7 @@ class tgrRai3(SafeScreen):
                 else:
                     url1 = "http://www.tgr.rai.it" + url
                 url = url1
-                name = html_unescape(name)
+                # name = html_unescape(name)
                 self.names.append(str(name))
                 self.urls.append(url)
             self['info'].setText(_('Please select ...'))
@@ -3662,7 +3660,8 @@ class tvRai2(SafeScreen):
                 match2 = compile(regexcat2, DOTALL).findall(content2)
                 url2 = match2[0].replace("json", "html")
                 url3 = "http://www.raiplay.it/video/" + url2
-                name = html_unescape(name)
+                # name = html_unescape(name)
+                name = str(name)
                 name = name.replace('-', '').replace('RaiPlay', '')
                 """
                 # item = name + "###" + url3
@@ -3749,7 +3748,7 @@ class tvRai3(SafeScreen):
                 matched = compile(regexcat, DOTALL).findall(content)
                 for name, url in matched:
                     url = "http://www.tgr.rai.it/" + url + '.html'
-                    name = html_unescape(name)
+                    # name = html_unescape(name)
                     self.names.append(str(name))
                     self.urls.append(url)
         except Exception as e:
@@ -3817,8 +3816,7 @@ class tvRai4(SafeScreen):
                 match2 = compile(regexcat2, DOTALL).findall(content2)
                 url2 = match2[0].replace("json", "html")
                 url3 = "http://www.raiplay.it/video/" + url2
-                name = html_unescape(name)
-                url3 = url3
+                # name = html_unescape(name)
                 self.names.append(str(name))
                 self.urls.append(url3)
         except Exception as e:
@@ -4242,7 +4240,7 @@ class Playstream2(
             {
                 "leavePlayer": self.cancel,
                 "epg": self.showIMDB,
-                "info": self.showIMDB,
+                "info": self.cicleStreamType,
                 "tv": self.cicleStreamType,
                 "stop": self.leavePlayer,
                 "cancel": self.cancel,
@@ -4252,9 +4250,11 @@ class Playstream2(
         )
         self.allowPiP = False
         self.service = None
+        self.servicetype = '4097'
         InfoBarSeek.__init__(self, actionmap='InfobarSeekActions')
         self.url = url
-        self.name = html_unescape(name)
+        # self.name = html_unescape(name)
+        self.name = str(name)
         self.state = self.STATE_PLAYING
         self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
         if '8088' in str(self.url):
@@ -4291,14 +4291,13 @@ class Playstream2(
 
     def cicleStreamType(self):
         from itertools import cycle, islice
-        self.servicetype = '4097'
         print('servicetype1: ', self.servicetype)
         url = str(self.url)
         if str(splitext(url)[-1]) == ".m3u8":
             if self.servicetype == "1":
                 self.servicetype = "4097"
         currentindex = 0
-        streamtypelist = ["4097"]
+        streamtypelist = ["4097", "8192", '5002', '5001']
         for index, item in enumerate(streamtypelist, start=0):
             if str(item) == str(self.servicetype):
                 currentindex = index
