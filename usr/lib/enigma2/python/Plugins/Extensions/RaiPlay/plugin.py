@@ -142,6 +142,7 @@ if not exists(join(skin_path, "settings.xml")):
     print("Skin non trovata, uso il fallback:", skin_path)
 
 
+"""
 # Global patch to disable summary screens completely
 # def disable_summary_screens():
     # original_screen_init = Screen.__init__
@@ -156,6 +157,7 @@ if not exists(join(skin_path, "settings.xml")):
 
 
 # disable_summary_screens()
+"""
 
 
 def returnIMDB(text_clear):
@@ -387,8 +389,7 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(
-                self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -475,8 +476,9 @@ class SafeScreen(Screen):
             # Safety check 4: invalid URL
             if not final_url or not final_url.startswith("http"):
                 print("Using default icon - invalid URL:", final_url)
-                final_url = DEFAULT_ICON
-
+                # final_url = DEFAULT_ICON
+                self.setFallbackPoster()
+                return
             self.picload.setPara((
                 self.poster_width,
                 self.poster_height,
@@ -493,7 +495,7 @@ class SafeScreen(Screen):
             print("Error updating poster: " + str(e))
             self.setFallbackPoster()
 
-    def setPoster(self):
+    def setPoster(self, data=None):
         """Callback when image is ready"""
         if self.closing:
             return
@@ -502,13 +504,15 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
-                      (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
             icon_url = self.icons[idx]
             self.pixim = str(icon_url)
+            if self.pixim == DEFAULT_ICON:
+                self.setFallbackPoster()
+                return
             if PY3:
                 self.pixim = ensure_binary(self.pixim)
             if self.pixim.startswith(b"https") and sslverify:
