@@ -5,7 +5,7 @@ from __future__ import print_function
 #########################################################
 #                                                       #
 #  Rai Play View Plugin                                 #
-#  Version: 1.1                                         #
+#  Version: 1.2                                         #
 #  Created by Lululla                                   #
 #  License: CC BY-NC-SA 4.0                             #
 #  https://creativecommons.org/licenses/by-nc-sa/4.0/   #
@@ -105,7 +105,7 @@ from .lib.html_conv import html_unescape
 from Components.config import ConfigSubsection, ConfigYesNo
 
 config.plugins.raiplay = ConfigSubsection()
-config.plugins.raiplay.debug = ConfigYesNo(default=True)
+config.plugins.raiplay.debug = ConfigYesNo(default=False)
 
 
 aspect_manager = Utils.AspectManager()
@@ -119,7 +119,7 @@ if sys.version_info >= (2, 7, 9):
     except BaseException:
         sslContext = None
 
-currversion = '1.1'
+currversion = '1.2'
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
 DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
 pluglogo = join(plugin_path, "res/pics/logo.png")
@@ -154,8 +154,6 @@ if not exists(join(skin_path, "settings.xml")):
         # # Call original constructor
         # original_screen_init(self, session, *args, **kwargs)
     # Screen.__init__ = new_screen_init
-
-
 # disable_summary_screens()
 """
 
@@ -389,8 +387,7 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(
-                self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -505,8 +502,7 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
-                      (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
