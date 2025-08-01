@@ -1199,6 +1199,23 @@ class RaiPlayAPI:
         return url
 
     def getThumbnailUrl2(self, item):
+        if "images" in item:
+            if "landscape" in item["images"]:
+                url = item["images"]["landscape"]
+                return self.getThumbnailUrl(url)
+            elif "landscape43" in item["images"]:
+                url = item["images"]["landscape43"]
+                return self.getThumbnailUrl(url)
+            elif "portrait" in item["images"]:
+                url = item["images"]["portrait"]
+                return self.getThumbnailUrl(url)
+            elif "portrait43" in item["images"]:
+                url = item["images"]["portrait43"]
+                return self.getThumbnailUrl(url)
+                
+        return self.NOTHUMB_URL
+
+    def getThumbnailUrl2xxx(self, item):
         """Get thumbnail URL from various possible locations in the JSON"""
         # First try: item's direct images
         images = item.get("images", {})
@@ -2688,6 +2705,9 @@ class RaiPlayOnDemandCategory(SafeScreen):
                 print("[DEBUG] No items available")
                 self['info'].setText(_('No items available'))
             else:
+                self.items.sort(key=lambda x: x.get("name", "").lower())
+                # unique = list({item['name']: item for item in self.items}.values())
+                # self.items = unique
                 self.names = [item['name'] for item in self.items]
                 show_list(self.names, self['text'])
                 self['info'].setText(_('Select item'))
