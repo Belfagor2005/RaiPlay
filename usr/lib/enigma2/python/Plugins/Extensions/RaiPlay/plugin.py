@@ -1214,7 +1214,7 @@ class RaiPlayAPI:
             elif "portrait43" in item["images"]:
                 url = item["images"]["portrait43"]
                 return self.getThumbnailUrl(url)
-                
+
         return self.NOTHUMB_URL
 
     def getThumbnailUrl2xxx(self, item):
