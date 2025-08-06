@@ -418,7 +418,8 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(
+                self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -533,7 +534,8 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" %
+                      (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
