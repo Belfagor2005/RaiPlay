@@ -387,8 +387,7 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(
-                self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -503,8 +502,7 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
-                      (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
@@ -1214,7 +1212,7 @@ class RaiPlayAPI:
             elif "portrait43" in item["images"]:
                 url = item["images"]["portrait43"]
                 return self.getThumbnailUrl(url)
-
+                
         return self.NOTHUMB_URL
 
     def getThumbnailUrl2xxx(self, item):
@@ -2707,7 +2705,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
                 print("[DEBUG] No items available")
                 self['info'].setText(_('No items available'))
             else:
-                self.items.sort(key=lambda x: x.get("name", "").lower())
+                # self.items.sort(key=lambda x: x.get("name", "").lower())
                 # unique = list({item['name']: item for item in self.items}.values())
                 # self.items = unique
                 self.names = [item['name'] for item in self.items]
@@ -4316,14 +4314,14 @@ class Playstream2(
         if str(splitext(url)[-1]) == ".m3u8":
             if self.servicetype == "1":
                 self.servicetype = "4097"
-        currentindex = 0
-        streamtypelist = ["4097", "8192", '5002', '5001']
-        for index, item in enumerate(streamtypelist, start=0):
-            if str(item) == str(self.servicetype):
-                currentindex = index
-                break
-        nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
-        self.servicetype = str(next(nextStreamType))
+        # currentindex = 0
+        # streamtypelist = ["4097", '5002', '5001', "8192"]
+        # for index, item in enumerate(streamtypelist, start=0):
+            # if str(item) == str(self.servicetype):
+                # currentindex = index
+                # break
+        # nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
+        # self.servicetype = str(next(nextStreamType))
         print('servicetype2: ', self.servicetype)
         self.openTest(self.servicetype, url)
 
