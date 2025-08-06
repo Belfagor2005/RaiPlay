@@ -418,8 +418,7 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(
-                self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -534,8 +533,7 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
-                      (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
@@ -682,13 +680,13 @@ class RaiPlayAPI:
 
         self.CHANNELS_URL = "https://www.raiplay.it/dl/RaiPlay/2016/PublishingBlock-9a2ff311-fcf0-4539-8f8f-c4fee2a71d58.html?json"
         self.EPG_URL = "https://www.rai.it/dl/palinsesti/Page-e120a813-1b92-4057-a214-15943d95aa68-json.html?canale={}&giorno={}"
+        self.EPG_REPLAY_URL = "https://www.raiplay.it/palinsesto/app/old/{}/{}.json"
         self.TG_URL = "https://www.tgr.rai.it/dl/tgr/mhp/home.xml"
         self.DEFAULT_ICON_URL = "https://images-eu.ssl-images-amazon.com/images/I/41%2B5P94pGPL.png"
         self.NOTHUMB_URL = "https://www.rai.it/cropgd/256x144/dl/components/img/imgPlaceholder.png"
         self.RELINKER_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36"
         self.HTTP_HEADER = {'User-Agent': self.RELINKER_USER_AGENT}
 
-        # palinsestoUrl = "https://www.raiplay.it/palinsesto/app/old/[nomeCanale]/[dd-mm-yyyy].json"
         # palinsestoUrlHtml = "https://www.raiplay.it/palinsesto/guidatv/lista/[idCanale]/[dd-mm-yyyy].html"
         # onAirUrl = "https://www.raiplay.it/palinsesto/onAir.json"
         # RaiPlayAzTvShowPath = "/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"
@@ -2164,22 +2162,25 @@ class RaiPlayReplayDates(SafeScreen):
         self.dates = []
 
         today = date.today()
-        for i in range(8):
+        for i in range(8):  # Ultimi 8 giorni
             day = today - timedelta(days=i)
             day_str = day.strftime("%A %d %B")
+            api_date = day.strftime("%d%m%y")  # Es: 060825 per il 6 agosto 2025
             self.names.append(day_str)
-            self.dates.append(day.strftime("%d%m%Y"))
+            self.dates.append(api_date)
 
         show_list(self.names, self['text'])
         self['info'].setText(_('Select date'))
 
     def okRun(self):
         idx = self["text"].getSelectionIndex()
+        print("DEBUG: Selected index:", idx)
         if idx is None:
+            print("DEBUG: No selection made")
             return
-
-        date = self.dates[idx]
-        self.session.open(RaiPlayReplayChannels, date)
+        date_info = self.dates[idx]
+        print("DEBUG: Selected date_info:", date_info)
+        self.session.open(RaiPlayReplayChannels, date_info)
 
     def closerm(self):
         Utils.deletetmp()
@@ -2187,25 +2188,28 @@ class RaiPlayReplayDates(SafeScreen):
 
 
 class RaiPlayReplayPrograms(SafeScreen):
-    def __init__(self, session, channel, date):
+    def __init__(self, session, channel_info, date):
         self.session = session
         skin = join(skin_path, 'settings.xml')
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         SafeScreen.__init__(self, session)
-        self.channel = channel
+        
+        self.channel_info = channel_info
         self.date = date
-        # self.last_index = -1
         self.api = RaiPlayAPI()
         self['poster'] = Pixmap()
+        self.names = []
+        self.urls = []
         self.icons = []
         self['text'] = setPlaylist([])
         self["text"].onSelectionChanged.append(self.selectionChanged)
         self['info'] = Label(_('Loading...'))
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Play'))
-
-        self['title'] = Label(date)
+        # display_date = datetime.strptime(date, "%d-%m-%Y").strftime("%d/%m/%Y")
+        # self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {display_date}")
+        self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {self.date}")
         self["actions"] = ActionMap(["OkCancelActions"], {
             "ok": self.okRun,
             "cancel": self.close,
@@ -2216,126 +2220,101 @@ class RaiPlayReplayPrograms(SafeScreen):
         self.names = []
         self.urls = []
         self.icons = []
-
-        channel_encoded = self.channel.replace(" ", "")
-        url = "https://www.rai.it/dl/palinsesti/Page-e120a813-1b92-4057-a214-15943d95aa68-json.html?canale=" + \
-            channel_encoded + "&giorno=" + self.date
-
+        date_api = datetime.strptime(self.date, "%d%m%y").strftime("%d-%m-%Y")
+        print("DEBUG: Converted date for API comparison:", date_api)
+        url = self.api.EPG_REPLAY_URL.format(self.channel_info["api"], date_api)
+        print("DEBUG: Fetching URL:", url)
         data = Utils.getUrl(url)
         if not data:
-            self['info'].setText(_("Error loading data"))
+            print("DEBUG: No data returned")
+            self['info'].setText(_('Error loading data'))
             return
 
         try:
             response = loads(data)
-            # Use the exact key
-            channel_key = self.channel
+            # Trova il canale normalizzato
+            channel_key = None
+            for key in response.keys():
+                if key.replace(" ", "") == self.channel_info['api']:
+                    channel_key = key
+                    break
 
-            # Check if the key exists in the response
-            if channel_key in response:
-                palinsesto_list = response[channel_key]
-                if palinsesto_list and isinstance(
-                        palinsesto_list, list) and len(palinsesto_list) > 0:
-                    programs = palinsesto_list[0].get("palinsesto", [])
-                    if programs and isinstance(
-                            programs, list) and len(programs) > 0:
-                        programs = programs[0].get("programmi", [])
-                    else:
-                        programs = []
-                else:
-                    programs = []
+            if not channel_key:
+                print("DEBUG: Channel key not found, fallback to first key")
+                channel_key = list(response.keys())[0]
+
+            channel_data = response[channel_key]
+
+            programs = []
+            # Gestione nuova struttura (lista di giorni)
+            if isinstance(channel_data, list):
+                print("DEBUG: Detected new structure (list)")
+                for day_data in channel_data:
+                    palinsesti = day_data.get("palinsesto", [])
+                    for palinsesto in palinsesti:
+                        print("DEBUG: Checking palinsesto date: ", palinsesto.get("giorno"))
+                        if palinsesto.get("giorno") == date_api:
+                            programs = palinsesto.get("programmi", [])
+                            break
             else:
-                # Attempt with alternative key
-                alt_channel_key = channel_encoded
-                if alt_channel_key in response:
-                    palinsesto_list = response[alt_channel_key]
-                    if palinsesto_list and isinstance(
-                            palinsesto_list, list) and len(palinsesto_list) > 0:
-                        programs = palinsesto_list[0].get("palinsesto", [])
-                        if programs and isinstance(
-                                programs, list) and len(programs) > 0:
-                            programs = programs[0].get("programmi", [])
-                        else:
-                            programs = []
-                    else:
-                        programs = []
-                else:
-                    programs = []
-                    print("Channel key '" +
-                          channel_key +
-                          "' or '" +
-                          alt_channel_key +
-                          "' not found in response keys: " +
-                          str(list(response.keys())))
+                # Vecchia struttura
+                print("DEBUG: Detected old structure (dict)")
+                palinsesti = channel_data.get("palinsesto", [])
+                for palinsesto in palinsesti:
+                    print("DEBUG: Checking palinsesto date: ", palinsesto.get("giorno"))
+                    if palinsesto.get("giorno") == date_api:
+                        programs = palinsesto.get("programmi", [])
+                        break
 
+            # Processa i programmi con video
             for program in programs:
-                if not program:
+                if not program.get("hasVideo", False):
                     continue
 
-                title = program.get("name", "")
-                start_time = program.get("timePublished", "")
-                has_video = program.get("hasVideo", False)
+                title = program.get("name", "No title")
+                time_str = program.get("timePublished", "")
+                video_url = program.get("pathID", "") or program.get("video", {}).get("contentUrl", "")
 
-                if title and has_video:
-                    if start_time:
-                        full_title = start_time + " " + title
-                    else:
-                        full_title = title
+                if video_url.startswith("//"):
+                    video_url = "https:" + video_url
+                elif not video_url.startswith("http"):
+                    video_url = "https://www.raiplay.it" + video_url
 
-                    # Get the URL from the video.contentUrl field as in the
-                    # JSON
-                    video_info = program.get("video", {})
-                    video_url = video_info.get("contentUrl", "")
+                icon_url = self.api.getThumbnailUrl2(program)
+                display_title = f"{time_str} {title}" if time_str else title
 
-                    if not video_url:
-                        # Fallback to pathID if necessary
-                        video_url = program.get("pathID", "")
+                self.names.append(display_title)
+                self.urls.append(video_url)
+                self.icons.append(icon_url)
 
-                    if video_url:
-                        if not video_url.startswith("http"):
-                            video_url = "https:" + \
-                                video_url if video_url.startswith("//") else self.api.getFullUrl(video_url)
-
-                        # Get thumbnail
-                        # icon_url = self.api.getThumbnailUrl2(program)
-                        if program.get("images", {}).get("portrait", ""):
-                            icon_url = self.api.getThumbnailUrl(
-                                program["images"]["portrait"])
-                        elif program.get("images", {}).get("landscape", ""):
-                            icon_url = self.api.getThumbnailUrl(
-                                program["images"]["landscape"])
-                        else:
-                            # icon_url = self.api.NOTHUMB_URL
-                            icon_url = self.api.getThumbnailUrl2(program)
-                        print(
-                            "RaiPlayReplayPrograms full_title:",
-                            str(full_title))
-                        print(
-                            "RaiPlayReplayPrograms video_url:",
-                            str(video_url))
-                        print("RaiPlayReplayPrograms icon_url:", str(icon_url))
-                        self.names.append(full_title)
-                        self.urls.append(video_url)
-                        self.icons.append(icon_url)
-
-            if not self.names:
-                self['info'].setText(_('No programs available for this day'))
-            else:
+            if self.names:
+                print("DEBUG: Programs added:", len(self.names))
                 show_list(self.names, self['text'])
                 self['info'].setText(_('Select program'))
+            else:
+                print("DEBUG: No valid programs found for this day")
+                self['info'].setText(_('No programs available for this day'))
+
         except Exception as e:
-            print("Error loading replay programs:", str(e))
+            print(f"Error loading replay programs: {str(e)}")
             traceback.print_exc()
             self['info'].setText(_("Error loading data"))
 
     def okRun(self):
         idx = self["text"].getSelectionIndex()
+        print("DEBUG: Selected index:", idx)
+
         if idx is None:
+            print("DEBUG: No selection made")
             return
 
         name = self.names[idx]
         video_url = self.urls[idx]
+        print("DEBUG: Selected name:", name)
+        print("DEBUG: Original video_url:", video_url)
+
         if not video_url:
+            print("DEBUG: Video URL is empty")
             self.session.open(
                 MessageBox,
                 _("Video URL not available"),
@@ -2343,15 +2322,17 @@ class RaiPlayReplayPrograms(SafeScreen):
             return
 
         url = normalize_url(video_url)
+        print("DEBUG: Normalized URL:", url)
 
         if url is None or url.endswith(".json"):
+            print("DEBUG: URL is invalid or ends with .json")
             self.session.open(
                 MessageBox,
                 _("Video not available or invalid URL"),
                 MessageBox.TYPE_ERROR)
             return
 
-        print("Playing video URL: {}".format(url))
+        print("DEBUG: Launching playback for:", url)
         self.playDirect(name, url)
 
     def playDirect(self, name, url):
@@ -2375,7 +2356,7 @@ class RaiPlayReplayPrograms(SafeScreen):
 
 
 class RaiPlayReplayChannels(SafeScreen):
-    def __init__(self, session, date):
+    def __init__(self, session, date_info):
         self.session = session
         skin = join(skin_path, 'settings.xml')
         with codecs.open(skin, "r", encoding="utf-8") as f:
@@ -2385,7 +2366,7 @@ class RaiPlayReplayChannels(SafeScreen):
         self.names = []
         self.channels = []
         self.show_error = False
-        self.date = date
+        self.date = date_info
         self.api = RaiPlayAPI()
         self['poster'] = Pixmap()
         self.icons = []
@@ -2395,7 +2376,7 @@ class RaiPlayReplayChannels(SafeScreen):
         self['key_red'] = Button(_('Back'))
         self['key_green'] = Button(_('Select'))
 
-        self['title'] = Label(date)
+        self['title'] = Label(_("Rai Play Replay TV") + " " + str(self.date))
         self["actions"] = ActionMap(["OkCancelActions"], {
             "ok": self.okRun,
             "cancel": self.close,
@@ -2407,41 +2388,53 @@ class RaiPlayReplayChannels(SafeScreen):
         url = "https://www.rai.it/dl/RaiPlay/2016/PublishingBlock-9a2ff311-fcf0-4539-8f8f-c4fee2a71d58.html?json"
         data = Utils.getUrl(url)
         if not data:
+            print("DEBUG: No data returned from URL")
             self['info'].setText(_('Error loading data'))
             return
         try:
             response = loads(data)
-            print("RaiPlayReplayChannels Raw response:", response)
-            tv_stations = response.get("dirette", [])
-            for station in tv_stations:
-                title = station.get("channel", "")
-                # icon = station.get("icon", "")
-                icon_url = self.api.getThumbnailUrl2(station)
-                if title:
-                    self.names.append(title)
-                    self.channels.append(title)
-                    self.icons.append(
-                        self.api.getFullUrl(
-                            icon_url if icon_url else station.get(
-                                'icon', "")))
-
+            # channels = response.get("dirette", []) or response.get("direfte", [])
+            channels = response.get("dirette", [])
+            
+            for channel in channels:
+                title = channel.get("channel", "")
+                if not title:
+                    continue
+                
+                # Store both display name and API name
+                self.names.append(title)
+                self.channels.append({
+                    'display': title,  # Original display name
+                    'api': title.replace(" ", "")  # API expects no spaces
+                })
+                self.icons.append(self.api.getFullUrl(channel.get("icon", "")))
+            
             if not self.names:
+                print("DEBUG: No channels added to list")
                 self['info'].setText(_('No TV channels available'))
             else:
+                print("DEBUG: Total channels added:", len(self.names))
                 show_list(self.names, self['text'])
                 self['info'].setText(_('Select channel'))
 
         except Exception as e:
             print('Error loading TV channels:', str(e))
+            traceback.print_exc()
             self['info'].setText(_('Error loading data'))
 
     def okRun(self):
         idx = self["text"].getSelectionIndex()
+        print("DEBUG: Selected index:", idx)
+
         if idx is None:
+            print("DEBUG: No selection made")
             return
 
-        channel = self.channels[idx]
-        self.session.open(RaiPlayReplayPrograms, channel, self.date)
+        channel_info = self.channels[idx]
+        print("DEBUG: Selected channel_info:", channel_info)
+        print("DEBUG: Selected date:", self.date)
+
+        self.session.open(RaiPlayReplayPrograms, channel_info, self.date)
 
     def closerm(self):
         Utils.deletetmp()
@@ -4168,6 +4161,23 @@ class TvInfoBarShowHide():
         })
         self.__state = self.STATE_SHOWN
         self.__locked = 0
+
+        self.helpOverlay = Label("")
+        self.helpOverlay.skinAttributes = [
+            ("position", "0,0"),
+            ("size", "1280,50"),
+            ("font", "Regular;28"),
+            ("halign", "center"),
+            ("valign", "center"),
+            ("foregroundColor", "#FFFFFF"),
+            ("backgroundColor", "#666666"),
+            ("transparent", "0"),
+            ("zPosition", "100")
+        ]
+                                         
+        self["helpOverlay"] = self.helpOverlay
+        self["helpOverlay"].hide()
+
         self.hideTimer = eTimer()
         try:
             self.hideTimer_conn = self.hideTimer.timeout.connect(
@@ -4178,38 +4188,43 @@ class TvInfoBarShowHide():
         self.onShow.append(self.__onShow)
         self.onHide.append(self.__onHide)
 
+    def show_help_overlay(self):
+        help_text = (
+            "OK = Info | INFO = CYCLE STREAM | PLAY/PAUSE = Toggle | STOP = Stop | EXIT = Exit"
+        )
+        self["helpOverlay"].setText(help_text)
+        self["helpOverlay"].show()
+
+        self.help_timer = eTimer()
+        self.help_timer.callback.append(self.hide_help_overlay)
+        self.help_timer.start(5000, True)
+
+    def hide_help_overlay(self):
+        self["helpOverlay"].hide()
+
     def OkPressed(self):
-        self.toggleShow()
-
-    def toggleShow(self):
-        if self.skipToggleShow:
-            self.skipToggleShow = False
-            return
-        if self.__state == self.STATE_HIDDEN:
-            self.show()
-            self.hideTimer.stop()
+        if self["helpOverlay"].visible:
+            self.help_timer.stop()
+            self.hide_help_overlay()
         else:
-            self.hide()
-            self.startHideTimer()
-
-    def serviceStarted(self):
-        if self.execing:
-            if config.usage.show_infobar_on_zap.value:
-                self.doShow()
+            self.show_help_overlay()
+        self.toggleShow()
 
     def __onShow(self):
         self.__state = self.STATE_SHOWN
         self.startHideTimer()
 
+    def __onHide(self):
+        self.__state = self.STATE_HIDDEN
+
+    def serviceStarted(self):
+        if self.execing and config.usage.show_infobar_on_zap.value:
+            self.doShow()
+
     def startHideTimer(self):
         if self.__state == self.STATE_SHOWN and not self.__locked:
             self.hideTimer.stop()
-            idx = config.usage.infobar_timeout.index
-            if idx:
-                self.hideTimer.start(idx * 1500, True)
-
-    def __onHide(self):
-        self.__state = self.STATE_HIDDEN
+            self.hideTimer.start(5000, True)
 
     def doShow(self):
         self.hideTimer.stop()
@@ -4220,6 +4235,36 @@ class TvInfoBarShowHide():
         self.hideTimer.stop()
         if self.__state == self.STATE_SHOWN:
             self.hide()
+
+    """
+    def toggleShow(self):
+        if self.skipToggleShow:
+            self.skipToggleShow = False
+            return
+        if self.__state == self.STATE_HIDDEN:
+            self.show()
+            self.hideTimer.stop()
+        else:
+            self.hide()
+            self.startHideTimer()
+    """
+
+    def toggleShow(self):
+        if not self.skipToggleShow:
+            if self.__state == self.STATE_HIDDEN:
+                self.show()
+                self.hideTimer.stop()
+                self.show_help_overlay()
+
+            else:
+                self.hide()
+                self.startHideTimer()
+
+                if self["helpOverlay"].visible:
+                    self.help_timer.stop()
+                    self.hide_help_overlay()
+        else:
+            self.skipToggleShow = False
 
     def lockShow(self):
         try:
@@ -4241,7 +4286,7 @@ class TvInfoBarShowHide():
         if self.execing:
             self.startHideTimer()
 
-    def debug(obj, text=""):
+    def debug(self, obj, text=""):
         print(text + " %s\n" % obj)
 
 
@@ -4275,7 +4320,7 @@ class Playstream2(
         for base in [
             InfoBarMenu, InfoBarNotifications, InfoBarBase,
             TvInfoBarShowHide, InfoBarAudioSelection, InfoBarSubtitleSupport
-
+                                                     
         ]:
             base.__init__(self)
 
@@ -4301,7 +4346,8 @@ class Playstream2(
                 "tv": self.cicleStreamType,
                 "stop": self.leavePlayer,
                 "cancel": self.cancel,
-                "back": self.cancel
+                "back": self.cancel,
+                "playpauseService": self.playpauseService
             },
             -1
         )
@@ -4329,13 +4375,17 @@ class Playstream2(
                 serviceapp_url = "https:" + serviceapp_url
 
             print(f"[RaiPlay] ServiceApp URL: {serviceapp_url}")
-            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 =
-            # streaming service
-            ref = eServiceReference(
-                4097, 0, serviceapp_url)  # 4097 = streaming service
+            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
+            ref = eServiceReference(4097, 0, serviceapp_url)  # 4097 = streaming service
             ref.setName(self.name)
             self.session.nav.stopService()
             self.session.nav.playService(ref)
+
+            self.show()
+            self.state = self.STATE_PLAYING
+            if self.state == self.STATE_PLAYING:
+                self.show_help_overlay()
+
         except ImportError:
             print("[RaiPlay] ServiceApp not available, fallback to standard method")
             self.use_standard_method()
@@ -4363,6 +4413,11 @@ class Playstream2(
         self.session.nav.stopService()
         self.session.nav.playService(sref)
 
+        self.show()
+        self.state = self.STATE_PLAYING
+        if self.state == self.STATE_PLAYING:
+            self.show_help_overlay()
+
     def openTest(self, servicetype, url):
         url = url.replace(':', '%3a').replace(' ', '%20')
         ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:' + str(url)
@@ -4371,6 +4426,11 @@ class Playstream2(
         sref.setName(self.name)
         self.session.nav.stopService()
         self.session.nav.playService(sref)
+
+        self.show()
+        self.state = self.STATE_PLAYING
+        if self.state == self.STATE_PLAYING:
+            self.show_help_overlay()
 
     def cicleStreamType(self):
         # from itertools import cycle, islice
@@ -4389,6 +4449,55 @@ class Playstream2(
         # self.servicetype = str(next(nextStreamType))
         print('servicetype2: ', self.servicetype)
         self.openTest(self.servicetype, url)
+
+    def playpauseService(self):
+        """Toggle play/pause"""
+        service = self.session.nav.getCurrentService()
+        if not service:
+            print("Warning: No current service")
+            return
+
+        pauseable = service.pause()
+        if pauseable is None:
+            print("Warning: Service is not pauseable")
+            # Instead of failing, just stop and restart the service
+            if self.state == self.STATE_PLAYING:
+                current_ref = self.session.nav.getCurrentlyPlayingServiceReference()
+                if current_ref:
+                    self.session.nav.stopService()
+                    self.state = self.STATE_PAUSED
+                    print("Info: Playback stopped (pause not supported)")
+            elif self.state == self.STATE_PAUSED:
+                current_ref = self.session.nav.getCurrentlyPlayingServiceReference()
+                if current_ref:
+                    self.session.nav.playService(current_ref)
+                    self.state = self.STATE_PLAYING
+                    print("Info: Playback resumed (pause not supported)")
+            return
+
+        try:
+            if self.state == self.STATE_PLAYING:
+                if hasattr(pauseable, "pause"):
+                    pauseable.pause()
+                    self.state = self.STATE_PAUSED
+                    print("Info: Playback paused")
+            elif self.state == self.STATE_PAUSED:
+                if hasattr(pauseable, "play"):
+                    pauseable.play()
+                    self.state = self.STATE_PLAYING
+                    print("Info: Playback resumed")
+        except Exception as e:
+            print("Error: Play/pause error: " + str(e))
+            self.show_error(_("Play/pause not supported for this stream"))
+
+    def show_error(self, message):
+        """Show error message and close player"""
+        self.session.openWithCallback(
+            self.leavePlayer,
+            MessageBox,
+            message,
+            MessageBox.TYPE_ERROR
+        )
 
     def showIMDB(self):
         """Show IMDB/TMDB information"""
