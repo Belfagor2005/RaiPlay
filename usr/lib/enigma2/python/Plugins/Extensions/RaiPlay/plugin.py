@@ -4327,14 +4327,10 @@ class Playstream2(
                 serviceapp_url = "https:" + serviceapp_url
 
             print(f"[RaiPlay] ServiceApp URL: {serviceapp_url}")
-
-            ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
+            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
+            ref = eServiceReference(4097, 0, serviceapp_url)  # 4097 = streaming service
             ref.setName(self.name)
-
-            # Stop any playing service
             self.session.nav.stopService()
-
-            # Start playback
             self.session.nav.playService(ref)
         except ImportError:
             print("[RaiPlay] ServiceApp not available, fallback to standard method")
@@ -4353,10 +4349,6 @@ class Playstream2(
             self.slinkPlay()
         else:
             self.cicleStreamType()
-
-    def showIMDB(self):
-        """Show IMDB/TMDB information"""
-        returnIMDB(self.session, self.name)
 
     def slinkPlay(self):
         ref = str(self.url)
@@ -4377,22 +4369,26 @@ class Playstream2(
         self.session.nav.playService(sref)
 
     def cicleStreamType(self):
-        from itertools import cycle, islice
+        # from itertools import cycle, islice
         print('servicetype1: ', self.servicetype)
         url = str(self.url)
         if str(splitext(url)[-1]) == ".m3u8":
             if self.servicetype == "1":
                 self.servicetype = "4097"
-        currentindex = 0
-        streamtypelist = ["4097", '5002', '5001', "8192"]
-        for index, item in enumerate(streamtypelist, start=0):
-            if str(item) == str(self.servicetype):
-                currentindex = index
-                break
-        nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
-        self.servicetype = str(next(nextStreamType))
+        # currentindex = 0
+        # streamtypelist = ["4097", "8192", "5002", "5001"]
+        # for index, item in enumerate(streamtypelist, start=0):
+            # if str(item) == str(self.servicetype):
+                # currentindex = index
+                # break
+        # nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
+        # self.servicetype = str(next(nextStreamType))
         print('servicetype2: ', self.servicetype)
         self.openTest(self.servicetype, url)
+
+    def showIMDB(self):
+        """Show IMDB/TMDB information"""
+        returnIMDB(self.session, self.name)
 
     def showVideoInfo(self):
         if self.shown:
