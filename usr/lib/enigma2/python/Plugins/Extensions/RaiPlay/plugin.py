@@ -4275,7 +4275,7 @@ class Playstream2(
         for base in [
             InfoBarMenu, InfoBarNotifications, InfoBarBase,
             TvInfoBarShowHide, InfoBarAudioSelection, InfoBarSubtitleSupport
-                                                     
+
         ]:
             base.__init__(self)
 
@@ -4329,8 +4329,10 @@ class Playstream2(
                 serviceapp_url = "https:" + serviceapp_url
 
             print(f"[RaiPlay] ServiceApp URL: {serviceapp_url}")
-            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
-            ref = eServiceReference(4097, 0, serviceapp_url)  # 4097 = streaming service
+            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 =
+            # streaming service
+            ref = eServiceReference(
+                4097, 0, serviceapp_url)  # 4097 = streaming service
             ref.setName(self.name)
             self.session.nav.stopService()
             self.session.nav.playService(ref)
