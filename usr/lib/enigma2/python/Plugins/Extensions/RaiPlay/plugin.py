@@ -142,11 +142,41 @@ if not exists(join(skin_path, "settings.xml")):
     print("Skin non trovata, uso il fallback:", skin_path)
 
 
+def is_openpli():
+    """Verifica se siamo su un'immagine OpenPLi"""
+    return exists('/usr/lib/enigma2/python/Plugins/PLi')
+
+
+def debug_serviceapp():
+    """Funzione per il debug di ServiceApp"""
+    try:
+        from Plugins.SystemPlugins.ServiceApp.plugin import eServiceReference
+        return True, "ServiceApp importabile"
+    except ImportError as e:
+        return False, f"ServiceApp Import error: {str(e)}"
+    except Exception as e:
+        return False, f"ServiceApp General Import error: {str(e)}"
+
+
+# mkdir -p /etc/serviceapp
+# # Crea il file di configurazione
+# cat <<EOL > /etc/serviceapp/serviceapp.conf
+# [serviceapp]
+# enable=1
+# player=gstreamer
+# gst_audio=autoaudiosink
+# gst_video=autovideosink
+# http_port=8088
+# http_ip=0.0.0.0
+# use_alternate_audio_track=0
+# user_agent=Mozilla/5.0
+# EOL
+
+
 """
 # Global patch to disable summary screens completely
 # def disable_summary_screens():
     # original_screen_init = Screen.__init__
-
     # def new_screen_init(self, session, *args, **kwargs):
         # # Disable summary screens for all screens
         # self.hasSummary = False
@@ -158,31 +188,32 @@ if not exists(join(skin_path, "settings.xml")):
 """
 
 
-def returnIMDB(text_clear):
+def returnIMDB(session, text_clear):
+    """Mostra informazioni IMDB/TMDB per il contenuto"""
     text = html_unescape(text_clear)
 
     if Utils.is_TMDB and Utils.TMDB:
         try:
-            _session.open(Utils.TMDB.tmdbScreen, text, 0)
+            session.open(Utils.TMDB.tmdbScreen, text, 0)
         except Exception as e:
             print("[XCF] TMDB error:", str(e))
         return True
 
     elif Utils.is_tmdb and Utils.tmdb:
         try:
-            _session.open(Utils.tmdb.tmdbScreen, text, 0)
+            session.open(Utils.tmdb.tmdbScreen, text, 0)
         except Exception as e:
             print("[XCF] tmdb error:", str(e))
         return True
 
     elif Utils.is_imdb and Utils.imdb:
         try:
-            Utils.imdb(_session, text)
+            Utils.imdb(session, text)
         except Exception as e:
             print("[XCF] IMDb error:", str(e))
         return True
 
-    _session.open(MessageBox, text, MessageBox.TYPE_INFO)
+    session.open(MessageBox, text, MessageBox.TYPE_INFO)
     return True
 
 
@@ -1212,7 +1243,7 @@ class RaiPlayAPI:
             elif "portrait43" in item["images"]:
                 url = item["images"]["portrait43"]
                 return self.getThumbnailUrl(url)
-                
+
         return self.NOTHUMB_URL
 
     def getThumbnailUrl2xxx(self, item):
@@ -4221,6 +4252,7 @@ class Playstream2(
         InfoBarAudioSelection,
         TvInfoBarShowHide,
         InfoBarSubtitleSupport):
+
     STATE_IDLE = 0
     STATE_PLAYING = 1
     STATE_PAUSED = 2
@@ -4229,18 +4261,23 @@ class Playstream2(
     screen_timeout = 5000
 
     def __init__(self, session, name, url):
-        global streaml, _session
         Screen.__init__(self, session)
         self.session = session
         self.skinName = 'MoviePlayer'
-        _session = session
-        streaml = False
-        InfoBarMenu.__init__(self)
-        InfoBarNotifications.__init__(self)
-        InfoBarBase.__init__(self, steal_current_service=True)
-        TvInfoBarShowHide.__init__(self)
-        InfoBarAudioSelection.__init__(self)
-        InfoBarSubtitleSupport.__init__(self)
+        self.name = name
+        self.url = url
+        self.state = self.STATE_PLAYING
+        self.allowPiP = False
+        self.service = None
+        self.servicetype = '4097'
+        for base in [
+            InfoBarMenu, InfoBarNotifications, InfoBarBase,
+            TvInfoBarShowHide, InfoBarAudioSelection, InfoBarSubtitleSupport
+                                                     
+        ]:
+            base.__init__(self)
+
+        InfoBarSeek.__init__(self, actionmap='InfobarSeekActions')
         self["actions"] = ActionMap(
             [
                 "WizardActions",
@@ -4266,25 +4303,60 @@ class Playstream2(
             },
             -1
         )
-        self.allowPiP = False
-        self.service = None
-        self.servicetype = '4097'
-        InfoBarSeek.__init__(self, actionmap='InfobarSeekActions')
-        self.url = url
-        # self.name = html_unescape(name)
-        self.name = str(name)
-        self.state = self.STATE_PLAYING
         self.srefInit = self.session.nav.getCurrentlyPlayingServiceReference()
-        if '8088' in str(self.url):
-            self.onFirstExecBegin.append(self.slinkPlay)
+        self.onFirstExecBegin.append(self.startPlayback)
+
+    def startPlayback(self):
+        """Start playback with the appropriate method"""
+        if is_openpli():
+            print("[RaiPlay] Detected OpenPLi image")
+            # status, message = debug_serviceapp()
+            # print(f"[RaiPlay] ServiceApp debug: {status} - {message}")
+            self.use_serviceapp()
         else:
-            self.onFirstExecBegin.append(self.cicleStreamType)
-        return
+            print("[RaiPlay] Non-OpenPLi image, using standard method")
+            self.use_standard_method()
+
+    def use_serviceapp(self):
+        """Use ServiceApp for playback on OpenPLi"""
+        try:
+            from Plugins.Extensions.ServiceApp.serviceapp import eServiceReference
+            # Prepare URL for ServiceApp
+            serviceapp_url = self.url
+            if not serviceapp_url.startswith("http"):
+                serviceapp_url = "https:" + serviceapp_url
+
+            print(f"[RaiPlay] ServiceApp URL: {serviceapp_url}")
+
+            ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
+            ref.setName(self.name)
+
+            # Stop any playing service
+            self.session.nav.stopService()
+
+            # Start playback
+            self.session.nav.playService(ref)
+        except ImportError:
+            print("[RaiPlay] ServiceApp not available, fallback to standard method")
+            self.use_standard_method()
+        except Exception as e:
+            print(f"[RaiPlay] ServiceApp error: {str(e)}")
+            self.session.open(
+                MessageBox,
+                f"ServiceApp error: {str(e)}",
+                MessageBox.TYPE_ERROR)
+            self.use_standard_method()
+
+    def use_standard_method(self):
+        """Standard playback method for other images"""
+        if '8088' in self.url:
+            self.slinkPlay()
+        else:
+            self.cicleStreamType()
 
     def showIMDB(self):
-        text_clear = self.name
-        if returnIMDB(text_clear):
-            print('show imdb/tmdb')
+        """Show IMDB/TMDB information"""
+        returnIMDB(self.session, self.name)
 
     def slinkPlay(self):
         ref = str(self.url)
@@ -4298,9 +4370,6 @@ class Playstream2(
     def openTest(self, servicetype, url):
         url = url.replace(':', '%3a').replace(' ', '%20')
         ref = str(servicetype) + ':0:1:0:0:0:0:0:0:0:' + str(url)
-        if streaml is True:
-            ref = str(servicetype) + \
-                ':0:1:0:0:0:0:0:0:0:http%3a//127.0.0.1%3a8088/' + str(url)
         print('final reference 2:   ', ref)
         sref = eServiceReference(ref)
         sref.setName(self.name)
@@ -4314,14 +4383,14 @@ class Playstream2(
         if str(splitext(url)[-1]) == ".m3u8":
             if self.servicetype == "1":
                 self.servicetype = "4097"
-        # currentindex = 0
-        # streamtypelist = ["4097", '5002', '5001', "8192"]
-        # for index, item in enumerate(streamtypelist, start=0):
-            # if str(item) == str(self.servicetype):
-                # currentindex = index
-                # break
-        # nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
-        # self.servicetype = str(next(nextStreamType))
+        currentindex = 0
+        streamtypelist = ["4097", '5002', '5001', "8192"]
+        for index, item in enumerate(streamtypelist, start=0):
+            if str(item) == str(self.servicetype):
+                currentindex = index
+                break
+        nextStreamType = islice(cycle(streamtypelist), currentindex + 1, None)
+        self.servicetype = str(next(nextStreamType))
         print('servicetype2: ', self.servicetype)
         self.openTest(self.servicetype, url)
 
@@ -4340,13 +4409,15 @@ class Playstream2(
         if exists('/tmp/hls.avi'):
             remove('/tmp/hls.avi')
         self.session.nav.stopService()
-        self.session.nav.playService(self.srefInit)
+        if self.srefInit:
+            self.session.nav.playService(self.srefInit)
         aspect_manager.restore_aspect
         self.close()
 
     def leavePlayer(self):
         self.session.nav.stopService()
-        self.session.nav.playService(self.srefInit)
+        if self.srefInit:
+            self.session.nav.playService(self.srefInit)
         self.close()
 
 
