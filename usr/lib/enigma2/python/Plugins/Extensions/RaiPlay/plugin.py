@@ -408,7 +408,8 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(
+                self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -523,7 +524,8 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" %
+                      (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
@@ -909,7 +911,13 @@ class RaiPlayAPI:
 
                 title = program.get("name", "No title")
                 time_str = program.get("timePublished", "")
-                video_url = program.get("pathID", "") or program.get("video", {}).get("contentUrl", "")
+                video_url = program.get(
+                    "pathID",
+                    "") or program.get(
+                    "video",
+                    {}).get(
+                    "contentUrl",
+                    "")
 
                 if video_url.startswith("//"):
                     video_url = "https:" + video_url
@@ -1507,10 +1515,10 @@ class RaiPlayAPI:
             data = Utils.getUrl(self.RaiSportCategoriesUrl)
             if not data:
                 return []
-                
+
             response = loads(data)
             categories = []
-            
+
             # Find the main sport category
             sport_category = None
             if response.get("name") == "Sport":
@@ -1521,15 +1529,15 @@ class RaiPlayAPI:
                     if category.get("name") == "Sport":
                         sport_category = category
                         break
-                        
+
             if not sport_category:
                 return []
-                
+
             # Get subcategories of sport
             for category in sport_category.get("children", []):
                 title = category.get("name", "")
                 unique_name = category.get("uniqueName", "")
-                
+
                 if title and unique_name:
                     # Get thumbnail if available
                     thumbnail = ""
@@ -1541,7 +1549,7 @@ class RaiPlayAPI:
                         'key': unique_name,
                         'icon': thumbnail
                     })
-                    
+
             return categories
         except Exception as e:
             print("Error getting sports categories:", str(e))
@@ -1554,19 +1562,19 @@ class RaiPlayAPI:
             data = Utils.getUrl(self.RaiSportCategoriesUrl)
             if not data:
                 return []
-                
+
             response = loads(data)
-            
+
             # Find the requested category
             target_category = None
             for category in response.get("children", []):
                 if category.get("uniqueName") == category_key:
                     target_category = category
                     break
-                    
+
             if not target_category:
                 return []
-                
+
             # Get subcategories
             subcategories = []
             for subcategory in target_category.get("children", []):
@@ -1583,7 +1591,7 @@ class RaiPlayAPI:
                         'key': unique_name,
                         'icon': thumbnail
                     })
-                    
+
             return subcategories
         except Exception as e:
             print("Error getting sport subcategories:", str(e))
@@ -1595,10 +1603,10 @@ class RaiPlayAPI:
         try:
             print(f"[DEBUG] Getting sport videos for key: {key}, page: {page}")
             pageSize = 50
-            
+
             # Dominio specifico per lo sport
             dominio = "RaiNews|Category-60bbaf3f-99b8-4aac-8a6d-69a98e11bfc1"
-            
+
             payload = {
                 "page": page,
                 "pageSize": pageSize,
@@ -1610,16 +1618,15 @@ class RaiPlayAPI:
             }
             postData = dumps(payload)
             print(f"[DEBUG] Payload: {postData}")
-            
+
             headers = {
                 'Accept': 'application/json, text/javascript, */*; q=0.01',
                 'Content-Type': 'application/json; charset=UTF-8',
                 'Origin': 'https://www.raisport.rai.it',
                 'Referer': 'https://www.raisport.rai.it/archivio.html',
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-            
+                'X-Requested-With': 'XMLHttpRequest'}
+
             print(f"[DEBUG] Sending request to: {self.RaiSportSearchUrl}")
             response = requests.post(
                 self.RaiSportSearchUrl,
@@ -1627,44 +1634,44 @@ class RaiPlayAPI:
                 data=postData,
                 timeout=15
             )
-            
+
             print(f"[DEBUG] Response status: {response.status_code}")
             response.raise_for_status()
-            
+
             try:
                 data = response.json()
             except Exception as e:
                 print(f"[ERROR] JSON decode error: {str(e)}")
                 print(f"[DEBUG] Response content: {response.text[:500]}...")
                 return []
-            
+
             print(f"[DEBUG] Response keys: {list(data.keys())}")
-            
+
             videos = data.get("hits", [])
             total = data.get("total", 0)
             print(f"[DEBUG] Found {len(videos)} videos, total: {total}")
-            
+
             result = []
-            
+
             for video in videos:
                 if video.get("data_type") == "video":
                     media = video.get('media', {})
                     video_url = media.get('mediapolis', '')
                     if not video_url:
                         continue
-                        
+
                     title = video.get("title", "Untitled")
                     create_date = video.get("create_date", "")
-                    
+
                     result.append({
                         'title': title,
                         'url': video_url,
                         'date': create_date
                     })
-                    
+
             items_so_far = (page * pageSize) + len(result)
             has_next_page = items_so_far < total
-            
+
             if has_next_page and result:
                 result.append({
                     'title': "Next page",
@@ -1672,9 +1679,9 @@ class RaiPlayAPI:
                     'page': page + 1,
                     'is_page': True
                 })
-                
+
             return result
-            
+
         except Exception as e:
             print(f"[ERROR] getSportVideos exception: {str(e)}")
             traceback.print_exc()
@@ -1780,7 +1787,8 @@ class RaiPlayAPI:
             new_url = urlunparse(parsed._replace(query=new_query))
 
             print(f"[Relinker] Fetching XML from: {new_url}")
-            response = requests.get(new_url, headers=self.HTTP_HEADER, timeout=15)
+            response = requests.get(
+                new_url, headers=self.HTTP_HEADER, timeout=15)
             response.raise_for_status()
             content = response.text
 
@@ -1808,16 +1816,19 @@ class RaiPlayAPI:
 
             # Check for DRM license
             license_key = None
-            license_match = search(r'<license_url>(.*?)</license_url>', content)
+            license_match = search(
+                r'<license_url>(.*?)</license_url>', content)
             if license_match:
                 license_json_str = license_match.group(1)
                 print(f"[Relinker] Raw license JSON: {license_json_str}")
 
                 if '<![CDATA[' in license_json_str:
-                    cdata_match = search(r'<!\[CDATA\[(.*?)\]\]>', license_json_str)
+                    cdata_match = search(
+                        r'<!\[CDATA\[(.*?)\]\]>', license_json_str)
                     if cdata_match:
                         license_json_str = cdata_match.group(1)
-                        print(f"[Relinker] Extracted CDATA license JSON: {license_json_str}")
+                        print(
+                            f"[Relinker] Extracted CDATA license JSON: {license_json_str}")
 
                 try:
                     license_data = loads(license_json_str)
@@ -1826,7 +1837,8 @@ class RaiPlayAPI:
                     for item in license_data.get('drmLicenseUrlValues', []):
                         if item.get('drm') == 'WIDEVINE':
                             license_key = item.get('licenceUrl')
-                            print(f"[Relinker] Found Widevine license: {license_key}")
+                            print(
+                                f"[Relinker] Found Widevine license: {license_key}")
                             break
                 except Exception as e:
                     print(f"[Relinker] License parse error: {str(e)}")
@@ -1987,14 +1999,24 @@ class RaiPlayMain(SafeScreen):
 
         # Main categories
         categories = [
-            (_("Live TV"), "live_tv", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-            (_("Live Radio"), "live_radio", "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
-            (_("Replay TV"), "replay", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("On Demand"), "ondemand", "https://www.raiplay.it/dl/img/2018/06/04/1528115285089_ico-teatro.png"),
-            (_("TV News"), "tg", "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"),
-            (_("Sports"), "sport", png_sport)
-
-        ]
+            (_("Live TV"),
+             "live_tv",
+             "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
+            (_("Live Radio"),
+             "live_radio",
+             "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
+            (_("Replay TV"),
+             "replay",
+             "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("On Demand"),
+             "ondemand",
+             "https://www.raiplay.it/dl/img/2018/06/04/1528115285089_ico-teatro.png"),
+            (_("TV News"),
+             "tg",
+             "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"),
+            (_("Sports"),
+             "sport",
+             png_sport)]
 
         for name, url, icon in categories:
             self.names.append(name)
@@ -2284,7 +2306,8 @@ class RaiPlayReplayDates(SafeScreen):
         for i in range(8):  # Ultimi 8 giorni
             day = today - timedelta(days=i)
             day_str = day.strftime("%A %d %B")
-            api_date = day.strftime("%d%m%y")  # Es: 060825 per il 6 agosto 2025
+            # Es: 060825 per il 6 agosto 2025
+            api_date = day.strftime("%d%m%y")
             self.names.append(day_str)
             self.dates.append(api_date)
 
@@ -2328,7 +2351,8 @@ class RaiPlayReplayPrograms(SafeScreen):
         self['key_green'] = Button(_('Play'))
         # display_date = datetime.strptime(date, "%d-%m-%Y").strftime("%d/%m/%Y")
         # self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {display_date}")
-        self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {self.date}")
+        self['title'] = Label(_("Rai Play Replay: ") +
+                              f"{self.channel_info['display']} - {self.date}")
         self["actions"] = ActionMap(["OkCancelActions"], {
             "ok": self.okRun,
             "cancel": self.close,
@@ -2607,13 +2631,17 @@ class RaiPlayProgramBlocks(SafeScreen):
             for set_item in block.get("sets", []):
                 icon_url = ""
                 if set_item.get("images", {}).get("portrait", ""):
-                    icon_url = self.api.getThumbnailUrl(set_item["images"]["portrait"])
+                    icon_url = self.api.getThumbnailUrl(
+                        set_item["images"]["portrait"])
                 elif set_item.get("images", {}).get("landscape", ""):
-                    icon_url = self.api.getThumbnailUrl(set_item["images"]["landscape"])
+                    icon_url = self.api.getThumbnailUrl(
+                        set_item["images"]["landscape"])
                 elif set_item.get("images", {}).get("square", ""):
-                    icon_url = self.api.getThumbnailUrl(set_item["images"]["square"])
+                    icon_url = self.api.getThumbnailUrl(
+                        set_item["images"]["square"])
                 elif set_item.get("images", {}).get("landscape_logo", ""):
-                    icon_url = self.api.getThumbnailUrl(set_item["images"]["landscape_logo"])
+                    icon_url = self.api.getThumbnailUrl(
+                        set_item["images"]["landscape_logo"])
                 else:
                     # Fallback to debug_images if no image found
                     icon_url = self.api.getThumbnailUrl2(set_item)
@@ -4388,7 +4416,8 @@ class Playstream2(
 
             # Processa URL relinker se necessario
             if 'relinkerServlet' in self.url:
-                self.url, self.license_key = self.api.process_relinker(self.url)
+                self.url, self.license_key = self.api.process_relinker(
+                    self.url)
                 print(f"[Player] Processed URL: {self.url}")
                 print(f"[Player] DRM: {self.license_key is not None}")
 
