@@ -418,7 +418,8 @@ class SafeScreen(Screen):
         try:
             self.picload.PictureData.get().append(self.setPoster)
         except BaseException:
-            self.picload_conn = self.picload.PictureData.connect(self.setPoster)
+            self.picload_conn = self.picload.PictureData.connect(
+                self.setPoster)
 
         # Get poster widget dimensions
         self.poster_width = 390
@@ -533,7 +534,8 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" % (str(idx), len(self.icons)))
+                print("Invalid index: %s (icons: %d)" %
+                      (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
 
@@ -901,7 +903,13 @@ class RaiPlayAPI:
 
                 title = program.get("name", "No title")
                 time_str = program.get("timePublished", "")
-                video_url = program.get("pathID", "") or program.get("video", {}).get("contentUrl", "")
+                video_url = program.get(
+                    "pathID",
+                    "") or program.get(
+                    "video",
+                    {}).get(
+                    "contentUrl",
+                    "")
 
                 if video_url.startswith("//"):
                     video_url = "https:" + video_url
@@ -2181,7 +2189,8 @@ class RaiPlayReplayDates(SafeScreen):
         for i in range(8):  # Ultimi 8 giorni
             day = today - timedelta(days=i)
             day_str = day.strftime("%A %d %B")
-            api_date = day.strftime("%d%m%y")  # Es: 060825 per il 6 agosto 2025
+            # Es: 060825 per il 6 agosto 2025
+            api_date = day.strftime("%d%m%y")
             self.names.append(day_str)
             self.dates.append(api_date)
 
@@ -2210,7 +2219,7 @@ class RaiPlayReplayPrograms(SafeScreen):
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         SafeScreen.__init__(self, session)
-        
+
         self.channel_info = channel_info
         self.date = date
         self.api = RaiPlayAPI()
@@ -2225,7 +2234,8 @@ class RaiPlayReplayPrograms(SafeScreen):
         self['key_green'] = Button(_('Play'))
         # display_date = datetime.strptime(date, "%d-%m-%Y").strftime("%d/%m/%Y")
         # self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {display_date}")
-        self['title'] = Label(_("Rai Play Replay: ") + f"{self.channel_info['display']} - {self.date}")
+        self['title'] = Label(_("Rai Play Replay: ") +
+                              f"{self.channel_info['display']} - {self.date}")
         self["actions"] = ActionMap(["OkCancelActions"], {
             "ok": self.okRun,
             "cancel": self.close,
@@ -2349,12 +2359,12 @@ class RaiPlayReplayChannels(SafeScreen):
             response = loads(data)
             # channels = response.get("dirette", []) or response.get("direfte", [])
             channels = response.get("dirette", [])
-            
+
             for channel in channels:
                 title = channel.get("channel", "")
                 if not title:
                     continue
-                
+
                 # Store both display name and API name
                 self.names.append(title)
                 self.channels.append({
@@ -2362,7 +2372,7 @@ class RaiPlayReplayChannels(SafeScreen):
                     'api': title.replace(" ", "")  # API expects no spaces
                 })
                 self.icons.append(self.api.getFullUrl(channel.get("icon", "")))
-            
+
             if not self.names:
                 print("DEBUG: No channels added to list")
                 self['info'].setText(_('No TV channels available'))
@@ -4128,7 +4138,7 @@ class TvInfoBarShowHide():
             ("transparent", "0"),
             ("zPosition", "100")
         ]
-                                         
+
         self["helpOverlay"] = self.helpOverlay
         self["helpOverlay"].hide()
 
@@ -4274,7 +4284,7 @@ class Playstream2(
         for base in [
             InfoBarMenu, InfoBarNotifications, InfoBarBase,
             TvInfoBarShowHide, InfoBarAudioSelection, InfoBarSubtitleSupport
-                                                     
+
         ]:
             base.__init__(self)
 
@@ -4329,8 +4339,10 @@ class Playstream2(
                 serviceapp_url = "https:" + serviceapp_url
 
             print(f"[RaiPlay] ServiceApp URL: {serviceapp_url}")
-            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 = streaming service
-            ref = eServiceReference(4097, 0, serviceapp_url)  # 4097 = streaming service
+            # ref = eServiceReference(0x1001, 0, serviceapp_url)  # 0x1001 =
+            # streaming service
+            ref = eServiceReference(
+                4097, 0, serviceapp_url)  # 4097 = streaming service
             ref.setName(self.name)
             self.session.nav.stopService()
             self.session.nav.playService(ref)
