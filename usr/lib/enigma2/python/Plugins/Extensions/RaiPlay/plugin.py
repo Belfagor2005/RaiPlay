@@ -5,7 +5,7 @@ from __future__ import print_function
 #########################################################
 #                                                       #
 #  Rai Play View Plugin                                 #
-#  Version: 1.2                                         #
+#  Version: 1.3                                         #
 #  Created by Lululla                                   #
 #  License: CC BY-NC-SA 4.0                             #
 #  https://creativecommons.org/licenses/by-nc-sa/4.0/   #
@@ -49,7 +49,7 @@ from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryPixmapAlphaTest, MultiContentEntryText
 from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
-from Components.config import config
+from Components.config import config, ConfigSubsection, ConfigYesNo
 from Components.Pixmap import Pixmap
 
 # Enigma2 Screens
@@ -72,10 +72,10 @@ except ImportError:
     from Components.AVSwitch import eAVControl as AVSwitch
 
 try:
-    from urllib.parse import quote
+    # from urllib.parse import quote
     from urllib.parse import urljoin
 except ImportError:
-    from urllib import quote
+    # from urllib import quote
     from urlparse import urljoin
 
 
@@ -102,7 +102,6 @@ from . import _
 from . import Utils
 from .lib.html_conv import html_unescape
 
-from Components.config import ConfigSubsection, ConfigYesNo
 
 config.plugins.raiplay = ConfigSubsection()
 config.plugins.raiplay.debug = ConfigYesNo(default=False)
@@ -119,7 +118,7 @@ if sys.version_info >= (2, 7, 9):
     except BaseException:
         sslContext = None
 
-currversion = '1.2'
+currversion = '1.3'
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
 DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
 pluglogo = join(plugin_path, "res/pics/logo.png")
@@ -158,33 +157,34 @@ def debug_serviceapp():
         return False, f"ServiceApp General Import error: {str(e)}"
 
 
-# mkdir -p /etc/serviceapp
-# # Crea il file di configurazione
-# cat <<EOL > /etc/serviceapp/serviceapp.conf
-# [serviceapp]
-# enable=1
-# player=gstreamer
-# gst_audio=autoaudiosink
-# gst_video=autovideosink
-# http_port=8088
-# http_ip=0.0.0.0
-# use_alternate_audio_track=0
-# user_agent=Mozilla/5.0
-# EOL
-
+"""
+mkdir -p /etc/serviceapp
+# Create the configuration file
+cat <<EOL > /etc/serviceapp/serviceapp.conf
+[serviceapp]
+enable=1
+player=gstreamer
+gst_audio=autoaudiosink
+gst_video=autovideosink
+http_port=8088
+http_ip=0.0.0.0
+use_alternate_audio_track=0
+user_agent=Mozilla/5.0
+EOL
+"""
 
 """
 # Global patch to disable summary screens completely
-# def disable_summary_screens():
-    # original_screen_init = Screen.__init__
-    # def new_screen_init(self, session, *args, **kwargs):
-        # # Disable summary screens for all screens
-        # self.hasSummary = False
-        # self.createSummary = lambda: None
-        # # Call original constructor
-        # original_screen_init(self, session, *args, **kwargs)
-    # Screen.__init__ = new_screen_init
-# disable_summary_screens()
+def disable_summary_screens():
+    original_screen_init = Screen.__init__
+    def new_screen_init(self, session, *args, **kwargs):
+        # Disable summary screens for all screens
+        self.hasSummary = False
+        self.createSummary = lambda: None
+        # Call original constructor
+        original_screen_init(self, session, *args, **kwargs)
+    Screen.__init__ = new_screen_init
+disable_summary_screens()
 """
 
 
@@ -852,60 +852,76 @@ class RaiPlayAPI:
         except BaseException:
             return []
 
-    def getEPGPrograms(self, channel, date):
-        url = self.EPG_URL.format(quote(channel), date)
-        data = Utils.getUrl(url)
-        if not data:
-            return []
-
+    def get_programs(self, channel_api_name, date_api):
+        """
+        Retrieve the list of programs with video for the given channel and date.
+        """
+        url = self.EPG_REPLAY_URL.format(channel_api_name, date_api)
         try:
+            data = Utils.getUrl(url)
+            if not data:
+                print("DEBUG: No data returned from URL:", url)
+                return []
+
             response = loads(data)
+            # Find matching channel key ignoring spaces
+            channel_key = None
+            for key in response.keys():
+                if key.replace(" ", "") == channel_api_name:
+                    channel_key = key
+                    break
+
+            if not channel_key:
+                print("DEBUG: Channel key not found, fallback to first key")
+                channel_key = list(response.keys())[0]
+
+            channel_data = response[channel_key]
             programs = []
 
-            for item in response:
-                if item.get("nome") == channel:
-                    programs = item.get(
-                        "palinsesto", [
-                            {}])[0].get(
-                        "programmi", [])
-                    break
+            # Check new structure (list of days)
+            if isinstance(channel_data, list):
+                for day_data in channel_data:
+                    palinsesti = day_data.get("palinsesto", [])
+                    for palinsesto in palinsesti:
+                        if palinsesto.get("giorno") == date_api:
+                            programs = palinsesto.get("programmi", [])
+                            break
+            else:
+                # Old structure (dict)
+                palinsesti = channel_data.get("palinsesto", [])
+                for palinsesto in palinsesti:
+                    if palinsesto.get("giorno") == date_api:
+                        programs = palinsesto.get("programmi", [])
+                        break
 
             result = []
             for program in programs:
-                if not program:
+                if not program.get("hasVideo", False):
                     continue
 
-                title = program.get("name", "")
-                timex = program.get("timePublished", "")
-                desc = program.get(
-                    "testoBreve", "") or program.get(
-                    "description", "")
-                video_url = program.get(
-                    "pathID", "") if program.get(
-                    "hasVideo", False) else None
-                if program.get("images", {}).get("portrait", ""):
-                    thumb = self.getThumbnailUrl(program["images"]["portrait"])
-                elif program.get("images", {}).get("landscape", ""):
-                    thumb = self.getThumbnailUrl(
-                        program["images"]["landscape"])
-                elif program.get("isPartOf", {}).get("images", {}).get("portrait", ""):
-                    thumb = self.getThumbnailUrl(
-                        program["isPartOf"]["images"]["portrait"])
-                elif program.get("isPartOf", {}).get("images", {}).get("landscape", ""):
-                    thumb = self.getThumbnailUrl(
-                        program["isPartOf"]["images"]["landscape"])
-                else:
-                    thumb = self.api.getThumbnailUrl2(program)
+                title = program.get("name", "No title")
+                time_str = program.get("timePublished", "")
+                video_url = program.get("pathID", "") or program.get("video", {}).get("contentUrl", "")
+
+                if video_url.startswith("//"):
+                    video_url = "https:" + video_url
+                elif not video_url.startswith("http"):
+                    video_url = "https://www.raiplay.it" + video_url
+
+                icon_url = self.getThumbnailUrl2(program)
+                display_title = (time_str + " " if time_str else "") + title
 
                 result.append({
-                    'title': (timex + " " if timex else "") + title,
-                    'url': video_url,
-                    'icon': thumb,
-                    'desc': desc,
-                    'category': 'program' if video_url else 'nop'
+                    "title": display_title,
+                    "url": video_url,
+                    "icon": icon_url,
+                    "timePublished": time_str,
                 })
+
             return result
-        except BaseException:
+
+        except Exception as e:
+            print("Error in get_programs:", str(e))
             return []
 
     def convert_old_url(self, old_url):
@@ -2222,83 +2238,21 @@ class RaiPlayReplayPrograms(SafeScreen):
         self.icons = []
         date_api = datetime.strptime(self.date, "%d%m%y").strftime("%d-%m-%Y")
         print("DEBUG: Converted date for API comparison:", date_api)
-        url = self.api.EPG_REPLAY_URL.format(self.channel_info["api"], date_api)
-        print("DEBUG: Fetching URL:", url)
-        data = Utils.getUrl(url)
-        if not data:
-            print("DEBUG: No data returned")
-            self['info'].setText(_('Error loading data'))
-            return
 
-        try:
-            response = loads(data)
-            # Trova il canale normalizzato
-            channel_key = None
-            for key in response.keys():
-                if key.replace(" ", "") == self.channel_info['api']:
-                    channel_key = key
-                    break
+        programs = self.api.get_programs(self.channel_info["api"], date_api)
 
-            if not channel_key:
-                print("DEBUG: Channel key not found, fallback to first key")
-                channel_key = list(response.keys())[0]
+        for p in programs:
+            self.names.append(p["title"])
+            self.urls.append(p["url"])
+            self.icons.append(p["icon"])
 
-            channel_data = response[channel_key]
-
-            programs = []
-            # Gestione nuova struttura (lista di giorni)
-            if isinstance(channel_data, list):
-                print("DEBUG: Detected new structure (list)")
-                for day_data in channel_data:
-                    palinsesti = day_data.get("palinsesto", [])
-                    for palinsesto in palinsesti:
-                        print("DEBUG: Checking palinsesto date: ", palinsesto.get("giorno"))
-                        if palinsesto.get("giorno") == date_api:
-                            programs = palinsesto.get("programmi", [])
-                            break
-            else:
-                # Vecchia struttura
-                print("DEBUG: Detected old structure (dict)")
-                palinsesti = channel_data.get("palinsesto", [])
-                for palinsesto in palinsesti:
-                    print("DEBUG: Checking palinsesto date: ", palinsesto.get("giorno"))
-                    if palinsesto.get("giorno") == date_api:
-                        programs = palinsesto.get("programmi", [])
-                        break
-
-            # Processa i programmi con video
-            for program in programs:
-                if not program.get("hasVideo", False):
-                    continue
-
-                title = program.get("name", "No title")
-                time_str = program.get("timePublished", "")
-                video_url = program.get("pathID", "") or program.get("video", {}).get("contentUrl", "")
-
-                if video_url.startswith("//"):
-                    video_url = "https:" + video_url
-                elif not video_url.startswith("http"):
-                    video_url = "https://www.raiplay.it" + video_url
-
-                icon_url = self.api.getThumbnailUrl2(program)
-                display_title = f"{time_str} {title}" if time_str else title
-
-                self.names.append(display_title)
-                self.urls.append(video_url)
-                self.icons.append(icon_url)
-
-            if self.names:
-                print("DEBUG: Programs added:", len(self.names))
-                show_list(self.names, self['text'])
-                self['info'].setText(_('Select program'))
-            else:
-                print("DEBUG: No valid programs found for this day")
-                self['info'].setText(_('No programs available for this day'))
-
-        except Exception as e:
-            print(f"Error loading replay programs: {str(e)}")
-            traceback.print_exc()
-            self['info'].setText(_("Error loading data"))
+        if self.names:
+            print("DEBUG: Programs added:", len(self.names))
+            show_list(self.names, self['text'])
+            self['info'].setText(_('Select program'))
+        else:
+            print("DEBUG: No valid programs found for this day")
+            self['info'].setText(_('No programs available for this day'))
 
     def okRun(self):
         idx = self["text"].getSelectionIndex()

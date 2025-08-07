@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: raiplay\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-27 11:50+0200\n"
+"POT-Creation-Date: 2025-08-07 12:46+0200\n"
 "PO-Revision-Date: \n"
 "Last-Translator: ))^^(( <>\n"
 "Language-Team: *\n"
@@ -16,259 +16,260 @@ msgstr ""
 "X-Poedit-Basepath: ../../../..\n"
 "X-Poedit-SearchPath-0: plugin.py\n"
 
-#: plugin.py:1291 plugin.py:2520 plugin.py:2594 plugin.py:2664 plugin.py:2736
-#: plugin.py:2795
+#: plugin.py:1833 plugin.py:3454 plugin.py:3547 plugin.py:3636 plugin.py:3726
+#: plugin.py:3791
 msgid "Loading data... Please wait"
 msgstr ""
 
-#: plugin.py:1292 plugin.py:1373 plugin.py:1421 plugin.py:1469 plugin.py:1517
-#: plugin.py:1662 plugin.py:1729 plugin.py:1784 plugin.py:1832 plugin.py:1890
-#: plugin.py:2014 plugin.py:2062 plugin.py:2119 plugin.py:2230 plugin.py:2297
-#: plugin.py:2360 plugin.py:2459 plugin.py:2521 plugin.py:2595 plugin.py:2665
-#: plugin.py:2737 plugin.py:2796 plugin.py:2860 plugin.py:3002 plugin.py:3194
+#: plugin.py:1834 plugin.py:2032 plugin.py:2100 plugin.py:2166 plugin.py:2224
+#: plugin.py:2330 plugin.py:2416 plugin.py:2488 plugin.py:2560 plugin.py:2643
+#: plugin.py:2795 plugin.py:2850 plugin.py:2930 plugin.py:3078 plugin.py:3175
+#: plugin.py:3244 plugin.py:3376 plugin.py:3455 plugin.py:3548 plugin.py:3637
+#: plugin.py:3727 plugin.py:3792 plugin.py:3872 plugin.py:4008
 msgid "Back"
 msgstr "Zurück"
 
-#: plugin.py:1293 plugin.py:1374 plugin.py:1422 plugin.py:1470 plugin.py:1518
-#: plugin.py:1663 plugin.py:1730 plugin.py:1785 plugin.py:1833 plugin.py:1891
-#: plugin.py:2015 plugin.py:2063 plugin.py:2120 plugin.py:2231 plugin.py:2298
-#: plugin.py:2361 plugin.py:2460 plugin.py:2522 plugin.py:2596 plugin.py:2738
-#: plugin.py:2861 plugin.py:3003 plugin.py:3195
+#: plugin.py:1835 plugin.py:2167 plugin.py:2331 plugin.py:2417 plugin.py:2489
+#: plugin.py:2796 plugin.py:2851 plugin.py:3176 plugin.py:3377 plugin.py:3728
+#: plugin.py:3873
 msgid "Select"
 msgstr "Wählen"
 
-#: plugin.py:1296
+#: plugin.py:1837
 msgid "Rai Play Main"
 msgstr ""
 
-#: plugin.py:1307
+#: plugin.py:1899
 msgid "Live TV"
 msgstr ""
 
-#: plugin.py:1311
+#: plugin.py:1900
 msgid "Live Radio"
 msgstr ""
 
-#: plugin.py:1315
+#: plugin.py:1901
 msgid "Replay TV"
 msgstr ""
 
-#: plugin.py:1319
+#: plugin.py:1902
 msgid "On Demand"
 msgstr ""
 
-#: plugin.py:1323
+#: plugin.py:1903
 msgid "TV News"
 msgstr ""
 
-#: plugin.py:1328
+#: plugin.py:1904
 msgid "Sports"
 msgstr ""
 
-#: plugin.py:1333 plugin.py:2492 plugin.py:2559 plugin.py:2632 plugin.py:2706
-#: plugin.py:2763 plugin.py:2827
+#: plugin.py:1913 plugin.py:3421 plugin.py:3492 plugin.py:3584 plugin.py:3678
+#: plugin.py:3754 plugin.py:3822
 msgid "Please select ..."
 msgstr "Bitte auswählen ..."
 
-#: plugin.py:1356 plugin.py:1757
+#: plugin.py:1937 plugin.py:2447
 msgid "Functionality not yet implemented"
 msgstr ""
 
-#: plugin.py:1372 plugin.py:1420 plugin.py:1468 plugin.py:1516 plugin.py:1661
-#: plugin.py:1728 plugin.py:1783 plugin.py:1831 plugin.py:1889 plugin.py:2013
-#: plugin.py:2061 plugin.py:2118 plugin.py:2229 plugin.py:2296 plugin.py:2359
-#: plugin.py:2458 plugin.py:2859 plugin.py:3001
+#: plugin.py:2031 plugin.py:2099 plugin.py:2165 plugin.py:2223 plugin.py:2329
+#: plugin.py:2415 plugin.py:2487 plugin.py:2559 plugin.py:2642 plugin.py:2794
+#: plugin.py:2849 plugin.py:2929 plugin.py:3077 plugin.py:3174 plugin.py:3243
+#: plugin.py:3375 plugin.py:3871 plugin.py:4007
 msgid "Loading..."
 msgstr ""
 
-#: plugin.py:1377
+#: plugin.py:2033 plugin.py:2101 plugin.py:2225 plugin.py:2561 plugin.py:2644
+#: plugin.py:2931 plugin.py:3079 plugin.py:3245 plugin.py:3456 plugin.py:3549
+#: plugin.py:3638 plugin.py:3793 plugin.py:4009
+msgid "Play"
+msgstr "Play"
+
+#: plugin.py:2035
 msgid "Rai Play Live"
 msgstr ""
 
-#: plugin.py:1394 plugin.py:1442 plugin.py:1697
+#: plugin.py:2055 plugin.py:2122 plugin.py:2372
 #, fuzzy
 #| msgid "Select"
 msgid "Select channel"
 msgstr "Wählen"
 
-#: plugin.py:1425
+#: plugin.py:2078 plugin.py:2145 plugin.py:2304 plugin.py:2615 plugin.py:2768
+#: plugin.py:3051 plugin.py:3155 plugin.py:3352 plugin.py:3523 plugin.py:3612
+#: plugin.py:3702 plugin.py:3847 plugin.py:4081
+msgid "Error playing stream"
+msgstr ""
+
+#: plugin.py:2103
 msgid "Rai Play Live Radio"
 msgstr ""
 
-#: plugin.py:1473
+#: plugin.py:2169 plugin.py:2333
 msgid "Rai Play Replay TV"
 msgstr ""
 
-#: plugin.py:1490
+#: plugin.py:2189
 #, fuzzy
 #| msgid "Select"
 msgid "Select date"
 msgstr "Wählen"
 
-#: plugin.py:1536 plugin.py:1620 plugin.py:1679 plugin.py:1701 plugin.py:2075
-#: plugin.py:2132 plugin.py:2194 plugin.py:2243 plugin.py:2387 plugin.py:2431
-#: plugin.py:3041
-msgid "Error loading data"
+#: plugin.py:2228
+msgid "Rai Play Replay: "
 msgstr ""
 
-#: plugin.py:1613
-msgid "No programs available for this day"
-msgstr ""
-
-#: plugin.py:1616 plugin.py:2091
+#: plugin.py:2252 plugin.py:2896
 #, fuzzy
 #| msgid "Select"
 msgid "Select program"
 msgstr "Wählen"
 
-#: plugin.py:1630
+#: plugin.py:2255
+msgid "No programs available for this day"
+msgstr ""
+
+#: plugin.py:2274
 msgid "Video URL not available"
 msgstr ""
 
-#: plugin.py:1636
+#: plugin.py:2285
 msgid "Video not available or invalid URL"
 msgstr ""
 
-#: plugin.py:1694
+#: plugin.py:2346 plugin.py:2377 plugin.py:2864 plugin.py:2944 plugin.py:3026
+#: plugin.py:3092 plugin.py:3269 plugin.py:3329 plugin.py:4044
+msgid "Error loading data"
+msgstr ""
+
+#: plugin.py:2368
 msgid "No TV channels available"
 msgstr ""
 
-#: plugin.py:1733
+#: plugin.py:2419
 msgid "Rai Play On Demand"
 msgstr ""
 
-#: plugin.py:1741
+#: plugin.py:2429
 msgid "No categories available"
 msgstr ""
 
-#: plugin.py:1746 plugin.py:2329 plugin.py:2881
+#: plugin.py:2434 plugin.py:3208 plugin.py:3892
 msgid "Select category"
 msgstr ""
 
-#: plugin.py:1804
+#: plugin.py:2526
 #, fuzzy
 #| msgid "Select"
 msgid "Select block"
 msgstr "Wählen"
 
-#: plugin.py:1859 plugin.py:2275 plugin.py:3036
+#: plugin.py:2593 plugin.py:3133 plugin.py:4039
 #, fuzzy
 #| msgid "Select"
 msgid "Select video"
 msgstr "Wählen"
 
-#: plugin.py:1929
+#: plugin.py:2686
 msgid "No items available"
 msgstr ""
 
-#: plugin.py:1933
+#: plugin.py:2693
 #, fuzzy
 #| msgid "Select"
 msgid "Select item"
 msgstr "Wählen"
 
-#: plugin.py:1937
+#: plugin.py:2701
 #, python-format
 msgid "Error loading data: %s"
 msgstr ""
 
-#: plugin.py:1979
+#: plugin.py:2740
 msgid "Error loading video data"
 msgstr ""
 
-#: plugin.py:1988
+#: plugin.py:2749
 msgid "No video URL found"
 msgstr ""
 
-#: plugin.py:1990
+#: plugin.py:2751
 msgid "Error parsing video data"
 msgstr ""
 
-#: plugin.py:2033
+#: plugin.py:2816
 #, fuzzy
 #| msgid "Select"
 msgid "Select letter"
 msgstr "Wählen"
 
-#: plugin.py:2184
+#: plugin.py:3016
 msgid "No seasons available"
 msgstr ""
 
-#: plugin.py:2190
+#: plugin.py:3022
 #, fuzzy
 #| msgid "Select"
 msgid "Select season"
 msgstr "Wählen"
 
-#: plugin.py:2381
+#: plugin.py:3263
 msgid "Invalid category"
 msgstr ""
 
-#: plugin.py:2393
+#: plugin.py:3278
 msgid "Data format not recognized"
 msgstr ""
 
-#: plugin.py:2424
+#: plugin.py:3322
 msgid "No editions available"
 msgstr ""
 
-#: plugin.py:2427
+#: plugin.py:3325
 #, fuzzy
 #| msgid "Select"
 msgid "Select edition"
 msgstr "Wählen"
 
-#: plugin.py:2463
+#: plugin.py:3379
 msgid "Regional TGR"
 msgstr ""
 
-#: plugin.py:2666 plugin.py:2797
-msgid "Play"
-msgstr "Play"
-
-#: plugin.py:2864
+#: plugin.py:3875
 msgid "Rai Sport"
 msgstr ""
 
-#: plugin.py:2876
+#: plugin.py:3887
 msgid "No sports categories available"
 msgstr ""
 
-#: plugin.py:2882
+#: plugin.py:3893
 msgid "Rai Sport - Categories"
 msgstr ""
 
-#: plugin.py:2899
+#: plugin.py:3910
 #, fuzzy
 #| msgid "Select"
 msgid "Select subcategory"
 msgstr "Wählen"
 
-#: plugin.py:2900
+#: plugin.py:3911
 msgid "Rai Sport - Subcategories"
 msgstr ""
 
-#: plugin.py:2927 plugin.py:3023
+#: plugin.py:3938 plugin.py:4026
 msgid "No videos available"
 msgstr ""
 
-#: plugin.py:3030
+#: plugin.py:4033
 msgid "Next page"
 msgstr ""
 
-#: plugin.py:3250
-msgid "Error playing stream"
+#: plugin.py:4445
+msgid "Play/pause not supported for this stream"
 msgstr ""
 
-#: plugin.py:3270
-msgid "Error playing HLS stream"
-msgstr ""
-
-#: plugin.py:3293
-msgid "Error playing TS stream"
-msgstr ""
-
-#: plugin.py:3425
+#: plugin.py:4496
 msgid "Error starting plugin"
 msgstr ""
 
