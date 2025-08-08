@@ -1344,6 +1344,51 @@ class RaiPlayAPI:
         print(">>> No valid thumbnail found, using DEFAULT_ICON_URL")
         return self.DEFAULT_ICON_URL
 
+    def getThumbnailUrl2xxx(self, item):
+        """Get thumbnail URL from various possible locations in the JSON"""
+        # First try: item's direct images
+        images = item.get("images", {})
+        if images.get("landscape_logo", ""):
+            return self.getFullUrl(images["landscape_logo"])
+        elif images.get("landscape", ""):
+            return self.getFullUrl(images["landscape"])
+        elif images.get("portrait_logo", ""):
+            return self.getFullUrl(images["portrait_logo"])
+        elif images.get("portrait", ""):
+            return self.getFullUrl(images["portrait"])
+        elif images.get("square", ""):
+            return self.getFullUrl(images["square"])
+
+        # Second try: isPartOf section (for program relationships)
+        is_part_of = item.get("isPartOf", {})
+        if is_part_of:
+            part_images = is_part_of.get("images", {})
+            if part_images.get("portrait", ""):
+                return self.getFullUrl(part_images["portrait"])
+            elif part_images.get("landscape", ""):
+                return self.getFullUrl(part_images["landscape"])
+
+        # Third try: program block images
+        program = item.get("program", {})
+        if program:
+            program_images = program.get("images", {})
+            if program_images.get("portrait", ""):
+                return self.getFullUrl(program_images["portrait"])
+            elif program_images.get("landscape", ""):
+                return self.getFullUrl(program_images["landscape"])
+
+        # Fourth try: contentItem images
+        content_item = item.get("contentItem", {})
+        if content_item:
+            content_images = content_item.get("images", {})
+            if content_images.get("portrait", ""):
+                return self.getFullUrl(content_images["portrait"])
+            elif content_images.get("landscape", ""):
+                return self.getFullUrl(content_images["landscape"])
+        print(">>> No valid thumbnail found, using DEFAULT_ICON_URL")
+        # Final fallback
+        return self.DEFAULT_ICON_URL
+
     def getProgramDetails(self, url):
         """Retrieve program details"""
         url = self.getFullUrl(url)
