@@ -5343,6 +5343,7 @@ class RaiPlayInfo(SafeScreen):
 		show_list(help_lines, self['text'])
 
 
+
 def main(session, **kwargs):
 	try:
 		session.open(RaiPlayMain)
