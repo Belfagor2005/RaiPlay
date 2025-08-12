@@ -20,8 +20,10 @@ It allows users to navigate categories, programs, and videos via Rai Play's JSON
 - Access detailed program information and seasons  
 - Play videos and movies seamlessly  
 - Supports subtitles and multiple video qualities (if available)  
+- Search functionality to find specific programs and videos  
+- Uses Rai’s relinker service to resolve video URLs for smooth playback  
 - Debug logging for easier troubleshooting  
-- Clean, user-friendly interface  
+- Clean, user-friendly interface
 
 ## Installation
 
@@ -56,3 +58,4 @@ See the [LICENSE](LICENSE) file for details.
 For questions or feedback, please open an issue or contact Lululla.
 
 ```
+
