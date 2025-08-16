@@ -113,7 +113,11 @@ def getUrlSiVer(url, verify=True):
     """Fetch URL content with optional SSL verification"""
     try:
         headers = {'User-Agent': RequestAgent()}
-        response = requests.get(url, headers=headers, timeout=10, verify=verify)
+        response = requests.get(
+            url,
+            headers=headers,
+            timeout=10,
+            verify=verify)
         response.raise_for_status()
         return response.text
     except Exception as e:
@@ -863,7 +867,13 @@ class SafeScreen(Screen):
             if hasattr(self, 'picload'):
                 del self.picload
 
-            for attr in ['videos', 'names', 'urls', '_history', 'items', 'blocks']:
+            for attr in [
+                'videos',
+                'names',
+                'urls',
+                '_history',
+                'items',
+                    'blocks']:
                 if attr in self.__dict__:
                     delattr(self, attr)
 
@@ -1033,7 +1043,8 @@ class RaiPlayAPI:
                         with open(join(self.debug_dir, "raisport_categories.json"), "w", encoding="utf-8") as debug_f:
                             dump(data, debug_f, indent=2, ensure_ascii=False)
 
-                        print("[DEBUG] Saved categories structure to raisport_categories.json")
+                        print(
+                            "[DEBUG] Saved categories structure to raisport_categories.json")
 
                     return data
             except Exception as e:
@@ -1652,14 +1663,16 @@ class RaiPlayAPI:
                 az_structures.append(response)
 
             # 2. Check if there is an AZ structure inside 'contents'
-            if "contents" in response and isinstance(response["contents"], dict):
+            if "contents" in response and isinstance(
+                    response["contents"], dict):
                 print("[DEBUG] Found AZ structure inside 'contents'")
                 az_structures.append(response["contents"])
 
             # 3. Check if there is an AZ structure inside 'blocks'
             if "blocks" in response and isinstance(response["blocks"], list):
                 for block in response["blocks"]:
-                    if "contents" in block and isinstance(block["contents"], dict):
+                    if "contents" in block and isinstance(
+                            block["contents"], dict):
                         if any(key in block["contents"] for key in az_keys):
                             print("[DEBUG] Found AZ structure inside block")
                             az_structures.append(block["contents"])
@@ -1673,8 +1686,10 @@ class RaiPlayAPI:
                             if not name:
                                 continue
 
-                            raw_url = item.get("path_id") or item.get("PathID") or ""
-                            url_fixed = self.fixPath(raw_url) if raw_url else None
+                            raw_url = item.get(
+                                "path_id") or item.get("PathID") or ""
+                            url_fixed = self.fixPath(
+                                raw_url) if raw_url else None
                             icon_url = self.getThumbnailUrl2(item)
 
                             items.append({
@@ -1686,14 +1701,20 @@ class RaiPlayAPI:
 
                 # If we already found items, return them immediately
                 if items:
-                    print("[DEBUG] Found {} items in AZ structure".format(len(items)))
+                    print(
+                        "[DEBUG] Found {} items in AZ structure".format(
+                            len(items)))
                     return items
 
             # Case 1: Direct list of items
             if "items" in response and isinstance(response["items"], list):
                 for i, item in enumerate(response["items"]):
-                    print("[DEBUG] Item #{}: {}".format(i, item.get("name", "no-name")))
-                    raw_url = item.get("path_id") or item.get("url") or item.get("PathID") or ""
+                    print(
+                        "[DEBUG] Item #{}: {}".format(
+                            i, item.get(
+                                "name", "no-name")))
+                    raw_url = item.get("path_id") or item.get(
+                        "url") or item.get("PathID") or ""
                     url_fixed = self.fixPath(raw_url) if raw_url else None
                     icon_url = self.getThumbnailUrl2(item)
                     item_data = {
@@ -1709,11 +1730,14 @@ class RaiPlayAPI:
                 print("[DEBUG] Found 'blocks' structure")
                 for block in response["blocks"]:
                     block_type = block.get("type", "")
-                    print("[DEBUG] Processing block type: {}".format(block_type))
+                    print(
+                        "[DEBUG] Processing block type: {}".format(block_type))
                     if block_type == "RaiPlay Slider Generi Block":
                         for j, item in enumerate(block.get("contents", [])):
-                            raw_url = item.get("path_id") or item.get("url") or ""
-                            url_fixed = self.fixPath(raw_url) if raw_url else None
+                            raw_url = item.get(
+                                "path_id") or item.get("url") or ""
+                            url_fixed = self.fixPath(
+                                raw_url) if raw_url else None
                             icon_url = self.getFullUrl(item.get("image", ""))
                             item_data = {
                                 "name": item.get("name", ""),
@@ -1798,8 +1822,10 @@ class RaiPlayAPI:
                             name = item.get("name", "")
                             if not name:
                                 continue
-                            raw_url = item.get("path_id") or item.get("PathID") or ""
-                            url_fixed = self.fixPath(raw_url) if raw_url else None
+                            raw_url = item.get(
+                                "path_id") or item.get("PathID") or ""
+                            url_fixed = self.fixPath(
+                                raw_url) if raw_url else None
                             icon_url = self.getThumbnailUrl2(item)
                             item_data = {
                                 "name": name,
@@ -1848,7 +1874,8 @@ class RaiPlayAPI:
         print(">>> getThumbnailUrl2 - item keys:", item.keys())
 
         def full_url(path):
-            return path if path.startswith("http") else "https://www.rainews.it" + path
+            return path if path.startswith(
+                "http") else "https://www.rainews.it" + path
 
         # 1. image.media_url
         image_data = item.get("image")
@@ -2009,23 +2036,32 @@ class RaiPlayAPI:
         """
         Retrieve all archived editions of the specified TG channel with pagination.
         """
-        archive_url = "https://www.rainews.it/notiziari/{}/archivio".format(tg_channel)
+        archive_url = "https://www.rainews.it/notiziari/{}/archivio".format(
+            tg_channel)
         try:
             # Request parameters
             params = {'page': page} if page > 1 else {}
             headers = {
                 "User-Agent": USER_AGENT,
-                "Referer": "https://www.rainews.it/notiziari/{}/".format(tg_channel)
-            }
+                "Referer": "https://www.rainews.it/notiziari/{}/".format(tg_channel)}
 
             # Perform the HTTP request
-            response = requests.get(archive_url, params=params, headers=headers, timeout=15, verify=False)
+            response = requests.get(
+                archive_url,
+                params=params,
+                headers=headers,
+                timeout=15,
+                verify=False)
             response.raise_for_status()
             content = response.text
 
             # DEBUG: Save the HTML for analysis
             if DEBUG_MODE:
-                file_path = join(self.debug_dir, "{}_archive_{}.html".format(tg_channel, page))
+                file_path = join(
+                    self.debug_dir,
+                    "{}_archive_{}.html".format(
+                        tg_channel,
+                        page))
                 with open(file_path, "w", encoding="utf-8") as f:
                     f.write(content)
                 print("[DEBUG] Saved archive page -> {}".format(file_path))
@@ -2034,8 +2070,7 @@ class RaiPlayAPI:
             pagination_info = {}
             pagination_match = search(
                 r'<rainews-paginator\s+pageindex="(\d+)"\s+pagesize="(\d+)"\s+length="(\d+)"',
-                content
-            )
+                content)
             if pagination_match:
                 total_items = int(pagination_match.group(3))
                 page_size = int(pagination_match.group(2))
@@ -2076,7 +2111,10 @@ class RaiPlayAPI:
 
                     # Extract information for display
                     title = card.get("title", edition.get("title", "No title"))
-                    date_str = "{} {}".format(edition.get("date", ""), edition.get("hour", ""))
+                    date_str = "{} {}".format(
+                        edition.get(
+                            "date", ""), edition.get(
+                            "hour", ""))
                     duration = card.get("duration", "")
 
                     # Use the existing function for thumbnail
@@ -2121,30 +2159,41 @@ class RaiPlayAPI:
             return []
 
         try:
-            response = requests.get(tg_urls[tg_channel], headers=self.HTTP_HEADER, timeout=10)
+            response = requests.get(
+                tg_urls[tg_channel],
+                headers=self.HTTP_HEADER,
+                timeout=10)
             response.raise_for_status()
             content = response.text
 
             # Extract the content of <rainews-player> tag using regex
-            player_match = search(r'<rainews-player\s+data=\'(.*?)\'', content, DOTALL)
+            player_match = search(
+                r'<rainews-player\s+data=\'(.*?)\'', content, DOTALL)
             if not player_match:
                 return []
 
             # Decode HTML entities
             player_json = player_match.group(1)
-            player_json = player_json.replace('&quot;', '"').replace('&#x3D;', '=')
+            player_json = player_json.replace(
+                '&quot;', '"').replace(
+                '&#x3D;', '=')
 
             # Convert to Python object
             player_data = loads(player_json)
 
             # Extract video details
-            return [{
-                "title": player_data.get("track_info", {}).get("title", "No title"),
-                "subtitle": player_data.get("track_info", {}).get("episode_title", ""),
-                "url": player_data.get("content_url", ""),
-                "icon": self.getFullUrl(player_data.get("image", "")),
-                "date": player_data.get("track_info", {}).get("create_date", "")
-            }]
+            return [
+                {
+                    "title": player_data.get(
+                        "track_info", {}).get(
+                        "title", "No title"), "subtitle": player_data.get(
+                        "track_info", {}).get(
+                        "episode_title", ""), "url": player_data.get(
+                            "content_url", ""), "icon": self.getFullUrl(
+                                player_data.get(
+                                    "image", "")), "date": player_data.get(
+                                        "track_info", {}).get(
+                                            "create_date", "")}]
 
         except Exception as e:
             print("Error fetching TG content: {}".format(str(e)))
@@ -2616,9 +2665,8 @@ class RaiPlayMain(SafeScreen):
             (_("Sports"), "sport", "https://3.bp.blogspot.com/-zo6bSJzIHwA/UNs7tWXhOnI/AAAAAAAANJ0/HCfIRNmmbNI/s1600/png_fondo_blanco_by_camilhitha124-d3hgxl4.png"),
             (_("Programs"), "programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
         ]
-        categories += [
-            (_("On Air Programs"), "on_air", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-        ]
+        categories += [(_("On Air Programs"), "on_air",
+                        "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"), ]
         categories += [
             (_("Search"), "search", png_search)
         ]
@@ -3802,40 +3850,46 @@ class RaiPlayOnAir(SafeScreen):
             response = requests.get(url, timeout=15)
             response.raise_for_status()
             data = response.json()
-            
+
             self.programs = []
-            
+
             # Extract channels from different possible structures
             channels = data.get("on_air", []) or data.get("channels", [])
-            
+
             for channel in channels:
                 current_item = channel.get("currentItem", {})
                 if not current_item:
                     continue
-                    
+
                 title = current_item.get("name", "")
                 if not title:
                     continue
-                    
+
                 # Get video URL - try multiple locations
-                video_url = current_item.get("path_id", "") or current_item.get("weblink", "") or current_item.get("event_weblink", "")
+                video_url = current_item.get(
+                    "path_id",
+                    "") or current_item.get(
+                    "weblink",
+                    "") or current_item.get(
+                    "event_weblink",
+                    "")
                 if not video_url:
                     continue
-                    
+
                 # Make URL absolute
                 if not video_url.startswith("http"):
                     video_url = "https://www.raiplay.it" + video_url
-                    
+
                 # Format time information
                 start_time = current_item.get("hour", "")
                 channel_name = channel.get("channel", "")
                 time_str = f"[{channel_name}] {start_time} " if channel_name and start_time else ""
-                
+
                 # Get image
                 icon = current_item.get("image", "")
                 if icon and not icon.startswith("http"):
                     icon = "https://www.raiplay.it" + icon
-                    
+
                 self.programs.append({
                     "title": f"{time_str}{title}",
                     "url": video_url,
@@ -4037,9 +4091,15 @@ class RaiPlayTGArchive(SafeScreen):
         # Prepare the list for display
         self.names = []
         for video in self.videos:
-            date_str = " - {}".format(video['date']) if video.get('date') else ""
-            duration_str = " ({})".format(video['duration']) if video.get('duration') else ""
-            self.names.append("{}{}{}".format(video['title'], date_str, duration_str))
+            date_str = " - {}".format(video['date']
+                                      ) if video.get('date') else ""
+            duration_str = " ({})".format(
+                video['duration']) if video.get('duration') else ""
+            self.names.append(
+                "{}{}{}".format(
+                    video['title'],
+                    date_str,
+                    duration_str))
 
         show_list(self.names, self['text'])
         self['info'].setText("{} Archive - Page {}/{}".format(
@@ -4112,60 +4172,62 @@ class RaiPlayTGR(SafeScreen):
     def _gotPageLoad(self):
         """Load both regional TGR programs and the special programs"""
         # Existing regional TGR programs with specific icons
-        categories = [
-            {
-                "name": "TG Regionale",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?tgr",
-                "icon": png_tgr
-            },
-            {
-                "name": "Meteo Regionale",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?meteo",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/meteo.png"
-            },
-            {
-                "name": "Buongiorno Italia",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-88d248b5-6815-4bed-92a3-60e22ab92df4.html",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20italia.png"
-            },
-            {
-                "name": "Buongiorno Regione",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?buongiorno",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20regione.png"
-            },
-            {
-                "name": "Il Settimanale",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-b7213694-9b55-4677-b78b-6904e9720719.html",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/il%20settimanale.png"
-            },
-            {
-                "name": "Rubriche",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/list.xml",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/rubriche.png"
-            }
-        ]
+        categories = [{"name": "TG Regionale",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?tgr",
+                       "icon": png_tgr},
+                      {"name": "Meteo Regionale",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?meteo",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/meteo.png"},
+                      {"name": "Buongiorno Italia",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-88d248b5-6815-4bed-92a3-60e22ab92df4.html",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20italia.png"},
+                      {"name": "Buongiorno Regione",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?buongiorno",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20regione.png"},
+                      {"name": "Il Settimanale",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-b7213694-9b55-4677-b78b-6904e9720719.html",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/il%20settimanale.png"},
+                      {"name": "Rubriche",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/list.xml",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/rubriche.png"}]
 
         # Add the new special programs
         special_programs = [
-            {"name": "TV7", "url": "https://www.rainews.it/rubriche/tv7/archivio", "icon": png_tv7},
-            {"name": "Speciale TG1", "url": "https://www.rainews.it/rubriche/specialetg1/archivio", "icon": png_tgspec},
-            {"name": "TG1 Dialogo", "url": "https://www.rainews.it/rubriche/tg1dialogo/archivio", "icon": png_tgd},
-            {"name": "TG1 Economia", "url": "https://www.rainews.it/rubriche/tg1economia/archivio", "icon": png_tgec},
-            {"name": "TG1 Libri", "url": "https://www.rainews.it/rubriche/tg1libri/archivio", "icon": png_tglib},
-            {"name": "TG1 Medicina", "url": "https://www.rainews.it/rubriche/tg1medicina/archivio", "icon": png_tgmed},
-            {"name": "TG1 Motori", "url": "https://www.rainews.it/rubriche/tg1motori/archivio", "icon": png_tgm},
-            {"name": "TG1 Persone", "url": "https://www.rainews.it/rubriche/tg1persone/archivio", "icon": png_tgpers},
+            {"name": "TV7",
+             "url": "https://www.rainews.it/rubriche/tv7/archivio",
+             "icon": png_tv7},
+            {"name": "Speciale TG1",
+             "url": "https://www.rainews.it/rubriche/specialetg1/archivio",
+             "icon": png_tgspec},
+            {"name": "TG1 Dialogo",
+             "url": "https://www.rainews.it/rubriche/tg1dialogo/archivio",
+             "icon": png_tgd},
+            {"name": "TG1 Economia",
+             "url": "https://www.rainews.it/rubriche/tg1economia/archivio",
+             "icon": png_tgec},
+            {"name": "TG1 Libri",
+             "url": "https://www.rainews.it/rubriche/tg1libri/archivio",
+             "icon": png_tglib},
+            {"name": "TG1 Medicina",
+             "url": "https://www.rainews.it/rubriche/tg1medicina/archivio",
+             "icon": png_tgmed},
+            {"name": "TG1 Motori",
+             "url": "https://www.rainews.it/rubriche/tg1motori/archivio",
+             "icon": png_tgm},
+            {"name": "TG1 Persone",
+             "url": "https://www.rainews.it/rubriche/tg1persone/archivio",
+             "icon": png_tgpers},
             # {"name": "TG Sport (Archivio)", "url": "https://www.rainews.it/notiziari/tgsport/archivio", "icon": png_tgsp}
         ]
 
         # Combine both lists
         self.programs = categories + special_programs
-        
+
         # Extract names, urls, and icons
         self.names = [program["name"] for program in self.programs]
         self.urls = [program["url"] for program in self.programs]
         self.icons = [program["icon"] for program in self.programs]
-        
+
         show_list(self.names, self['text'])
         self['info'].setText(_('Select program'))
 
@@ -4190,16 +4252,22 @@ class RaiPlayTGR(SafeScreen):
 
         # Check if it's a special program (use direct archive)
         is_special = name in [
-            "Speciale TG1", "TG1 Motori", "TG1 Medicina", "TG1 Dialogo",
-            "TV7", "TG1 Libri", "TG1 Persone", "TG1 Economia", "Tg Sport (Archivio)"
-        ]
-        
+            "Speciale TG1",
+            "TG1 Motori",
+            "TG1 Medicina",
+            "TG1 Dialogo",
+            "TV7",
+            "TG1 Libri",
+            "TG1 Persone",
+            "TG1 Economia",
+            "Tg Sport (Archivio)"]
+
         # Check if it's a regional TGR program (use existing navigation)
         is_regional = name in [
             "TG Regionale", "Meteo Regionale", "Buongiorno Italia",
             "Buongiorno Regione", "Il Settimanale", "Rubriche"
         ]
-        
+
         if is_special:
             self.session.open(RaiPlayTGDirectArchive, name, url)
         elif is_regional:
@@ -4235,24 +4303,24 @@ class RaiPlayTGDirectArchive(SafeScreen):
     def loadData(self):
         """Load archive data directly from the provided URL"""
         self['info'].setText(_('Loading archive data...'))
-        
+
         try:
             # Fetch the archive page
             data = Utils.getUrlSiVer(self.url)
             if not data:
                 self['info'].setText(_('No content available'))
                 return
-                
+
             # Handle TG Sport archive differently
             if "tgsport/archivio" in self.url:
                 self.parseTgSportArchive(data)
             else:
                 self.parseGenericArchive(data)
-            
+
             if not self.videos:
                 self['info'].setText(_('No videos found in archive'))
                 return
-                
+
             # Prepare the list for display
             self.names = []
             for video in self.videos:
@@ -4260,48 +4328,56 @@ class RaiPlayTGDirectArchive(SafeScreen):
                 display_title = video["title"]
                 if video.get("date"):
                     try:
-                        dt = datetime.fromisoformat(video["date"].replace("Z", "+00:00"))
+                        dt = datetime.fromisoformat(
+                            video["date"].replace("Z", "+00:00"))
                         display_title = f"{dt.strftime('%d/%m/%Y')} - {display_title}"
-                    except:
+                    except BaseException:
                         pass
                 if video.get("duration"):
                     display_title += f" ({video['duration']})"
-                    
+
                 self.names.append(display_title)
-                
+
             show_list(self.names, self['text'])
             self['info'].setText(_('Select video'))
-            
+
             if self.names:
                 self["text"].moveToIndex(0)
             self.selectionChanged()
-            
+
         except Exception as e:
             print("Error loading archive: " + str(e))
-            self['info'].setText(_('Error loading archive data: {}').format(str(e)))
+            self['info'].setText(
+                _('Error loading archive data: {}').format(
+                    str(e)))
 
     def parseTgSportArchive(self, data):
         """Special parser for TG Sport archive page"""
         self.videos = []
-        
+
         # Find all program blocks
-        program_blocks = findall(r'<div class="grid__item col-12 col-sm-6 col-lg-4">(.*?)</div>\s*</div>', data, DOTALL)
-        
+        program_blocks = findall(
+            r'<div class="grid__item col-12 col-sm-6 col-lg-4">(.*?)</div>\s*</div>',
+            data,
+            DOTALL)
+
         for block in program_blocks:
             # Extract title
             title_match = search(r'<h3 class="card__title">(.*?)</h3>', block)
             if not title_match:
                 continue
             title = title_match.group(1).strip()
-            
+
             # Extract date
             date_match = search(r'<div class="card__date">(.*?)</div>', block)
             date_str = date_match.group(1).strip() if date_match else ""
-            
+
             # Extract duration
-            duration_match = search(r'<div class="launch-item__duration">.*?<span>(.*?)</span>', block, DOTALL)
-            duration = duration_match.group(1).strip() if duration_match else ""
-            
+            duration_match = search(
+                r'<div class="launch-item__duration">.*?<span>(.*?)</span>', block, DOTALL)
+            duration = duration_match.group(
+                1).strip() if duration_match else ""
+
             # Extract page URL
             url_match = search(r'href="(.*?)"', block)
             if not url_match:
@@ -4309,13 +4385,13 @@ class RaiPlayTGDirectArchive(SafeScreen):
             page_url = url_match.group(1)
             if not page_url.startswith("http"):
                 page_url = "https://www.rainews.it" + page_url
-                
+
             # Extract image URL
             img_match = search(r'data-src="(.*?)"', block)
             img_url = img_match.group(1) if img_match else ""
             if img_url and not img_url.startswith("http"):
                 img_url = "https://www.rainews.it" + img_url
-                
+
             self.videos.append({
                 "title": title,
                 "page_url": page_url,
@@ -4323,7 +4399,7 @@ class RaiPlayTGDirectArchive(SafeScreen):
                 "date": date_str,
                 "duration": duration
             })
-            
+
         # If no items found with the first method, try alternative method
         if not self.videos:
             self.parseAlternativeSportArchive(data)
@@ -4331,15 +4407,18 @@ class RaiPlayTGDirectArchive(SafeScreen):
     def parseAlternativeSportArchive(self, data):
         """Alternative parser for TG Sport archive"""
         # Find all video items
-        video_items = findall(r'<a\s+class="[^"]*?beforeicon_video[^"]*?"[^>]*?href="([^"]+)"[^>]*?>.*?<img[^>]*?data-src="([^"]+)"[^>]*?alt="([^"]+)".*?<div class="launch-item__duration">.*?<span>([^<]+)</span>', data, DOTALL)
-        
+        video_items = findall(
+            r'<a\s+class="[^"]*?beforeicon_video[^"]*?"[^>]*?href="([^"]+)"[^>]*?>.*?<img[^>]*?data-src="([^"]+)"[^>]*?alt="([^"]+)".*?<div class="launch-item__duration">.*?<span>([^<]+)</span>',
+            data,
+            DOTALL)
+
         for matchx in video_items:
             page_url, img_url, title, duration = matchx
             if not page_url.startswith("http"):
                 page_url = "https://www.rainews.it" + page_url
             if not img_url.startswith("http"):
                 img_url = "https://www.rainews.it" + img_url
-                
+
             self.videos.append({
                 "title": title,
                 "page_url": page_url,
@@ -4350,7 +4429,7 @@ class RaiPlayTGDirectArchive(SafeScreen):
     def parseGenericArchive(self, data):
         """Parser for generic archive pages"""
         self.videos = []
-        
+
         # Method 1: Extract JSON data from rainews-aggregator-broadcast-archive
         json_match = search(
             r'<rainews-aggregator-broadcast-archive\s+data="([^"]+)"',
@@ -4361,22 +4440,36 @@ class RaiPlayTGDirectArchive(SafeScreen):
                 # Parse the JSON
                 json_str = html_unescape(json_match.group(1))
                 archive_data = loads(json_str)
-                
+
                 # Process the videos
                 cards = archive_data.get("contents", [])[0].get("cards", [])
                 for card in cards:
                     video = {
-                        "title": card.get("title", ""),
-                        "content_url": card.get("content_url", ""),
-                        "page_url": "https://www.rainews.it" + card.get("link", ""),
+                        "title": card.get(
+                            "title",
+                            ""),
+                        "content_url": card.get(
+                            "content_url",
+                            ""),
+                        "page_url": "https://www.rainews.it" +
+                        card.get(
+                            "link",
+                            ""),
                         "icon": self.api.getThumbnailUrl2(card),
-                        "date": card.get("broadcast", {}).get("edition", {}).get("dateIso", ""),
-                        "duration": card.get("duration", "")
-                    }
+                        "date": card.get(
+                            "broadcast",
+                            {}).get(
+                            "edition",
+                            {}).get(
+                            "dateIso",
+                            ""),
+                        "duration": card.get(
+                            "duration",
+                            "")}
                     self.videos.append(video)
             except Exception as e:
                 print("Error parsing JSON archive: " + str(e))
-        
+
         # If no videos found, try HTML parsing
         if not self.videos:
             self.parseHtmlArchive(data)
@@ -4384,15 +4477,18 @@ class RaiPlayTGDirectArchive(SafeScreen):
     def parseHtmlArchive(self, data):
         """Parse archive by scanning HTML structure"""
         # Find all video items in the HTML
-        video_items = findall(r'<a\s+class="[^"]*?beforeicon_video[^"]*?"[^>]*?href="([^"]+)"[^>]*?>.*?<img[^>]*?data-src="([^"]+)"[^>]*?alt="([^"]+)".*?<div class="launch-item__duration">.*?<span>([^<]+)</span>', data, DOTALL)
-        
+        video_items = findall(
+            r'<a\s+class="[^"]*?beforeicon_video[^"]*?"[^>]*?href="([^"]+)"[^>]*?>.*?<img[^>]*?data-src="([^"]+)"[^>]*?alt="([^"]+)".*?<div class="launch-item__duration">.*?<span>([^<]+)</span>',
+            data,
+            DOTALL)
+
         for matchx in video_items:
             page_url, img_url, title, duration = matchx
             if not page_url.startswith("http"):
                 page_url = "https://www.rainews.it" + page_url
             if not img_url.startswith("http"):
                 img_url = "https://www.rainews.it" + img_url
-                
+
             self.videos.append({
                 "title": title,
                 "page_url": page_url,
@@ -4424,39 +4520,42 @@ class RaiPlayTGDirectArchive(SafeScreen):
             if not page_data:
                 self['info'].setText(_('Error loading video page'))
                 return
-                
+
             # Find the video URL in the page
             video_url = None
-            
+
             # Method 1: Look for content_url in JSON
             json_match = search(r'content_url\s*:\s*"([^"]+)"', page_data)
             if json_match:
                 video_url = json_match.group(1)
-            
+
             # Method 2: Look for rainews-player data
             if not video_url:
-                player_match = search(r'<rainews-player\s+data=\'([^\']+)\'', page_data)
+                player_match = search(
+                    r'<rainews-player\s+data=\'([^\']+)\'', page_data)
                 if player_match:
                     try:
-                        player_json = player_match.group(1).replace('&quot;', '"')
+                        player_json = player_match.group(
+                            1).replace('&quot;', '"')
                         player_data = loads(player_json)
                         video_url = player_data.get("content_url", "")
-                    except:
+                    except BaseException:
                         pass
-            
+
             # Method 3: Look for video source
             if not video_url:
-                source_match = search(r'<source\s+src="([^"]+)"\s+type="video/[^"]+"', page_data)
+                source_match = search(
+                    r'<source\s+src="([^"]+)"\s+type="video/[^"]+"', page_data)
                 if source_match:
                     video_url = source_match.group(1)
-            
+
             if video_url:
                 if not video_url.startswith("http"):
                     video_url = "https://www.rainews.it" + video_url
                 self.playDirect(video['title'], video_url)
             else:
                 self['info'].setText(_('Could not find video URL'))
-                
+
         except Exception as e:
             print("Error extracting video URL: " + str(e))
             self['info'].setText(_('Error extracting video URL'))
@@ -4499,10 +4598,19 @@ class tgrRai2(SafeScreen):
                 self['info'].setText(_('Error loading data'))
                 return
 
-            content = content.replace("\r", "").replace("\t", "").replace("\n", "")
+            content = content.replace(
+                "\r",
+                "").replace(
+                "\t",
+                "").replace(
+                "\n",
+                "")
 
             # Alternative parsing
-            matches = findall(r'data-video-json="(.*?).json".*?<img alt="(.*?)"', content, DOTALL)
+            matches = findall(
+                r'data-video-json="(.*?).json".*?<img alt="(.*?)"',
+                content,
+                DOTALL)
             if matches:
                 for url, name in matches:
                     full_url = "https://www.raiplay.it" + url + '.html'
@@ -4536,7 +4644,9 @@ class tgrRai2(SafeScreen):
                 if title and url:
                     self.names.append(title.group(1))
                     self.urls.append(self.api.getFullUrl(url.group(1)))
-                    self.icons.append(self.api.getFullUrl(image.group(1)) if image else self.api.DEFAULT_ICON_URL)
+                    self.icons.append(
+                        self.api.getFullUrl(
+                            image.group(1)) if image else self.api.DEFAULT_ICON_URL)
 
             # Search for videos
             videos = findall(
@@ -4551,7 +4661,9 @@ class tgrRai2(SafeScreen):
                 if title and url:
                     self.names.append(title.group(1))
                     self.urls.append(url.group(1))
-                    self.icons.append(self.api.getFullUrl(image.group(1)) if image else self.api.DEFAULT_ICON_URL)
+                    self.icons.append(
+                        self.api.getFullUrl(
+                            image.group(1)) if image else self.api.DEFAULT_ICON_URL)
 
             if self.names:
                 show_list(self.names, self['text'])
@@ -4616,14 +4728,23 @@ class tgrRai3(SafeScreen):
                 self['info'].setText(_('Error loading data'))
                 return
 
-            content = content.replace("\r", "").replace("\t", "").replace("\n", "")
+            content = content.replace(
+                "\r",
+                "").replace(
+                "\t",
+                "").replace(
+                "\n",
+                "")
             if 'type="video">' in content:
                 regex = r'<label>(.*?)</label>.*?type="video">(.*?)</url>'
             elif 'type="list">' in content:
                 regex = r'<label>(.*?)</label>.*?type="list">(.*?)</url>'
             else:
                 # Try alternative parsing for video content
-                matches = findall(r'data-video-json="(.*?).json".*?<img alt="(.*?)"', content, DOTALL)
+                matches = findall(
+                    r'data-video-json="(.*?).json".*?<img alt="(.*?)"',
+                    content,
+                    DOTALL)
                 if matches:
                     for url, name in matches:
                         full_url = "https://www.raiplay.it" + url + '.html'
@@ -4710,7 +4831,10 @@ class tgrRai4(SafeScreen):
                 return
 
             # Find video JSON references
-            matches = findall(r'data-video-json="(.*?)".*?<img alt="(.*?)"', content, DOTALL)
+            matches = findall(
+                r'data-video-json="(.*?)".*?<img alt="(.*?)"',
+                content,
+                DOTALL)
             for url, name in matches:
                 # Build full video URL
                 content2 = Utils.getUrlSiVer("https://www.raiplay.it" + url)
@@ -4938,7 +5062,9 @@ class RaiPlaySportVideos(SafeScreen):
                 for video in videos:
                     # Create a unique identifier based on title and date
                     title = video.get("title", "")
-                    date_str = video.get("create_date", video.get("publication_date", ""))
+                    date_str = video.get(
+                        "create_date", video.get(
+                            "publication_date", ""))
                     video_id = title + "|" + date_str
 
                     # If this video was not already seen, add it
@@ -4950,21 +5076,27 @@ class RaiPlaySportVideos(SafeScreen):
                 time.sleep(0.1)
 
                 self['title'].setText(
-                    "Loading all videos... Please wait - " + _("Page with duplicate") + " " + str(page)
-                )
+                    "Loading all videos... Please wait - " +
+                    _("Page with duplicate") +
+                    " " +
+                    str(page))
             print("[Sport] Total unique videos: " + str(len(unique_videos)))
 
             # Sort videos by date (most recent first)
             try:
                 unique_videos.sort(
-                    key=lambda v: v.get("create_date", v.get("publication_date", "")),
-                    reverse=True
-                )
+                    key=lambda v: v.get(
+                        "create_date",
+                        v.get(
+                            "publication_date",
+                            "")),
+                    reverse=True)
             except Exception as e:
                 print("[Sport] Sorting error: " + str(e))
 
             self.all_videos = unique_videos
-            self.total_pages = (len(self.all_videos) + self.page_size - 1) // self.page_size
+            self.total_pages = (len(self.all_videos) +
+                                self.page_size - 1) // self.page_size
 
             # Show the first page
             self.showCurrentPage()
@@ -4993,7 +5125,9 @@ class RaiPlaySportVideos(SafeScreen):
         # 3. Add videos of the current page
         for video in page_videos:
             title = video.get("title", "No title")
-            date_str = video.get("create_date", video.get("publication_date", ""))
+            date_str = video.get(
+                "create_date", video.get(
+                    "publication_date", ""))
             duration = video.get("duration", "")
 
             try:
@@ -5002,7 +5136,8 @@ class RaiPlaySportVideos(SafeScreen):
 
                 # Add duration if available
                 if duration:
-                    display_title = date_display + " - " + title + " (" + duration + ")"
+                    display_title = date_display + " - " + \
+                        title + " (" + duration + ")"
                 else:
                     display_title = date_display + " - " + title
 
@@ -5021,7 +5156,8 @@ class RaiPlaySportVideos(SafeScreen):
                 "page": next_page,
                 "is_page": True
             })
-            self.names.append(_("Next page") + " (" + str(next_page + 1) + "/" + str(self.total_pages) + ")")
+            self.names.append(
+                _("Next page") + " (" + str(next_page + 1) + "/" + str(self.total_pages) + ")")
             self.icons.append(self.api.DEFAULT_ICON_URL)
         elif not self.displayed_videos:
             self.names.append(_("No videos found"))
@@ -5032,9 +5168,14 @@ class RaiPlaySportVideos(SafeScreen):
         show_list(self.names, self["text"])
 
         # 6. Update title
-        self['title'].setText(
-            self.name + " - " + _("Page") + " " + str(self.current_page + 1) + "/" + str(self.total_pages)
-        )
+        self['title'].setText(self.name +
+                              " - " +
+                              _("Page") +
+                              " " +
+                              str(self.current_page +
+                                  1) +
+                              "/" +
+                              str(self.total_pages))
 
         # 7. Restore selection
         if self.restore_state():
@@ -5059,7 +5200,8 @@ class RaiPlaySportVideos(SafeScreen):
         return self.api.DEFAULT_ICON_URL
 
     def okRun(self):
-        if not self.displayed_videos or self.displayed_videos[0].get("is_empty"):
+        if not self.displayed_videos or self.displayed_videos[0].get(
+                "is_empty"):
             return
 
         idx = self["text"].getSelectionIndex()
@@ -5138,75 +5280,45 @@ class RaiPlayPrograms(SafeScreen):
         self.onLayoutFinish.append(self.loadProgramCategories)
 
     def loadProgramCategories(self):
-        categories = [
-            {
-                "name": _("Exclusive Programs"),
-                "url": "raccolta/Programmi-in-esclusiva-f62a210b-d5a5-4b0d-ae73-1625c1da15b6.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Society & Culture"),
-                "url": "genere/PROGRAMMI---Costume-e-Societa-8875c1f7-799b-402b-92f9-791bde8fb141.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Crime Investigations"),
-                "url": "genere/Programmi---Crime-d8b77fff-5018-4ad6-9d4d-40d7dc548086.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Games & Quizzes"),
-                "url": "genere/Giochi--Quiz-ad635fda-4dd5-445f-87ff-64d60404f1ca.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("News & Documentaries"),
-                "url": "genere/Programmi---Inchieste-e-Reportage-18990102-8310-47ac-9976-07467ffc6924.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Entertainment"),
-                "url": "genere/Programmi---Intrattenimento-373672aa-a1d2-4da7-a7c7-52a3fc1fda6d.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Lifestyle"),
-                "url": "genere/Programmi---Lifestyle-f247c5a8-1272-42cf-81c3-462f585ed0ab.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Music"),
-                "url": "genere/PROGRAMMI---Musica-09030aa3-7cae-4e46-babb-30e7b8c5d47a.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"
-            },
-
-            {
-                "name": _("Music Classic"),
-                "url": "genere/Musica-Classica-2c49bffc-50a1-426a-86ac-d23e4bc285f7.json",
-                "icon": "https://www.raiplay.it/dl/img/2021/11/29/1638200397142_2048x1152.jpg"
-            },
-
-            {
-                "name": _("Sports"),
-                "url": "genere/Programmi---Sport-2a822ae2-cc29-4cac-b813-74be6d2d249f.json",
-                "icon": png_sport
-            },
-            {
-                "name": _("History & Art"),
-                "url": "genere/Programmi---Storia--Arte-ea281d79-9ffb-4aaa-a86d-33f7391650e7.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Talk Shows"),
-                "url": "genere/Programmi---Talk-Show-2d2c3d6d-1aec-4d41-b926-cea21b88b245.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Travel & Adventure"),
-                "url": "genere/Programmi---Viaggi-e-Avventure-640ff485-ac26-4cff-8214-d9370664ffe2.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            }
-        ]
+        categories = [{"name": _("Exclusive Programs"),
+                       "url": "raccolta/Programmi-in-esclusiva-f62a210b-d5a5-4b0d-ae73-1625c1da15b6.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Society & Culture"),
+                       "url": "genere/PROGRAMMI---Costume-e-Societa-8875c1f7-799b-402b-92f9-791bde8fb141.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Crime Investigations"),
+                       "url": "genere/Programmi---Crime-d8b77fff-5018-4ad6-9d4d-40d7dc548086.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Games & Quizzes"),
+                       "url": "genere/Giochi--Quiz-ad635fda-4dd5-445f-87ff-64d60404f1ca.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("News & Documentaries"),
+                       "url": "genere/Programmi---Inchieste-e-Reportage-18990102-8310-47ac-9976-07467ffc6924.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Entertainment"),
+                       "url": "genere/Programmi---Intrattenimento-373672aa-a1d2-4da7-a7c7-52a3fc1fda6d.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Lifestyle"),
+                       "url": "genere/Programmi---Lifestyle-f247c5a8-1272-42cf-81c3-462f585ed0ab.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Music"),
+                       "url": "genere/PROGRAMMI---Musica-09030aa3-7cae-4e46-babb-30e7b8c5d47a.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"},
+                      {"name": _("Music Classic"),
+                       "url": "genere/Musica-Classica-2c49bffc-50a1-426a-86ac-d23e4bc285f7.json",
+                       "icon": "https://www.raiplay.it/dl/img/2021/11/29/1638200397142_2048x1152.jpg"},
+                      {"name": _("Sports"),
+                       "url": "genere/Programmi---Sport-2a822ae2-cc29-4cac-b813-74be6d2d249f.json",
+                       "icon": png_sport},
+                      {"name": _("History & Art"),
+                       "url": "genere/Programmi---Storia--Arte-ea281d79-9ffb-4aaa-a86d-33f7391650e7.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Talk Shows"),
+                       "url": "genere/Programmi---Talk-Show-2d2c3d6d-1aec-4d41-b926-cea21b88b245.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Travel & Adventure"),
+                       "url": "genere/Programmi---Viaggi-e-Avventure-640ff485-ac26-4cff-8214-d9370664ffe2.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"}]
         """
         nuovi_generi = [
             {
@@ -5221,78 +5333,48 @@ class RaiPlayPrograms(SafeScreen):
             }
         ]
         """
-        nuovi_tipologie = [
-            {
-                "name": _("Films"),
-                "url": "https://www.raiplay.it/tipologia/film/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Italian Series"),
-                "url": "https://www.raiplay.it/tipologia/serieitaliane/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Sports"),
-                "url": "https://www.raiplay.it/tipologia/sport/index.json",
-                "icon": png_sport
-            },
-            {
-                "name": _("International Series"),
-                "url": "https://www.raiplay.it/tipologia/serieinternazionali/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Crime"),
-                "url": "https://www.raiplay.it/tipologia/crime/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Kids"),
-                "url": "https://www.raiplay.it/tipologia/bambini/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Programs"),
-                "url": "https://www.raiplay.it/tipologia/programmi/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Originals"),
-                "url": "https://www.raiplay.it/tipologia/original/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Documentaries"),
-                "url": "https://www.raiplay.it/tipologia/documentari/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Teens"),
-                "url": "https://www.raiplay.it/tipologia/teen/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Music & Theater"),
-                "url": "https://www.raiplay.it/tipologia/musica-e-teatro/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"
-            },
-            {
-                "name": _("Tech & Learning"),
-                "url": "https://www.raiplay.it/tipologia/techerai/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Learning"),
-                "url": "https://www.raiplay.it/tipologia/learning/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Sustainability"),
-                "url": "https://www.raiplay.it/tipologia/sostenibilita/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            }
-        ]
+        nuovi_tipologie = [{"name": _("Films"),
+                            "url": "https://www.raiplay.it/tipologia/film/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Italian Series"),
+                            "url": "https://www.raiplay.it/tipologia/serieitaliane/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Sports"),
+                            "url": "https://www.raiplay.it/tipologia/sport/index.json",
+                            "icon": png_sport},
+                           {"name": _("International Series"),
+                            "url": "https://www.raiplay.it/tipologia/serieinternazionali/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Crime"),
+                            "url": "https://www.raiplay.it/tipologia/crime/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Kids"),
+                            "url": "https://www.raiplay.it/tipologia/bambini/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Programs"),
+                            "url": "https://www.raiplay.it/tipologia/programmi/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Originals"),
+                            "url": "https://www.raiplay.it/tipologia/original/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Documentaries"),
+                            "url": "https://www.raiplay.it/tipologia/documentari/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Teens"),
+                            "url": "https://www.raiplay.it/tipologia/teen/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Music & Theater"),
+                            "url": "https://www.raiplay.it/tipologia/musica-e-teatro/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"},
+                           {"name": _("Tech & Learning"),
+                            "url": "https://www.raiplay.it/tipologia/techerai/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Learning"),
+                            "url": "https://www.raiplay.it/tipologia/learning/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Sustainability"),
+                            "url": "https://www.raiplay.it/tipologia/sostenibilita/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"}]
 
         # List of already existing URLs for checking
         existing_urls = {cat["url"] for cat in categories}
@@ -5692,14 +5774,16 @@ class Playstream2(
 
             # If the URL is a relinker, extract URL and license key
             if 'relinkerServlet' in self.url:
-                self.url, self.license_key = self.api.process_relinker(self.url)
+                self.url, self.license_key = self.api.process_relinker(
+                    self.url)
                 print("[Player] Processed URL: {}".format(self.url))
                 print("[Player] DRM: {}".format(self.license_key is not None))
 
             # If Widevine DRM content
             if self.license_key:
                 if not check_widevine_ready():
-                    print("[Player] Widevine not ready or installed, trying to install...")
+                    print(
+                        "[Player] Widevine not ready or installed, trying to install...")
                 """
                 # h = Helper(protocol="mpd", drm="widevine")
                 # if not h.check_inputstream():
@@ -5756,7 +5840,9 @@ class Playstream2(
                     license_passed = True
                     break  # Stop at first success
                 except Exception as e:
-                    print("Error passing license as {}: {}".format(data_format, e))
+                    print(
+                        "Error passing license as {}: {}".format(
+                            data_format, e))
 
             if not license_passed:
                 raise RuntimeError("Failed to pass license key to ServiceRef")
