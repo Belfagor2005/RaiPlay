@@ -360,7 +360,11 @@ def normalize_url(url):
 
     # http://www.rai.it/raiplay/programmi/dtime-iltempodiladyd/?json
     if "rai.it/raiplay" in url and url.endswith("/?json"):
-        url = url.replace("/?json", ".json").replace("rai.it/raiplay", "raiplay.it")
+        url = url.replace(
+            "/?json",
+            ".json").replace(
+            "rai.it/raiplay",
+            "raiplay.it")
 
     if url.endswith(".html?json"):
         url = url.replace(".html?json", ".json")
@@ -848,7 +852,8 @@ class SafeScreen(Screen):
             # forza UTF-8 sicuro per il titolo
             safe_name = str(name)
             try:
-                safe_name = safe_name.encode("utf-8", errors="ignore").decode("utf-8")
+                safe_name = safe_name.encode(
+                    "utf-8", errors="ignore").decode("utf-8")
             except Exception:
                 pass
 
@@ -2072,14 +2077,14 @@ class RaiPlayAPI:
         """
         Retrieve all archived editions of the specified TG channel with pagination.
         """
-        archive_url = "https://www.rainews.it/notiziari/{}/archivio".format(tg_channel)
+        archive_url = "https://www.rainews.it/notiziari/{}/archivio".format(
+            tg_channel)
         try:
             # Request parameters
             params = {'page': page} if page > 1 else {}
             headers = {
                 "User-Agent": USER_AGENT,
-                "Referer": "https://www.rainews.it/notiziari/{}/".format(tg_channel)
-            }
+                "Referer": "https://www.rainews.it/notiziari/{}/".format(tg_channel)}
 
             # Perform the HTTP request
             response = requests.get(
@@ -2106,8 +2111,7 @@ class RaiPlayAPI:
             pagination_info = {}
             pagination_match = search(
                 r'<rainews-paginator\s+pageindex="(\d+)"\s+pagesize="(\d+)"\s+length="(\d+)"',
-                content
-            )
+                content)
             if pagination_match:
                 total_items = int(pagination_match.group(3))
                 page_size = int(pagination_match.group(2))
@@ -2703,9 +2707,12 @@ class RaiPlayMain(SafeScreen):
             (_("Programs"), "programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
         ]
         categories += [
-            (_("On Air Programs"), "on_air", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-            (_("A-Z TV Shows"), "az_tv", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("A-Z Radio Shows"), "az_radio", "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
+            (_("On Air Programs"), "on_air",
+             "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
+            (_("A-Z TV Shows"), "az_tv",
+             "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("A-Z Radio Shows"), "az_radio",
+             "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
             # (_("News Categories"), "news_categories", "https://www.rainews.it/dl/components/img/logo-rainews-simple.png")
         ]
         categories += [
@@ -2770,14 +2777,37 @@ class RaiPlayMain(SafeScreen):
     def excluded_categories(self):
         """List of category names to exclude (lowercase)"""
         return {
-            "home", "tv guide / replay", "live", "login / register",
-            "recently watched", "my favorites", "watch later", "watch offline",
-            "tutorial", "faq", "contact us", "privacy policy",
-            "rai corporate", "privacy attività giornalistica", "cookie policy", "preferenze cookie",
-            "rai", "rainews", "raiplay sound", "rai cultura", "rai scuola",
-            "rai teche", "raiplay yoyo", "canone", "lavora con noi", "vai all'elenco completo",
-            "x", "facebook", "instagram", "login", "raiplay"
-        }
+            "home",
+            "tv guide / replay",
+            "live",
+            "login / register",
+            "recently watched",
+            "my favorites",
+            "watch later",
+            "watch offline",
+            "tutorial",
+            "faq",
+            "contact us",
+            "privacy policy",
+            "rai corporate",
+            "privacy attività giornalistica",
+            "cookie policy",
+            "preferenze cookie",
+            "rai",
+            "rainews",
+            "raiplay sound",
+            "rai cultura",
+            "rai scuola",
+            "rai teche",
+            "raiplay yoyo",
+            "canone",
+            "lavora con noi",
+            "vai all'elenco completo",
+            "x",
+            "facebook",
+            "instagram",
+            "login",
+            "raiplay"}
 
     def update_loading_status(self):
         """Update loading status with minimal operations"""
@@ -3720,13 +3750,13 @@ class RaiPlayOnDemandProgram(SafeScreen):
         try:
             response = loads(data)
             program_info = {
-                'name': response.get("name", ""),
-                'description': response.get("vanity", response.get("description", "")),
-                'year': response.get("year", ""),
-                'country': response.get("country", ""),
-                'first_item_path': response.get("first_item_path", ""),
-                'is_movie': False
-            }
+                'name': response.get(
+                    "name", ""), 'description': response.get(
+                    "vanity", response.get(
+                        "description", "")), 'year': response.get(
+                    "year", ""), 'country': response.get(
+                        "country", ""), 'first_item_path': response.get(
+                            "first_item_path", ""), 'is_movie': False}
 
             # Check if it's a movie
             for typology in response.get("typologies", []):
@@ -3747,7 +3777,9 @@ class RaiPlayOnDemandProgram(SafeScreen):
                 block_name = block.get("name", "")
 
                 # Only process relevant blocks
-                if block_type not in ["RaiPlay Multimedia Block", "RaiPlay Lista Programmi Block"]:
+                if block_type not in [
+                    "RaiPlay Multimedia Block",
+                        "RaiPlay Lista Programmi Block"]:
                     continue
 
                 for set_item in block.get("sets", []):
@@ -3853,17 +3885,22 @@ class RaiPlayOnDemandProgram(SafeScreen):
             if isinstance(safe_name, bytes):
                 safe_name = safe_name.decode("utf-8", errors="ignore")
             else:
-                safe_name = str(safe_name).encode("utf-8", errors="ignore").decode("utf-8")
+                safe_name = str(safe_name).encode(
+                    "utf-8", errors="ignore").decode("utf-8")
 
             print("[DEBUG] Selezionato file multimediale:", safe_name)
             t0 = time.time()
             self.playDirect(safe_name, item["url"])
-            print("[DEBUG] playDirect chiamato dopo %.2f sec" % (time.time() - t0))
+            print(
+                "[DEBUG] playDirect chiamato dopo %.2f sec" %
+                (time.time() - t0))
         else:
             print("[DEBUG] Apro contenuto:", item["name"])
             t0 = time.time()
             self.session.open(RaiPlayContentSet, item["name"], item["url"])
-            print("[DEBUG] session.open completato in %.2f sec" % (time.time() - t0))
+            print(
+                "[DEBUG] session.open completato in %.2f sec" %
+                (time.time() - t0))
 
         print("[DEBUG] okRun END:", time.strftime("%H:%M:%S"))
 
@@ -3903,7 +3940,8 @@ class RaiPlayContentSet(SafeScreen):
             # Extract videos from items array
             items = response.get("items", [])
             for item in items:
-                video_url = item.get("video_url") or item.get("content_url") or ""
+                video_url = item.get("video_url") or item.get(
+                    "content_url") or ""
                 if not video_url:
                     continue
 
@@ -4142,7 +4180,8 @@ class RaiPlayAZPrograms(SafeScreen):
         self.urls = []
         self['poster'] = Pixmap()
         self['info'] = Label(_('Loading programs...'))
-        title = _("TV Programs A-Z") if program_type == "tv" else _("Radio Programs A-Z")
+        title = _(
+            "TV Programs A-Z") if program_type == "tv" else _("Radio Programs A-Z")
         self['title'] = Label(title)
         self['actions'] = ActionMap(['OkCancelActions', 'ChannelSelectEPGActions'], {
             'ok': self.okRun,
@@ -4156,9 +4195,11 @@ class RaiPlayAZPrograms(SafeScreen):
         try:
             print(f"[AZ] Loading {self.program_type} programs")
             if self.program_type == "tv":
-                url = "https://www.raiplay.it/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"  # self.api.RAIPLAY_AZ_TV_SHOW_PATH
+                # self.api.RAIPLAY_AZ_TV_SHOW_PATH
+                url = "https://www.raiplay.it/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"
             else:
-                url = "https://www.raiplay.it/dl/RaiTV/RaiRadioMobile/Prod/Config/programmiAZ-elenco.json"  # self.api.RAIPLAY_AZ_RADIO_SHOW_PATH
+                # self.api.RAIPLAY_AZ_RADIO_SHOW_PATH
+                url = "https://www.raiplay.it/dl/RaiTV/RaiRadioMobile/Prod/Config/programmiAZ-elenco.json"
 
             # Add cache busting parameter to avoid stale data
             url += f"?t={int(time.time())}"
@@ -4171,7 +4212,7 @@ class RaiPlayAZPrograms(SafeScreen):
             # Debug: save JSON for analysis
             # debug_path = join(self.api.debug_dir, f"az_{self.program_type}.json")
             # with open(debug_path, "w", encoding="utf-8") as f:
-                # dump(data, f, indent=2)
+            # dump(data, f, indent=2)
             # print(f"[AZ] Saved JSON to {debug_path}")
 
             self.programs = []
@@ -4185,7 +4226,8 @@ class RaiPlayAZPrograms(SafeScreen):
                         for program in data[letter]:
                             self.add_program(program)
                     else:
-                        print(f"[WARNING] Unexpected data type for letter {letter}")
+                        print(
+                            f"[WARNING] Unexpected data type for letter {letter}")
             elif isinstance(data, list):
                 # Array format: list of programs
                 print("[AZ] Processing array format")
@@ -4202,7 +4244,8 @@ class RaiPlayAZPrograms(SafeScreen):
 
             if not self.programs:
                 self['info'].setText(_('No programs found in A-Z list'))
-                print(f"[AZ] No programs found. JSON keys: {list(data.keys())}")
+                print(
+                    f"[AZ] No programs found. JSON keys: {list(data.keys())}")
                 return
 
             # Sort alphabetically
@@ -4219,7 +4262,8 @@ class RaiPlayAZPrograms(SafeScreen):
 
         except Exception as e:
             print(f"[AZ] Error loading data: {str(e)}")
-            self['info'].setText(_('Error loading A-Z programs: {}').format(str(e)))
+            self['info'].setText(
+                _('Error loading A-Z programs: {}').format(str(e)))
 
     def extract_programs_alternative(self, data):
         """Alternative method to extract programs from JSON"""
@@ -4256,7 +4300,8 @@ class RaiPlayAZPrograms(SafeScreen):
                 if not title:
                     continue
 
-                url = program.get("PathID") or program.get("path_id") or program.get("url") or ""
+                url = program.get("PathID") or program.get(
+                    "path_id") or program.get("url") or ""
                 if not url:
                     continue
 
@@ -4301,7 +4346,9 @@ class RaiPlayAZPrograms(SafeScreen):
             url = url.replace("www.rai.it", "www.raiplay.it")
 
         if url.startswith("https://www.raiplay.it/raiplay/"):
-            url = url.replace("https://www.raiplay.it/raiplay/", "https://www.raiplay.it/")
+            url = url.replace(
+                "https://www.raiplay.it/raiplay/",
+                "https://www.raiplay.it/")
 
         if not self.program_type == "tv":
             url = url.replace("www.raiplay.it", "www.raiplaysound.it")
@@ -4359,7 +4406,10 @@ class RaiPlayAZPrograms(SafeScreen):
 
         program = self.programs[idx]
         # Open the program details screen
-        self.session.open(RaiPlayOnDemandProgram, program["title"], program["url"])
+        self.session.open(
+            RaiPlayOnDemandProgram,
+            program["title"],
+            program["url"])
 
 
 class RaiPlayNewsCategories(SafeScreen):
@@ -4383,120 +4433,86 @@ class RaiPlayNewsCategories(SafeScreen):
 
     def loadData(self):
         # Define the main news categories with their API endpoints
-        self.categories = [
-            {
-                "name": "Ambiente",
-                "path": "ambiente",
-                "url": "https://www.rainews.it/app/ambiente.json",
-                "icon": png_amb,
-                "type": "category"
-            },
-            {
-                "name": "Arti e Spettacolo",
-                "path": "artiespettacolo",
-                "url": "https://www.rainews.it/app/artiespettacolo.json",
-                "icon": png_artis,
-                "type": "category"
-            },
-            {
-                "name": "Cronaca",
-                "path": "cronaca",
-                "url": "https://www.rainews.it/app/cronaca.json",
-                "icon": png_news,
-                "type": "category"
-            },
-            {
-                "name": "Economia e Finanza",
-                "path": "economiaefinanza",
-                "url": "https://www.rainews.it/app/economiaefinanza.json",
-                "icon": png_econ,
-                "type": "category"
-            },
-            {
-                "name": "Esteri",
-                "path": "esteri",
-                "url": "https://www.rainews.it/app/esteri.json",
-                "icon": png_noti,
-                "type": "category"
-            },
-            {
-                "name": "Notiziari",
-                "path": "notiziari",
-                "url": "https://www.rainews.it/app/notiziari.json",
-                "icon": png_noti,
-                "type": "category"
-            },
-            {
-                "name": "Politica",
-                "path": "politica",
-                "url": "https://www.rainews.it/app/politica.json",
-                "icon": png_poli,
-                "type": "category"
-            },
-            {
-                "name": "Salute",
-                "path": "salute",
-                "url": "https://www.rainews.it/app/salute.json",
-                "icon": png_sal,
-                "type": "category"
-            },
-            {
-                "name": "Scienza e Tecnologia",
-                "path": "scienzaetecnologia",
-                "url": "https://www.rainews.it/app/scienzaetecnologia.json",
-                "icon": png_sci,
-                "type": "category"
-            },
-            {
-                "name": "Sport",
-                "path": "sport",
-                "url": "https://www.rainews.it/app/sport.json",
-                "icon": png_sport,
-                "type": "category"
-            },
-            {
-                "name": "Stili di vita e tempo libero",
-                "path": "stilidivitaetempolibero",
-                "url": "https://www.rainews.it/app/stilidivitaetempolibero.json",
-                "icon": png_artis,
-                "type": "category"
-            },
-            {
-                "name": "Crimini e Misteri",
-                "path": "criminiandmisteri",
-                "url": "https://www.rainews.it/app/storie/criminiandmisteri.json",
-                "icon": png_crim,
-                "type": "category"
-            },
-            {
-                "name": "Gli Speciali",
-                "path": "glispeciali",
-                "url": "https://www.rainews.it/app/storie/glispeciali.json",
-                "icon": png_spec,
-                "type": "category"
-            },
-            {
-                "name": "Mappamondi",
-                "path": "mappamondi",
-                "url": "https://www.rainews.it/app/storie/mappamondi.json",
-                "icon": png_mon,
-                "type": "category"
-            },
-            {
-                "name": "Video Storie",
-                "path": "video",
-                "url": "https://www.rainews.it/app/storie/video.json",
-                "icon": png_sto,
-                "type": "category"
-            },
-            {
-                "name": "Viaggi e Turismo",
-                "path": "viaggieturismo",
-                "url": "https://www.rainews.it/app/viaggieturismo.json",
-                "icon": png_via,
-                "type": "category"
-            }
-        ]
+        self.categories = [{"name": "Ambiente",
+                            "path": "ambiente",
+                            "url": "https://www.rainews.it/app/ambiente.json",
+                            "icon": png_amb,
+                            "type": "category"},
+                           {"name": "Arti e Spettacolo",
+                            "path": "artiespettacolo",
+                            "url": "https://www.rainews.it/app/artiespettacolo.json",
+                            "icon": png_artis,
+                            "type": "category"},
+                           {"name": "Cronaca",
+                            "path": "cronaca",
+                            "url": "https://www.rainews.it/app/cronaca.json",
+                            "icon": png_news,
+                            "type": "category"},
+                           {"name": "Economia e Finanza",
+                            "path": "economiaefinanza",
+                            "url": "https://www.rainews.it/app/economiaefinanza.json",
+                            "icon": png_econ,
+                            "type": "category"},
+                           {"name": "Esteri",
+                            "path": "esteri",
+                            "url": "https://www.rainews.it/app/esteri.json",
+                            "icon": png_noti,
+                            "type": "category"},
+                           {"name": "Notiziari",
+                            "path": "notiziari",
+                            "url": "https://www.rainews.it/app/notiziari.json",
+                            "icon": png_noti,
+                            "type": "category"},
+                           {"name": "Politica",
+                            "path": "politica",
+                            "url": "https://www.rainews.it/app/politica.json",
+                            "icon": png_poli,
+                            "type": "category"},
+                           {"name": "Salute",
+                            "path": "salute",
+                            "url": "https://www.rainews.it/app/salute.json",
+                            "icon": png_sal,
+                            "type": "category"},
+                           {"name": "Scienza e Tecnologia",
+                            "path": "scienzaetecnologia",
+                            "url": "https://www.rainews.it/app/scienzaetecnologia.json",
+                            "icon": png_sci,
+                            "type": "category"},
+                           {"name": "Sport",
+                            "path": "sport",
+                            "url": "https://www.rainews.it/app/sport.json",
+                            "icon": png_sport,
+                            "type": "category"},
+                           {"name": "Stili di vita e tempo libero",
+                            "path": "stilidivitaetempolibero",
+                            "url": "https://www.rainews.it/app/stilidivitaetempolibero.json",
+                            "icon": png_artis,
+                            "type": "category"},
+                           {"name": "Crimini e Misteri",
+                            "path": "criminiandmisteri",
+                            "url": "https://www.rainews.it/app/storie/criminiandmisteri.json",
+                            "icon": png_crim,
+                            "type": "category"},
+                           {"name": "Gli Speciali",
+                            "path": "glispeciali",
+                            "url": "https://www.rainews.it/app/storie/glispeciali.json",
+                            "icon": png_spec,
+                            "type": "category"},
+                           {"name": "Mappamondi",
+                            "path": "mappamondi",
+                            "url": "https://www.rainews.it/app/storie/mappamondi.json",
+                            "icon": png_mon,
+                            "type": "category"},
+                           {"name": "Video Storie",
+                            "path": "video",
+                            "url": "https://www.rainews.it/app/storie/video.json",
+                            "icon": png_sto,
+                            "type": "category"},
+                           {"name": "Viaggi e Turismo",
+                            "path": "viaggieturismo",
+                            "url": "https://www.rainews.it/app/viaggieturismo.json",
+                            "icon": png_via,
+                            "type": "category"}]
 
         self.names = [cat["name"] for cat in self.categories]
         self.urls = [cat["url"] for cat in self.categories]
@@ -4516,7 +4532,11 @@ class RaiPlayNewsCategories(SafeScreen):
             return
 
         category = self.categories[idx]
-        self.session.open(RaiPlayNewsCategory, category["name"], category["url"], category["path"])
+        self.session.open(
+            RaiPlayNewsCategory,
+            category["name"],
+            category["url"],
+            category["path"])
 
 
 class RaiPlayNewsCategory(SafeScreen):
@@ -4554,7 +4574,7 @@ class RaiPlayNewsCategory(SafeScreen):
             # Try to parse as JSON
             try:
                 response = loads(data)
-            except:
+            except BaseException:
                 # If JSON parsing fails, try to extract JSON from HTML
                 json_match = search(
                     r'<rainews-aggregator-broadcast-archive\s+data="([^"]+)"',
@@ -4569,22 +4589,27 @@ class RaiPlayNewsCategory(SafeScreen):
 
             # DEBUG: Salva la risposta per analisi
             if config.plugins.raiplay.debug.value:
-                debug_file = join(self.api.debug_dir, f"news_category_{self.name}.json")
+                debug_file = join(
+                    self.api.debug_dir,
+                    f"news_category_{self.name}.json")
                 with open(debug_file, "w", encoding="utf-8") as f:
                     dump(response, f, indent=2, ensure_ascii=False)
                 print(f"[DEBUG] Saved news category response to {debug_file}")
 
             # CASO SPECIALE: Archivi tematici (es. Ambiente) - Nuova struttura
-            if "tematiche" in response and isinstance(response["tematiche"], list):
+            if "tematiche" in response and isinstance(
+                    response["tematiche"], list):
                 print("[NewsCategory] Found thematic archive structure")
                 self.handle_thematic_archive(response)
                 return  # Exit after handling thematic archive
 
             # CASO 1: Risposta con struttura "contents"
-            if "contents" in response and isinstance(response["contents"], list):
+            if "contents" in response and isinstance(
+                    response["contents"], list):
                 print("[NewsCategory] Found 'contents' array")
                 for content_block in response["contents"]:
-                    if "contents" in content_block and isinstance(content_block["contents"], list):
+                    if "contents" in content_block and isinstance(
+                            content_block["contents"], list):
                         for item in content_block["contents"]:
                             self.add_news_item(item)
                     elif "cards" in content_block and isinstance(content_block["cards"], list):
@@ -4610,14 +4635,17 @@ class RaiPlayNewsCategory(SafeScreen):
                 return  # Exit after handling new structure
 
             if not self.items:
-                print(f"[NewsCategory] No items found. Response keys: {list(response.keys())}")
+                print(
+                    f"[NewsCategory] No items found. Response keys: {list(response.keys())}")
                 self['info'].setText(_('No items found in this category'))
                 return
 
             # Se non ci sono tematiche, cerca contenuti diretti
             if not self.items:
-                print("[NewsCategory] No subcategories found, searching for direct content")
-                if "contents" in response and isinstance(response["contents"], list):
+                print(
+                    "[NewsCategory] No subcategories found, searching for direct content")
+                if "contents" in response and isinstance(
+                        response["contents"], list):
                     for content_block in response["contents"]:
                         cards = content_block.get("cards", [])
                         for card in cards:
@@ -4625,7 +4653,8 @@ class RaiPlayNewsCategory(SafeScreen):
 
                 # Se ancora nessun elemento, prova parsing alternativo
                 if not self.items:
-                    if "cards" in response and isinstance(response["cards"], list):
+                    if "cards" in response and isinstance(
+                            response["cards"], list):
                         for card in response["cards"]:
                             self.add_news_item(card)
                     elif "items" in response and isinstance(response["items"], list):
@@ -4633,7 +4662,8 @@ class RaiPlayNewsCategory(SafeScreen):
                             self.add_news_item(item)
 
             if not self.items:
-                print(f"[NewsCategory] No items found. Response keys: {list(response.keys())}")
+                print(
+                    f"[NewsCategory] No items found. Response keys: {list(response.keys())}")
                 self['info'].setText(_('No items found in this category'))
                 return
 
@@ -4645,9 +4675,10 @@ class RaiPlayNewsCategory(SafeScreen):
                 if date_str:
                     try:
                         # Analizza la data ISO e riformatta
-                        dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
+                        dt = datetime.fromisoformat(
+                            date_str.replace("Z", "+00:00"))
                         date_str = dt.strftime("%d/%m/%Y %H:%M")
-                    except:
+                    except BaseException:
                         pass
                 display_title = f"{date_str} {item['name']}" if date_str else item['name']
                 self.names.append(display_title)
@@ -4663,7 +4694,9 @@ class RaiPlayNewsCategory(SafeScreen):
             self['info'].setText(_('Error: Could not load news data'))
             # Attempt to show the raw response for debugging
             if config.plugins.raiplay.debug.value and data:
-                debug_path = join(self.api.debug_dir, f"news_error_{self.name}.txt")
+                debug_path = join(
+                    self.api.debug_dir,
+                    f"news_error_{self.name}.txt")
                 with open(debug_path, "w", encoding="utf-8") as f:
                     f.write(data[:5000])  # Save first 5000 characters
                 print(f"[DEBUG] Saved error response to {debug_path}")
@@ -4744,7 +4777,8 @@ class RaiPlayNewsCategory(SafeScreen):
                 # Prova diversi formati di immagine
                 for image_type in ["landscape", "portrait", "square"]:
                     if image_type in category["image"]:
-                        return self.api.getFullUrl(category["image"][image_type])
+                        return self.api.getFullUrl(
+                            category["image"][image_type])
 
             return self.api.DEFAULT_ICON_URL
 
@@ -4779,20 +4813,20 @@ class RaiPlayNewsCategory(SafeScreen):
 
     # def okRun(self):
         # if not self.names:
-            # return
+        # return
 
         # idx = self["text"].getSelectionIndex()
         # if idx is None or idx >= len(self.names):
-            # return
+        # return
 
         # category = self.categories[idx]
         # # Open with callback to handle archive screens
         # self.session.openWithCallback(
-            # self.handleArchiveCallback,
-            # RaiPlayNewsCategory,
-            # category["name"],
-            # category["url"],
-            # category["path"]
+        # self.handleArchiveCallback,
+        # RaiPlayNewsCategory,
+        # category["name"],
+        # category["url"],
+        # category["path"]
         # )
 
     def okRun(self):
@@ -4807,17 +4841,23 @@ class RaiPlayNewsCategory(SafeScreen):
 
         if item["type"] == "subcategory":
             # Costruisci il path per la sottocategoria
-            sub_path = item["uniqueName"] if "uniqueName" in item else item["name"].lower().replace(" ", "-")
+            sub_path = item["uniqueName"] if "uniqueName" in item else item["name"].lower(
+            ).replace(" ", "-")
 
             # Apri la sottocategoria
             # self.session.open(
-                # RaiPlayNewsCategory,
-                # item["name"],
-                # item["url"],
-                # self.path + "/" + sub_path
+            # RaiPlayNewsCategory,
+            # item["name"],
+            # item["url"],
+            # self.path + "/" + sub_path
             # )
 
-            self.session.openWithCallback(self.openArchiveCallback, RaiPlayNewsCategory, item["name"], item["url"], self.path + "/" + sub_path)
+            self.session.openWithCallback(
+                self.openArchiveCallback,
+                RaiPlayNewsCategory,
+                item["name"],
+                item["url"],
+                self.path + "/" + sub_path)
 
         elif item["type"] == "video":
             # Riproduci il video
@@ -4866,7 +4906,8 @@ class RaiPlayNewsCategory(SafeScreen):
 
             # Metodo 2: Cerca URL diretto nel JSON
             if not video_url:
-                json_match = search(r'"content_url"\s*:\s*"([^"]+)"', page_data)
+                json_match = search(
+                    r'"content_url"\s*:\s*"([^"]+)"', page_data)
                 if json_match:
                     video_url = json_match.group(1)
 
@@ -4934,8 +4975,7 @@ class RaiPlayNewsAPIArchive(SafeScreen):
                 "https://www.rainews.it/atomatic/news-search-service/api/v3/search",
                 headers=headers,
                 json=self.api_payload,
-                timeout=15
-            )
+                timeout=15)
 
             if response.status_code != 200:
                 self['info'].setText(_('Error loading archive data'))
@@ -4970,9 +5010,15 @@ class RaiPlayNewsAPIArchive(SafeScreen):
             # Prepara la lista per la visualizzazione
             self.names = []
             for video in self.videos:
-                date_str = " - {}".format(video['date']) if video.get('date') else ""
-                duration_str = " ({})".format(video['duration']) if video.get('duration') else ""
-                self.names.append("{}{}{}".format(video['title'], date_str, duration_str))
+                date_str = " - {}".format(video['date']
+                                          ) if video.get('date') else ""
+                duration_str = " ({})".format(
+                    video['duration']) if video.get('duration') else ""
+                self.names.append(
+                    "{}{}{}".format(
+                        video['title'],
+                        date_str,
+                        duration_str))
 
             show_list(self.names, self['text'])
             self['info'].setText(_('Select item'))
@@ -4981,7 +5027,9 @@ class RaiPlayNewsAPIArchive(SafeScreen):
 
         except Exception as e:
             print("Error loading archive: " + str(e))
-            self['info'].setText(_('Error loading archive data: {}').format(str(e)))
+            self['info'].setText(
+                _('Error loading archive data: {}').format(
+                    str(e)))
 
     def okRun(self):
         if not self.videos:
@@ -5034,7 +5082,8 @@ class RaiPlayNewsAPIArchive(SafeScreen):
 
             # Metodo 2: Cerca URL diretto nel JSON
             if not video_url:
-                json_match = search(r'"content_url"\s*:\s*"([^"]+)"', page_data)
+                json_match = search(
+                    r'"content_url"\s*:\s*"([^"]+)"', page_data)
                 if json_match:
                     video_url = json_match.group(1)
 
@@ -5307,38 +5356,24 @@ class RaiPlayTGR(SafeScreen):
     def _gotPageLoad(self):
         """Load both regional TGR programs and the special programs"""
         # Existing regional TGR programs with specific icons
-        categories = [
-            {
-                "name": "TG Regionale",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?tgr",
-                "icon": png_tgr
-            },
-            {
-                "name": "Meteo Regionale",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?meteo",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/meteo.png"
-            },
-            {
-                "name": "Buongiorno Italia",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-88d248b5-6815-4bed-92a3-60e22ab92df4.html",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20italia.png"
-            },
-            {
-                "name": "Buongiorno Regione",
-                "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?buongiorno",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20regione.png"
-            },
-            {
-                "name": "Il Settimanale",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-b7213694-9b55-4677-b78b-6904e9720719.html",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/il%20settimanale.png"
-            },
-            {
-                "name": "Rubriche",
-                "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/list.xml",
-                "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/rubriche.png"
-            }
-        ]
+        categories = [{"name": "TG Regionale",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?tgr",
+                       "icon": png_tgr},
+                      {"name": "Meteo Regionale",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?meteo",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/meteo.png"},
+                      {"name": "Buongiorno Italia",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-88d248b5-6815-4bed-92a3-60e22ab92df4.html",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20italia.png"},
+                      {"name": "Buongiorno Regione",
+                       "url": "https://www.rainews.it/dl/tgr/mhp/regioni/Page-0789394e-ddde-47da-a267-e826b6a73c4b.html?buongiorno",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/buongiorno%20regione.png"},
+                      {"name": "Il Settimanale",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/ContentSet-b7213694-9b55-4677-b78b-6904e9720719.html",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/il%20settimanale.png"},
+                      {"name": "Rubriche",
+                       "url": "https://www.rainews.it/dl/rai24/tgr/rubriche/mhp/list.xml",
+                       "icon": "https://www.rainews.it/dl/tgr/mhp/immagini/rubriche.png"}]
 
         # Add the new special programs
         special_programs = [
@@ -5495,7 +5530,9 @@ class RaiPlayTGDirectArchive(SafeScreen):
 
         except Exception as e:
             print("Error loading archive: " + str(e))
-            self['info'].setText(_('Error loading archive data: {}').format(str(e)))
+            self['info'].setText(
+                _('Error loading archive data: {}').format(
+                    str(e)))
 
     def parseTgSportArchive(self, data):
         """Special parser for TG Sport archive page"""
@@ -6419,75 +6456,45 @@ class RaiPlayPrograms(SafeScreen):
         self.onLayoutFinish.append(self.loadProgramCategories)
 
     def loadProgramCategories(self):
-        categories = [
-            {
-                "name": _("Exclusive Programs"),
-                "url": "raccolta/Programmi-in-esclusiva-f62a210b-d5a5-4b0d-ae73-1625c1da15b6.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Society & Culture"),
-                "url": "genere/PROGRAMMI---Costume-e-Societa-8875c1f7-799b-402b-92f9-791bde8fb141.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Crime Investigations"),
-                "url": "genere/Programmi---Crime-d8b77fff-5018-4ad6-9d4d-40d7dc548086.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Games & Quizzes"),
-                "url": "genere/Giochi--Quiz-ad635fda-4dd5-445f-87ff-64d60404f1ca.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("News & Documentaries"),
-                "url": "genere/Programmi---Inchieste-e-Reportage-18990102-8310-47ac-9976-07467ffc6924.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Entertainment"),
-                "url": "genere/Programmi---Intrattenimento-373672aa-a1d2-4da7-a7c7-52a3fc1fda6d.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Lifestyle"),
-                "url": "genere/Programmi---Lifestyle-f247c5a8-1272-42cf-81c3-462f585ed0ab.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Music"),
-                "url": "genere/PROGRAMMI---Musica-09030aa3-7cae-4e46-babb-30e7b8c5d47a.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"
-            },
-
-            {
-                "name": _("Music Classic"),
-                "url": "genere/Musica-Classica-2c49bffc-50a1-426a-86ac-d23e4bc285f7.json",
-                "icon": "https://www.raiplay.it/dl/img/2021/11/29/1638200397142_2048x1152.jpg"
-            },
-
-            {
-                "name": _("Sports"),
-                "url": "genere/Programmi---Sport-2a822ae2-cc29-4cac-b813-74be6d2d249f.json",
-                "icon": png_sport
-            },
-            {
-                "name": _("History & Art"),
-                "url": "genere/Programmi---Storia--Arte-ea281d79-9ffb-4aaa-a86d-33f7391650e7.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Talk Shows"),
-                "url": "genere/Programmi---Talk-Show-2d2c3d6d-1aec-4d41-b926-cea21b88b245.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Travel & Adventure"),
-                "url": "genere/Programmi---Viaggi-e-Avventure-640ff485-ac26-4cff-8214-d9370664ffe2.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            }
-        ]
+        categories = [{"name": _("Exclusive Programs"),
+                       "url": "raccolta/Programmi-in-esclusiva-f62a210b-d5a5-4b0d-ae73-1625c1da15b6.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Society & Culture"),
+                       "url": "genere/PROGRAMMI---Costume-e-Societa-8875c1f7-799b-402b-92f9-791bde8fb141.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Crime Investigations"),
+                       "url": "genere/Programmi---Crime-d8b77fff-5018-4ad6-9d4d-40d7dc548086.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Games & Quizzes"),
+                       "url": "genere/Giochi--Quiz-ad635fda-4dd5-445f-87ff-64d60404f1ca.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("News & Documentaries"),
+                       "url": "genere/Programmi---Inchieste-e-Reportage-18990102-8310-47ac-9976-07467ffc6924.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Entertainment"),
+                       "url": "genere/Programmi---Intrattenimento-373672aa-a1d2-4da7-a7c7-52a3fc1fda6d.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Lifestyle"),
+                       "url": "genere/Programmi---Lifestyle-f247c5a8-1272-42cf-81c3-462f585ed0ab.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Music"),
+                       "url": "genere/PROGRAMMI---Musica-09030aa3-7cae-4e46-babb-30e7b8c5d47a.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"},
+                      {"name": _("Music Classic"),
+                       "url": "genere/Musica-Classica-2c49bffc-50a1-426a-86ac-d23e4bc285f7.json",
+                       "icon": "https://www.raiplay.it/dl/img/2021/11/29/1638200397142_2048x1152.jpg"},
+                      {"name": _("Sports"),
+                       "url": "genere/Programmi---Sport-2a822ae2-cc29-4cac-b813-74be6d2d249f.json",
+                       "icon": png_sport},
+                      {"name": _("History & Art"),
+                       "url": "genere/Programmi---Storia--Arte-ea281d79-9ffb-4aaa-a86d-33f7391650e7.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                      {"name": _("Talk Shows"),
+                       "url": "genere/Programmi---Talk-Show-2d2c3d6d-1aec-4d41-b926-cea21b88b245.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                      {"name": _("Travel & Adventure"),
+                       "url": "genere/Programmi---Viaggi-e-Avventure-640ff485-ac26-4cff-8214-d9370664ffe2.json",
+                       "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"}]
         """
         nuovi_generi = [
             {
@@ -6502,78 +6509,48 @@ class RaiPlayPrograms(SafeScreen):
             }
         ]
         """
-        nuovi_tipologie = [
-            {
-                "name": _("Films"),
-                "url": "https://www.raiplay.it/tipologia/film/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Italian Series"),
-                "url": "https://www.raiplay.it/tipologia/serieitaliane/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Sports"),
-                "url": "https://www.raiplay.it/tipologia/sport/index.json",
-                "icon": png_sport
-            },
-            {
-                "name": _("International Series"),
-                "url": "https://www.raiplay.it/tipologia/serieinternazionali/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Crime"),
-                "url": "https://www.raiplay.it/tipologia/crime/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Kids"),
-                "url": "https://www.raiplay.it/tipologia/bambini/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Programs"),
-                "url": "https://www.raiplay.it/tipologia/programmi/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Originals"),
-                "url": "https://www.raiplay.it/tipologia/original/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Documentaries"),
-                "url": "https://www.raiplay.it/tipologia/documentari/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            },
-            {
-                "name": _("Teens"),
-                "url": "https://www.raiplay.it/tipologia/teen/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Music & Theater"),
-                "url": "https://www.raiplay.it/tipologia/musica-e-teatro/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"
-            },
-            {
-                "name": _("Tech & Learning"),
-                "url": "https://www.raiplay.it/tipologia/techerai/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Learning"),
-                "url": "https://www.raiplay.it/tipologia/learning/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"
-            },
-            {
-                "name": _("Sustainability"),
-                "url": "https://www.raiplay.it/tipologia/sostenibilita/index.json",
-                "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"
-            }
-        ]
+        nuovi_tipologie = [{"name": _("Films"),
+                            "url": "https://www.raiplay.it/tipologia/film/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Italian Series"),
+                            "url": "https://www.raiplay.it/tipologia/serieitaliane/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Sports"),
+                            "url": "https://www.raiplay.it/tipologia/sport/index.json",
+                            "icon": png_sport},
+                           {"name": _("International Series"),
+                            "url": "https://www.raiplay.it/tipologia/serieinternazionali/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Crime"),
+                            "url": "https://www.raiplay.it/tipologia/crime/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Kids"),
+                            "url": "https://www.raiplay.it/tipologia/bambini/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Programs"),
+                            "url": "https://www.raiplay.it/tipologia/programmi/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Originals"),
+                            "url": "https://www.raiplay.it/tipologia/original/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Documentaries"),
+                            "url": "https://www.raiplay.it/tipologia/documentari/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"},
+                           {"name": _("Teens"),
+                            "url": "https://www.raiplay.it/tipologia/teen/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Music & Theater"),
+                            "url": "https://www.raiplay.it/tipologia/musica-e-teatro/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459668481_ico-musica.png"},
+                           {"name": _("Tech & Learning"),
+                            "url": "https://www.raiplay.it/tipologia/techerai/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Learning"),
+                            "url": "https://www.raiplay.it/tipologia/learning/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"},
+                           {"name": _("Sustainability"),
+                            "url": "https://www.raiplay.it/tipologia/sostenibilita/index.json",
+                            "icon": "https://www.raiplay.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"}]
 
         # List of already existing URLs for checking
         existing_urls = {cat["url"] for cat in categories}
@@ -6973,14 +6950,16 @@ class Playstream2(
 
             # If the URL is a relinker, extract URL and license key
             if 'relinkerServlet' in self.url:
-                self.url, self.license_key = self.api.process_relinker(self.url)
+                self.url, self.license_key = self.api.process_relinker(
+                    self.url)
                 print("[Player] Processed URL: {}".format(self.url))
                 print("[Player] DRM: {}".format(self.license_key is not None))
 
             # If Widevine DRM content
             if self.license_key:
                 if not check_widevine_ready():
-                    print("[Player] Widevine not ready or installed, trying to install...")
+                    print(
+                        "[Player] Widevine not ready or installed, trying to install...")
                 """
                 # h = Helper(protocol="mpd", drm="widevine")
                 # if not h.check_inputstream():
@@ -7037,7 +7016,9 @@ class Playstream2(
                     license_passed = True
                     break  # Stop at first success
                 except Exception as e:
-                    print("Error passing license as {}: {}".format(data_format, e))
+                    print(
+                        "Error passing license as {}: {}".format(
+                            data_format, e))
 
             if not license_passed:
                 raise RuntimeError("Failed to pass license key to ServiceRef")
