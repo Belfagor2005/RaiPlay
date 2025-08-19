@@ -5,7 +5,7 @@ from __future__ import print_function
 #########################################################
 #                                                       #
 #  Rai Play View Plugin                                 #
-#  Version: 1.5                                         #
+#  Version: 1.6                                         #
 #  Created by Lululla                                   #
 #  License: CC BY-NC-SA 4.0                             #
 #  https://creativecommons.org/licenses/by-nc-sa/4.0/   #
