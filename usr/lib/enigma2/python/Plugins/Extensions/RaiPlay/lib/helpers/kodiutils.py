@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
+import os
 
 """
 #########################################################
@@ -32,8 +33,6 @@ from __future__ import absolute_import, division, unicode_literals
 __author__ = "Lululla"
 
 """Mock Kodi utils for InputStream Helper"""
-
-import os
 
 
 class Addon:
@@ -81,20 +80,34 @@ def log(level, message, **kwargs):
     """Simple log function"""
     if kwargs:
         message = message.format(**kwargs)
-    level_str = {0: "DEBUG", 1: "INFO", 2: "NOTICE", 3: "WARNING", 4: "ERROR"}.get(level, "INFO")
+    level_str = {
+        0: "DEBUG",
+        1: "INFO",
+        2: "NOTICE",
+        3: "WARNING",
+        4: "ERROR"}.get(
+        level,
+        "INFO")
     print("[{level}] {msg}".format(level=level_str, msg=message))
 
 
 def notification(title, message, duration=5000, icon=None):
-    print("[Notification] {title}: {message}".format(title=title, message=message))
+    print(
+        "[Notification] {title}: {message}".format(
+            title=title,
+            message=message))
 
 
 def ok_dialog(title, message):
-    print("[OK Dialog] {title}: {message}".format(title=title, message=message))
+    print(
+        "[OK Dialog] {title}: {message}".format(
+            title=title,
+            message=message))
 
 
 def yesno_dialog(heading, line1, nolabel="No", yeslabel="Yes"):
-    print("[Yes/No Dialog] {heading}: {line1} ({yes}/{no})".format(heading=heading, line1=line1, yes=yeslabel, no=nolabel))
+    print("[Yes/No Dialog] {heading}: {line1} ({yes}/{no})".format(
+        heading=heading, line1=line1, yes=yeslabel, no=nolabel))
     # For testing always yes:
     return True
 
@@ -236,7 +249,11 @@ def kodi_to_ascii(text):
 
 def browsesingle(type_, heading, mask):
     """Mock browse single file dialog"""
-    print("Browse single called: type {0}, heading {1}, mask {2}".format(type_, heading, mask))
+    print(
+        "Browse single called: type {0}, heading {1}, mask {2}".format(
+            type_,
+            heading,
+            mask))
     return "/tmp/fakeimage.img"
 
 

@@ -12,10 +12,10 @@ PluginLanguagePath = 'Extensions/RaiPlay/res/locale'
 
 
 def paypal():
-	conthelp = "If you like what I do you\n"
-	conthelp += "can contribute with a coffee\n"
-	conthelp += "scan the qr code and donate € 1.00"
-	return conthelp
+    conthelp = "If you like what I do you\n"
+    conthelp += "can contribute with a coffee\n"
+    conthelp += "scan the qr code and donate € 1.00"
+    return conthelp
 
 
 def localeInit():
