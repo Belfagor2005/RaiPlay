@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
-from .unicodes import to_unicode, from_unicode, compat_path
-from .api import run
-from .helper import Helper
 
 """
 #########################################################
@@ -35,3 +32,8 @@ from .helper import Helper
 __author__ = "Lululla"
 
 """Helpers package init"""
+
+
+from .helper import Helper
+from .api import run
+from .unicodes import to_unicode, from_unicode, compat_path

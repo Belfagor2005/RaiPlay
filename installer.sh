@@ -2,7 +2,7 @@
 
 ## setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/Belfagor2005/RaiPlay/main/installer.sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='1.5'
+version='1.6'
 changelog='\nRai Play Final Version'
 ##############################################################
 TMPPATH=/tmp/RaiPlay-main
