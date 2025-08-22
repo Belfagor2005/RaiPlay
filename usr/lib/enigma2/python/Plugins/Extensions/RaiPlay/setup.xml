@@ -1,0 +1,5 @@
+<setupxml>
+    <setup key="RaiPlaySettings" title="RaiPlay Settings">
+        <item level="0" text="Active Debug" description="Activate Debug for messages developer.">config.plugins.raiplay.debug</item>
+    </setup>
+</setupxml>
