@@ -109,6 +109,10 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 DEBUG_MODE = False
 config.plugins.raiplay = ConfigSubsection()
 config.plugins.raiplay.debug = ConfigYesNo(default=True)
+if config.plugins.raiplay.debug.value:
+    DEBUG_MODE = True
+
+
 aspect_manager = Utils.AspectManager()
 PY3 = sys.version_info.major >= 3
 if sys.version_info >= (2, 7, 9):
@@ -137,13 +141,13 @@ def check_widevine_ready():
         # show error message or trigger installation
         # h = Helper("mpd", drm="widevine")
         # h._update_widevine()
-        print("Widevine not installed or not working")
+        print("[DEBUG]Widevine not installed or not working")
         # You can call h.install_widevine() if you want to force installation
         return False
     return True
 
 
-currversion = '1.6'
+currversion = '1.7'
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
 DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
 desc_plugin = '..:: TiVu Rai Play by Lululla %s ::.. ' % currversion
@@ -189,7 +193,7 @@ elif screenwidth.width() == 2560:
 
 if not exists(join(skin_path, "settings.xml")):
     skin_path = join(plugin_path, "res/skins/hd/")
-    print("Skin non trovata, uso il fallback:", skin_path)
+    print("[DEBUG]Skin non trovata, uso il fallback:", skin_path)
 
 
 def is_serviceapp_available():
@@ -236,21 +240,21 @@ def returnIMDB(session, text_clear):
         try:
             session.open(Utils.TMDB.tmdbScreen, text, 0)
         except Exception as e:
-            print("[XCF] TMDB error:", str(e))
+            print("[DEBUG][XCF] TMDB error:", str(e))
         return True
 
     elif Utils.is_tmdb and Utils.tmdb:
         try:
             session.open(Utils.tmdb.tmdbScreen, text, 0)
         except Exception as e:
-            print("[XCF] tmdb error:", str(e))
+            print("[DEBUG][XCF] tmdb error:", str(e))
         return True
 
     elif Utils.is_imdb and Utils.imdb:
         try:
             Utils.imdb(session, text)
         except Exception as e:
-            print("[XCF] IMDb error:", str(e))
+            print("[DEBUG][XCF] IMDb error:", str(e))
         return True
 
     session.open(MessageBox, text, MessageBox.TYPE_INFO)
@@ -339,9 +343,9 @@ def extract_real_video_url(page_url):
         return None
 
     except requests.exceptions.HTTPError as e:
-        print("HTTP error for {}: {}".format(page_url, e))
+        print("[DEBUG]HTTP error for {}: {}".format(page_url, e))
     except Exception as e:
-        print("Error extracting video URL: {}".format(str(e)))
+        print("[ERROR] extracting video URL: {}".format(str(e)))
 
     return None
 
@@ -528,7 +532,7 @@ class SafeScreen(Screen):
             size = self["poster"].instance.size()
             self.poster_width = size.width()
             self.poster_height = size.height()
-            print("Poster dimensions: " + str(self.poster_width) +
+            print("[DEBUG]Poster dimensions: " + str(self.poster_width) +
                   "x" + str(self.poster_height))
 
             try:
@@ -539,7 +543,7 @@ class SafeScreen(Screen):
 
             self.screen_ready = True
         except Exception as e:
-            print("Error initializing picload: " + str(e))
+            print("[ERROR] initializing picload: " + str(e))
             self.screen_ready = False
 
     def firstSelection(self):
@@ -563,7 +567,7 @@ class SafeScreen(Screen):
                 self.selectionChanged()
         except Exception as e:
             # You may want to handle/log the exception here
-            print("Error in firstSelection:", str(e))
+            print("[ERROR] in firstSelection:", str(e))
             pass
 
     def updateUI(self):
@@ -580,7 +584,7 @@ class SafeScreen(Screen):
             size = self["poster"].instance.size()
             self.poster_width = size.width()
             self.poster_height = size.height()
-            print("Poster dimensions: %dx%d" %
+            print("[DEBUG]Poster dimensions: %dx%d" %
                   (self.poster_width, self.poster_height))
         except BaseException:
             pass
@@ -635,7 +639,7 @@ class SafeScreen(Screen):
 
     def get_state_params(self):
         """To be overridden in subclasses to save specific parameters"""
-        print(">>> get_state_params called - returning None by default")
+        print("[DEBUG]>>> get_state_params called - returning None by default")
         return None
 
     def selectionChanged(self):
@@ -656,7 +660,7 @@ class SafeScreen(Screen):
             self.last_index = current_index
             self.setPoster()
         except Exception as e:
-            print("Error in selectionChanged: " + str(e))
+            print("[ERROR] in selectionChanged: " + str(e))
             self.setFallbackPoster()
 
     def updatePoster(self):
@@ -666,11 +670,11 @@ class SafeScreen(Screen):
 
         try:
             if self.closing:
-                print("Cannot update poster - screen closing")
+                print("[DEBUG]Cannot update poster - screen closing")
                 return
 
             if not hasattr(self, "icons") or not self.icons:
-                print("No icons available, using default")
+                print("[DEBUG]No icons available, using default")
                 self.setFallbackPoster()
                 return
             idx = self["text"].getSelectionIndex()
@@ -680,11 +684,11 @@ class SafeScreen(Screen):
                 return
 
             icon_url = self.icons[idx]
-            print("Updating poster for index %d: %s" % (idx, str(icon_url)))
+            print("[DEBUG]Updating poster for index %d: %s" % (idx, str(icon_url)))
 
             if not icon_url or not isinstance(
                     icon_url, str) or not icon_url.startswith("http"):
-                print("Using default icon - invalid URL:", icon_url)
+                print("[DEBUG]Using default icon - invalid URL:", icon_url)
                 self.setFallbackPoster()
                 return
 
@@ -699,7 +703,7 @@ class SafeScreen(Screen):
             ))
             self.picload.startDecode(icon_url)
         except Exception as e:
-            print("Error updating poster: " + str(e))
+            print("[ERROR] updating poster: " + str(e))
             self.setFallbackPoster()
 
     def ensure_icons_list(self):
@@ -721,7 +725,7 @@ class SafeScreen(Screen):
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
-                print("Invalid index: %s (icons: %d)" %
+                print("[DEBUG]Invalid index: %s (icons: %d)" %
                       (str(idx), len(self.icons)))
                 self.setFallbackPoster()
                 return
@@ -767,9 +771,10 @@ class SafeScreen(Screen):
         """Called when the image download completes successfully."""
         if exists(pictmp):
             try:
-                with open(pictmp, "rb") as f:
-                    head = f.read(20)
-                    print("[DEBUG] Image head bytes:", head)
+                if DEBUG_MODE:
+                    with open(pictmp, "rb") as f:
+                        head = f.read(20)
+                        print("[DEBUG] Image head bytes:", head)
                 self.decodeImage(pictmp)
             except Exception as e:
                 print("[ERROR] decoding image:", e)
@@ -875,7 +880,7 @@ class SafeScreen(Screen):
         if self.closing:
             return
         self.closing = True
-        print("[SafeScreen] Cleaning up " + self.__class__.__name__)
+        print("[DEBUG][SafeScreen] Cleaning up " + self.__class__.__name__)
         try:
             # Add explicit cleanup of UI elements
             if 'text' in self:
@@ -911,12 +916,12 @@ class SafeScreen(Screen):
             import gc
             gc.collect()
         except Exception as e:
-            print("Cleanup error: " + str(e))
+            print("[DEBUG]Cleanup error: " + str(e))
             traceback.print_exc()
 
     def close(self, *args, **kwargs):
         """Override close method with safe handling."""
-        print("[SafeScreen] Closing " + self.__class__.__name__)
+        print("[DEBUG][SafeScreen] Closing " + self.__class__.__name__)
         self.cleanup()
         Utils.deletetmp()
         self.restore_state()
@@ -925,11 +930,11 @@ class SafeScreen(Screen):
     def force_close(self):
         """Force close the screen if normal close fails."""
         if not self.closing and self.execing:
-            print("Force closing screen due to timeout")
+            print("[DEBUG]Force closing screen due to timeout")
             try:
                 self.close()
             except BaseException:
-                print("Force close failed")
+                print("[DEBUG]Force close failed")
                 for key in list(self.__dict__.keys()):
                     if key not in ['session', 'desktop', 'instance']:
                         delattr(self, key)
@@ -971,6 +976,7 @@ class RaiPlayAPI:
         self.CHANNELS_THEATRE = "https://www.raiplay.it/raiplay/tipologia/musica-e-teatro/index.json"
         self.EPG_URL = "https://www.rai.it/dl/palinsesti/Page-e120a813-1b92-4057-a214-15943d95aa68-json.html?canale={}&giorno={}"
         self.EPG_REPLAY_URL = "https://www.raiplay.it/palinsesto/app/old/{}/{}.json"
+        self.PROGRAMS_ALL_URL = "https://www.raiplay.it/genere/Programmi---Tutti-20269973-8d0d-4cc4-9f82-66bd9fa2b03a.json"
         # PALINSESTO_URL_HTML = "https://www.raiplay.it/palinsesto/guidatv/lista/[idCanale]/[dd-mm-yyyy].html"
 
         self.TG_URL = "https://www.tgr.rai.it/dl/tgr/mhp/home.xml"
@@ -1137,10 +1143,10 @@ class RaiPlayAPI:
                 print("[DEBUG] Saved raw JSON -> " + raw_path)
 
             json_data = loads(raw_json)
-
-            with open(self.debug_dir + "parsed_json.txt", "w", encoding="utf-8") as f:
-                f.write(dumps(json_data, indent=4, ensure_ascii=False))
-            print("[DEBUG] Saved formatted JSON.")
+            if DEBUG_MODE:
+                with open(self.debug_dir + "parsed_json.txt", "w", encoding="utf-8") as f:
+                    f.write(dumps(json_data, indent=4, ensure_ascii=False))
+                print("[DEBUG] Saved formatted JSON.")
 
             def parse_iso_date(date_str):
                 if date_str and (len(date_str) > 5) and (
@@ -1270,7 +1276,7 @@ class RaiPlayAPI:
 
             return result
         except Exception as e:
-            print("[getLiveRadioChannels] JSON parse error:", e)
+            print("[DEBUG] [getLiveRadioChannels] JSON parse error:", e)
             return []
 
     def getEPGDates(self):
@@ -1316,7 +1322,7 @@ class RaiPlayAPI:
         try:
             data = Utils.getUrlSiVer(url)
             if not data:
-                print("DEBUG: No data returned from URL:", url)
+                print("[DEBUG] No data returned from URL:", url)
                 return []
 
             response = loads(data)
@@ -1328,7 +1334,7 @@ class RaiPlayAPI:
                     break
 
             if not channel_key:
-                print("DEBUG: Channel key not found, fallback to first key")
+                print("[DEBUG] Channel key not found, fallback to first key")
                 channel_key = list(response.keys())[0]
 
             channel_data = response[channel_key]
@@ -1383,7 +1389,7 @@ class RaiPlayAPI:
             return result
 
         except Exception as e:
-            print("Error in get_programs:", str(e))
+            print("[DEBUG] Error in get_programs:", str(e))
             return []
 
     def convert_old_url(self, old_url):
@@ -1591,7 +1597,7 @@ class RaiPlayAPI:
 
             return result
         except Exception as e:
-            print("Error in getOnDemandMenu: " + str(e))
+            print("[DEBUG]Error in getOnDemandMenu: " + str(e))
             return []
 
     def fixPath(self, path):
@@ -1881,7 +1887,7 @@ class RaiPlayAPI:
           3. chImage
           4. images.* in ordine definito manualmente
         """
-        print(">>> getThumbnailUrl2 - item keys:", item.keys())
+        print("[DEBUG]>>> getThumbnailUrl2 - item keys:", item.keys())
 
         def full_url(path):
             return path if path.startswith(
@@ -1898,56 +1904,56 @@ class RaiPlayAPI:
 
         if media_url:
             icon_url = full_url(media_url)
-            print(">>> Using image.media_url:", icon_url)
+            print("[DEBUG]>>> Using image.media_url:", icon_url)
             return self.getThumbnailUrl(icon_url)
 
         # 2. transparent-icon
         if "transparent-icon" in item:
             icon_url = item["transparent-icon"]
             if "[an error occurred" not in icon_url:
-                print(">>> Using transparent-icon:", icon_url)
+                print("[DEBUG]>>> Using transparent-icon:", icon_url)
                 return self.getThumbnailUrl(icon_url)
             else:
-                print(">>> Skipping invalid transparent-icon:", icon_url)
+                print("[DEBUG]>>> Skipping invalid transparent-icon:", icon_url)
 
         # 3. chImage
         if "chImage" in item:
             ch_image_url = item["chImage"]
-            print(">>> Using chImage:", ch_image_url)
+            print("[DEBUG]>>> Using chImage:", ch_image_url)
             return self.getThumbnailUrl(ch_image_url)
 
         # 4. images dict (ordine originale)
         if "images" in item and isinstance(item["images"], dict):
             images = item["images"]
-            print(">>> Available image keys:", images.keys())
+            print("[DEBUG]>>> Available image keys:", images.keys())
 
             if "locandinaOrizzontale" in images:
                 icon_url = full_url(images["locandinaOrizzontale"])
-                print(">>> Using locandinaOrizzontale:", icon_url)
+                print("[DEBUG]>>> Using locandinaOrizzontale:", icon_url)
                 return self.getThumbnailUrl(icon_url)
             elif "landscape" in images:
-                print(">>> Using landscape:", images["landscape"])
+                print("[DEBUG]>>> Using landscape:", images["landscape"])
                 return self.getThumbnailUrl(images["landscape"])
             elif "landscape43" in images:
-                print(">>> Using landscape43:", images["landscape43"])
+                print("[DEBUG]>>> Using landscape43:", images["landscape43"])
                 return self.getThumbnailUrl(images["landscape43"])
             elif "portrait" in images:
-                print(">>> Using portrait:", images["portrait"])
+                print("[DEBUG]>>> Using portrait:", images["portrait"])
                 return self.getThumbnailUrl(images["portrait"])
             elif "portrait43" in images:
-                print(">>> Using portrait43:", images["portrait43"])
+                print("[DEBUG]>>> Using portrait43:", images["portrait43"])
                 return self.getThumbnailUrl(images["portrait43"])
             elif "portrait_logo" in images:
-                print(">>> Using portrait_logo:", images["portrait_logo"])
+                print("[DEBUG]>>> Using portrait_logo:", images["portrait_logo"])
                 return self.getThumbnailUrl(images["portrait_logo"])
             elif "square" in images:
-                print(">>> Using square:", images["square"])
+                print("[DEBUG]>>> Using square:", images["square"])
                 return self.getThumbnailUrl(images["square"])
             elif "default" in images:
-                print(">>> Using default:", images["default"])
+                print("[DEBUG]>>> Using default:", images["default"])
                 return self.getThumbnailUrl(images["default"])
 
-        print(">>> No valid thumbnail found, using DEFAULT_ICON_URL")
+        print("[DEBUG]>>> No valid thumbnail found, using DEFAULT_ICON_URL")
         return self.DEFAULT_ICON_URL
 
     def getProgramDetails(self, url):
@@ -1999,7 +2005,7 @@ class RaiPlayAPI:
                 "blocks": blocks
             }
         except Exception as e:
-            print("Error parsing program details: " + str(e))
+            print("[DEBUG]Error parsing program details: " + str(e))
             return None
 
     def getProgramItems(self, url):
@@ -2147,7 +2153,7 @@ class RaiPlayAPI:
             }
 
         except Exception as e:
-            print("Error fetching TG archive: {}".format(str(e)))
+            print("[DEBUG]Error fetching TG archive: {}".format(str(e)))
             traceback.print_exc()
             return {
                 "videos": [],
@@ -2205,7 +2211,7 @@ class RaiPlayAPI:
                                             "create_date", "")}]
 
         except Exception as e:
-            print("Error fetching TG content: {}".format(str(e)))
+            print("[DEBUG]Error fetching TG content: {}".format(str(e)))
             return []
 
     def getSportCategories(self):
@@ -2254,7 +2260,7 @@ class RaiPlayAPI:
             return categories
 
         except Exception as e:
-            print("Error getting sports categories:", str(e))
+            print("[DEBUG]Error getting sports categories:", str(e))
             traceback.print_exc()
             return []
 
@@ -2304,7 +2310,7 @@ class RaiPlayAPI:
             return subcategories
 
         except Exception as e:
-            print("Error getting sport subcategories:", str(e))
+            print("[DEBUG]Error getting sport subcategories:", str(e))
             traceback.print_exc()
             return []
 
@@ -2502,7 +2508,7 @@ class RaiPlayAPI:
             content = response.text
 
             # Debug: save XML content
-            if config.plugins.raiplay.debug.value:
+            if DEBUG_MODE:
                 with open("/tmp/relinker.xml", "w") as f:
                     f.write(content)
                 print("[Relinker] Saved XML to /tmp/relinker.xml")
@@ -2559,25 +2565,25 @@ class RaiPlayAPI:
                 except Exception as e:
                     print("[Relinker] License parse error: " + str(e))
 
-            print("[Relinker] Final URL: " + content_url)
-            print("[Relinker] License key: " + str(license_key))
+            print("[DEBUG][Relinker] Final URL: " + content_url)
+            print("[DEBUG][Relinker] License key: " + str(license_key))
             return content_url, license_key
 
         except Exception as e:
-            print("[Relinker] Error: " + str(e))
+            print("[DEBUG][Relinker] Error: " + str(e))
             return url, None
 
     def debug_images(self, item):
         """Log all possible image paths in an item for debugging"""
-        print("\n[DEBUG] Starting image debug for item:")
+        print("[DEBUG] Starting image debug for item:")
 
         # 1. Log the full item structure first
         try:
             import json
-            print("Full item structure:")
+            print("[DEBUG]Full item structure:")
             print(json.dumps(item, indent=2, ensure_ascii=False))
         except BaseException:
-            print("Could not serialize item for debug")
+            print("[DEBUG]Could not serialize item for debug")
 
         # 2. Check specific paths
         paths_to_check = [
@@ -2625,13 +2631,13 @@ class RaiPlayAPI:
                     break
 
             if valid and current:
-                print("Found image at '" + path + "': " + str(current))
+                print("[DEBUG]Found image at '" + path + "': " + str(current))
                 found_images.append(current)
 
         if not found_images:
-            print("No images found in any known paths!")
+            print("[DEBUG]No images found in any known paths!")
 
-        print("Total images found: " + str(len(found_images)) + "\n")
+        print("[DEBUG]Total images found: " + str(len(found_images)) + "\n")
         return found_images
 
 
@@ -2674,20 +2680,16 @@ class RaiPlayMain(SafeScreen):
             (_("Sports"), "sport", "https://3.bp.blogspot.com/-zo6bSJzIHwA/UNs7tWXhOnI/AAAAAAAANJ0/HCfIRNmmbNI/s1600/png_fondo_blanco_by_camilhitha124-d3hgxl4.png"),
             (_("Programs"), "programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
         ]
-        categories += [(_("On Air Programs"),
-                        "on_air",
-                        "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-                       (_("A-Z TV Shows"),
-                        "az_tv",
-                        "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-                       (_("A-Z Radio Shows"),
-                        "az_radio",
-                        "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
-                       (_("News Categories"),
-                        "news_categories",
-                        "https://www.rainews.it/dl/components/img/logo-rainews-simple.png")]
+
         categories += [
-            (_("Search"), "search", png_search)
+            (_("On Air Programs"), "on_air", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
+            (_("A-Z All Programs"), "all_programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("A-Z TV Shows"), "az_tv", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("A-Z Radio Shows"), "az_radio", "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
+            (_("News Categories"), "news_categories", "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"),
+        ]
+        categories += [
+            (_("Search"), "search", png_search),
         ]
 
         # Populate immediate lists
@@ -2737,7 +2739,7 @@ class RaiPlayMain(SafeScreen):
             self.categories_loaded = True
 
         except Exception as e:
-            print("Error loading program categories: {}".format(str(e)))
+            print("[DEBUG]Error loading program categories: {}".format(str(e)))
             self.categories_loaded = True  # Considera comunque completato
 
     @property
@@ -2844,6 +2846,8 @@ class RaiPlayMain(SafeScreen):
             self.session.open(RaiPlayAZPrograms, "radio")
         elif category == "news_categories":
             self.session.open(RaiPlayNewsCategories)
+        elif category == "all_programs":
+            self.session.open(RaiPlayAllPrograms, self.api.PROGRAMS_ALL_URL)
 
     def closeKeyboards(self):
         """Close any open virtual keyboards"""
@@ -3043,7 +3047,7 @@ class RaiPlayReplayPrograms(SafeScreen):
         self.urls = []
         self.icons = []
         date_api = datetime.strptime(self.date, "%d%m%y").strftime("%d-%m-%Y")
-        print("DEBUG: Converted date for API comparison:", date_api)
+        print("[DEBUG] Converted date for API comparison:", date_api)
 
         programs = self.api.get_programs(self.channel_info["api"], date_api)
 
@@ -3076,10 +3080,10 @@ class RaiPlayReplayPrograms(SafeScreen):
 
         name = self.names[idx]
         video_url = self.urls[idx]
-        # print("DEBUG: Selected name:", name)
-        # print("DEBUG: Original video_url:", video_url)
+        # print("[DEBUG] Selected name:", name)
+        # print("[DEBUG] Original video_url:", video_url)
         if not video_url:
-            print("DEBUG: Video URL is empty")
+            print("[DEBUG] Video URL is empty")
             self.session.open(
                 MessageBox,
                 _("Video URL not available"),
@@ -3088,14 +3092,14 @@ class RaiPlayReplayPrograms(SafeScreen):
 
         url = video_url
         if url is None or url.endswith(".json"):
-            print("DEBUG: URL is invalid or ends with .json")
+            print("[DEBUG] URL is invalid or ends with .json")
             self.session.open(
                 MessageBox,
                 _("Video not available or invalid URL"),
                 MessageBox.TYPE_ERROR)
             return
 
-        print("DEBUG: Launching playback for:", url)
+        print("[DEBUG] Launching playback for:", url)
         self.playDirect(name, url)
 
 
@@ -3125,7 +3129,7 @@ class RaiPlayReplayChannels(SafeScreen):
         url = self.api.CHANNELS_URL
         data = Utils.getUrlSiVer(url)
         if not data:
-            print("DEBUG: No data returned from URL")
+            print("[DEBUG] No data returned from URL")
             self['info'].setText(_('Error loading data'))
             return
         try:
@@ -3294,7 +3298,7 @@ class RaiPlayProgramBlocks(SafeScreen):
                     # Fallback if no image found
                     icon_url = self.api.getThumbnailUrl2(set_item)
 
-                if config.plugins.raiplay.debug.value:
+                if DEBUG_MODE:
                     self.api.debug_images(set_item)
 
                 self.blocks.append({
@@ -3359,7 +3363,7 @@ class RaiPlayBlockItems(SafeScreen):
             if item.get('subtitle'):
                 title = title + " (" + item['subtitle'] + ")"
 
-            if config.plugins.raiplay.debug.value:
+            if DEBUG_MODE:
                 self.api.debug_images(item)
 
             self.videos.append({
@@ -3673,6 +3677,211 @@ class RaiPlayOnDemandIndex(SafeScreen):
         )
 
 
+class RaiPlayAllPrograms(SafeScreen):
+    def __init__(self, session, url):
+        self.session = session
+        skin = join(skin_path, 'settings.xml')
+        with codecs.open(skin, "r", encoding="utf-8") as f:
+            self.skin = f.read()
+        SafeScreen.__init__(self, session)
+        self.url = url
+        self.items = []
+        self.names = []
+        self['poster'] = Pixmap()
+        self['info'] = Label(_('Loading all programs...'))
+        self['title'] = Label(_("All Programs"))
+        self['actions'] = ActionMap(['OkCancelActions', 'ChannelSelectEPGActions'], {
+            'ok': self.okRun,
+            'cancel': self.close,
+            'info': self.infohelp
+        }, -2)
+        self.onLayoutFinish.append(self._gotPageLoad)
+
+    def _gotPageLoad(self):
+        """Load all programs and organize them by first letter"""
+        data = Utils.getUrlSiVer(self.url)
+        if not data:
+            self['info'].setText(_('Error loading data'))
+            return
+
+        try:
+            response = loads(data)
+            programs = []
+
+            # Extract all programs from the contents
+            if "contents" in response and isinstance(response["contents"], dict):
+                for letter, items in response["contents"].items():
+                    for program in items:
+                        # Get the correct URL - use info_url if available, otherwise use path_id
+                        program_url = program.get("info_url", program.get("path_id", ""))
+                        if program_url and not program_url.startswith("http"):
+                            program_url = self.api.getFullUrl(program_url)
+
+                        # Ensure it's a JSON URL
+                        if program_url and not program_url.endswith('.json'):
+                            program_url += '.json'
+
+                        programs.append({
+                            'name': program.get("name", ""),
+                            'url': program_url,
+                            'icon': self.api.getThumbnailUrl2(program),
+                            'sub-type': program.get("type", "PLR programma Page")
+                        })
+
+            # Sort programs alphabetically
+            programs.sort(key=lambda x: x['name'].lower())
+
+            # Group programs by first letter
+            self.programs_by_letter = {}
+            for program in programs:
+                first_letter = program['name'][0].upper() if program['name'] else '#'
+                if first_letter not in self.programs_by_letter:
+                    self.programs_by_letter[first_letter] = []
+                self.programs_by_letter[first_letter].append(program)
+
+            # Create list of letters
+            self.letters = sorted(self.programs_by_letter.keys())
+            self.names = [
+                "{} ({})".format(letter, len(self.programs_by_letter[letter]))
+                for letter in self.letters
+            ]
+            show_list(self.names, self['text'])
+            self['info'].setText(_('Select letter'))
+
+            if self.names:
+                self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
+            self.selectionChanged()
+        except Exception as e:
+            print("[ERROR] loading all programs:", str(e))
+            self['info'].setText(_('Error loading data'))
+
+    def okRun(self):
+        if not self.names:
+            return
+
+        idx = self["text"].getSelectionIndex()
+        if idx is None or idx >= len(self.names):
+            return
+
+        selected_letter = self.letters[idx]
+        programs = self.programs_by_letter[selected_letter]
+
+        # Open a new screen showing programs for this letter
+        self.session.open(RaiPlayProgramsByLetter, selected_letter, programs)
+
+
+class RaiPlayProgramsByLetter(SafeScreen):
+    def __init__(self, session, letter, programs):
+        self.session = session
+        skin = join(skin_path, 'settings.xml')
+        with codecs.open(skin, "r", encoding="utf-8") as f:
+            self.skin = f.read()
+        SafeScreen.__init__(self, session)
+        self.letter = letter
+        self.programs = programs
+        self.names = []
+        self.urls = []
+        self.icons = []
+        self['poster'] = Pixmap()
+        self['info'] = Label(_('Loading programs...'))
+        self['title'] = Label("Programs - {}".format(letter))
+        self['actions'] = ActionMap(['OkCancelActions', 'ChannelSelectEPGActions'], {
+            'ok': self.okRun,
+            'cancel': self.close,
+            'info': self.infohelp
+        }, -2)
+        self.onLayoutFinish.append(self._gotPageLoad)
+
+    def _gotPageLoad(self):
+        """Display programs for the selected letter"""
+        self.names = [program['name'] for program in self.programs]
+        self.urls = [program['url'] for program in self.programs]
+        self.icons = [program['icon'] for program in self.programs]
+
+        show_list(self.names, self['text'])
+        self['info'].setText(_('Select program'))
+
+        if self.names:
+            self["text"].moveToIndex(0)
+        self.selectionChanged()
+
+    def okRun(self):
+        if not self.names:
+            return
+
+        idx = self["text"].getSelectionIndex()
+        if idx is None or idx >= len(self.names):
+            return
+
+        program = self.programs[idx]
+
+        # First, try to get the content directly
+        content_data = Utils.getUrlSiVer(program['url'])
+        if not content_data:
+            self.session.open(MessageBox, _("Could not load program content"), MessageBox.TYPE_ERROR)
+            return
+
+        try:
+            content_json = loads(content_data)
+
+            # Debug: print the structure to understand what we're dealing with
+            print("[DEBUG]Content JSON keys:", list(content_json.keys()))
+
+            # Check if this is a content set with items
+            if content_json.get('items') and isinstance(content_json['items'], list):
+                # This is a content set, open it directly
+                self.session.open(RaiPlayContentSet, program['name'], program['url'])
+            # Check if this is a program with blocks
+            elif content_json.get('blocks') and isinstance(content_json['blocks'], list):
+                # For programs with blocks, we need to find the actual content set
+                content_set_url = self.find_content_set_url(content_json)
+                if content_set_url:
+                    self.session.open(RaiPlayContentSet, program['name'], content_set_url)
+                else:
+                    self.session.open(MessageBox, _("No content found in this program"), MessageBox.TYPE_ERROR)
+            # Check if this is a direct video item
+            elif content_json.get('video_url'):
+                # This is a direct video, play it
+                self.playDirect(program['name'], content_json['video_url'])
+            # Check if this is a program info page that needs to be redirected
+            elif content_json.get('weblink'):
+                # Try to get the content from the weblink
+                weblink = content_json['weblink']
+                if not weblink.startswith('http'):
+                    weblink = self.api.getFullUrl(weblink)
+                if not weblink.endswith('.json'):
+                    weblink += '.json'
+                self.session.open(RaiPlayProgramsByLetter, program['name'], [{
+                    'name': program['name'],
+                    'url': weblink,
+                    'icon': program['icon']
+                }])
+            else:
+                # Unknown content type - try to debug by printing the structure
+                print("[DEBUG]Unknown content structure:", dumps(content_json, indent=2)[:500])
+                self.session.open(MessageBox, _("Unknown content type"), MessageBox.TYPE_ERROR)
+
+        except Exception as e:
+            print("[ERROR] parsing content:", str(e))
+            self.session.open(MessageBox, _("Error parsing content"), MessageBox.TYPE_ERROR)
+
+    def find_content_set_url(self, program_json):
+        """Find the content set URL in a program with blocks"""
+        # Look for the first content set in blocks
+        for block in program_json.get('blocks', []):
+            for set_item in block.get('sets', []):
+                set_url = set_item.get('path_id', '')
+                if set_url:
+                    return self.api.getFullUrl(set_url)
+        return None
+
+
 class RaiPlayOnDemandProgram(SafeScreen):
     def __init__(self, session, name, url):
         self.session = session
@@ -3698,7 +3907,7 @@ class RaiPlayOnDemandProgram(SafeScreen):
     def _gotPageLoad(self):
         """Load and process program details"""
         url = self.api.prepare_url(self.url)
-        print("[Program] Loading program details from: " + url)
+        print("[DEBUG][Program] Loading program details from: " + url)
         data = Utils.getUrlSiVer(url)
         if not data:
             self['info'].setText(_('Error loading data'))
@@ -3771,10 +3980,15 @@ class RaiPlayOnDemandProgram(SafeScreen):
             show_list(self.names, self['text'])
             self['info'].setText(_('Select content set'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
-
         except Exception as e:
-            print("Error loading program details: " + str(e))
+            print("[ERROR] loading program details: " + str(e))
             self['info'].setText(_('Error loading data: {}').format(str(e)))
 
     def loadRadioEpisodes(self, response):
@@ -3805,6 +4019,12 @@ class RaiPlayOnDemandProgram(SafeScreen):
         show_list(self.names, self['text'])
         self['info'].setText(_('Select episode'))
         self["text"].moveToIndex(0)
+        restored = self.restore_state()
+        if restored:
+            self["text"].moveToIndex(self.state_index)
+        else:
+            if self.names:
+                self["text"].moveToIndex(0)
         self.selectionChanged()
 
     def get_videos_from_program(self, program_data):
@@ -3843,12 +4063,12 @@ class RaiPlayOnDemandProgram(SafeScreen):
                     "utf-8", errors="ignore").decode("utf-8")
 
             # print("[DEBUG] Selezionato file multimediale:", safe_name)
-            t0 = time.time()
+            # t0 = time.time()
             self.playDirect(safe_name, item["url"])
             # print("[DEBUG] playDirect chiamato dopo %.2f sec" % (time.time() - t0))
         else:
             # print("[DEBUG] Apro contenuto:", item["name"])
-            t0 = time.time()
+            # t0 = time.time()
             self.session.open(RaiPlayContentSet, item["name"], item["url"])
             # print("[DEBUG] session.open completato in %.2f sec" % (time.time() - t0))
 
@@ -3877,7 +4097,104 @@ class RaiPlayContentSet(SafeScreen):
 
     def _gotPageLoad(self):
         """Load videos from content set"""
-        print("[ContentSet] Loading content set: " + self.url)
+        print("[DEBUG][ContentSet] Loading content set: " + self.url)
+        data = Utils.getUrlSiVer(self.url)
+        if not data:
+            self['info'].setText(_('Error loading data'))
+            return
+
+        try:
+            response = loads(data)
+            self.videos = []
+
+            # Extract videos from items array
+            items = response.get("items", [])
+            for item in items:
+                # Get video URL - try multiple possible fields
+                video_url = item.get("video_url") or item.get("content_url") or ""
+                if not video_url:
+                    # Check if there's a video object
+                    video_obj = item.get("video", {})
+                    video_url = video_obj.get("content_url", "")
+
+                if not video_url:
+                    continue
+
+                title = item.get("name", item.get("title", "No title"))
+                # Add subtitle if available
+                subtitle = item.get("subtitle", "")
+                if subtitle and subtitle != title:
+                    title = "{} - {}".format(title, subtitle)
+
+                # Add date if available
+                toptitle = item.get("toptitle", "")
+                if toptitle:
+                    title = "{} - {}".format(toptitle, title)
+
+                self.videos.append({
+                    "title": title,
+                    "url": video_url,
+                    "icon": self.api.getThumbnailUrl2(item)
+                })
+
+            if not self.videos:
+                # Try alternative structure - check if it's a direct video
+                if response.get("video_url"):
+                    self.videos.append({
+                        "title": response.get("name", response.get("title", "No title")),
+                        "url": response.get("video_url"),
+                        "icon": self.api.getThumbnailUrl2(response)
+                    })
+                else:
+                    self['info'].setText(_('No videos found'))
+                    return
+
+            self.names = [video["title"] for video in self.videos]
+            self.icons = [video.get("icon", self.api.DEFAULT_ICON_URL) for video in self.videos]
+            show_list(self.names, self['text'])
+            self['info'].setText(_('Select video'))
+            self["text"].moveToIndex(0)
+            self.selectionChanged()
+
+        except Exception as e:
+            print("[ERROR] loading content set: " + str(e))
+            self['info'].setText(_('Error loading data'))
+
+    def okRun(self):
+        if not self.names:
+            return
+
+        idx = self["text"].getSelectionIndex()
+        if idx is None or idx >= len(self.names):
+            return
+
+        video = self.videos[idx]
+        self.playDirect(video["title"], video["url"])
+
+
+class RaiPlayContentSetX(SafeScreen):
+    def __init__(self, session, name, url):
+        self.session = session
+        skin = join(skin_path, 'settings.xml')
+        with codecs.open(skin, "r", encoding="utf-8") as f:
+            self.skin = f.read()
+        SafeScreen.__init__(self, session)
+        self.name = name
+        self.url = url
+        self.videos = []
+        self['poster'] = Pixmap()
+        self['info'] = Label(_('Loading videos...'))
+        self['title'] = Label(str(name))
+        self['actions'] = ActionMap(['OkCancelActions', 'ChannelSelectEPGActions'], {
+            'ok': self.okRun,
+            'cancel': self.close,
+            'info': self.infohelp
+        }, -2)
+        self.onLayoutFinish.append(self._gotPageLoad)
+
+    def _gotPageLoad(self):
+        """Load videos from content set"""
+        print("[DEBUG][ContentSet] Loading content set: " + self.url)
         data = Utils.getUrlSiVer(self.url)
         if not data:
             self['info'].setText(_('Error loading data'))
@@ -3909,10 +4226,15 @@ class RaiPlayContentSet(SafeScreen):
             show_list(self.names, self['text'])
             self['info'].setText(_('Select video'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
-
         except Exception as e:
-            print("Error loading content set: " + str(e))
+            print("[ERROR] loading content set: " + str(e))
             self['info'].setText(_('Error loading data'))
 
     def okRun(self):
@@ -3984,7 +4306,7 @@ class RaiPlayOnDemandProgramItems(SafeScreen):
                 # Fallback to debug_images if no image found
                 icon_url = self.api.getThumbnailUrl2(item)
 
-            if config.plugins.raiplay.debug.value:
+            if DEBUG_MODE:
                 self.api.debug_images(item)
 
             self.videos.append({
@@ -4101,10 +4423,15 @@ class RaiPlayOnAir(SafeScreen):
             show_list(self.names, self['text'])
             self['info'].setText(_('Select program to watch'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
-
         except Exception as e:
-            print("Error loading onAir data: " + str(e))
+            print("[ERROR] loading onAir data: " + str(e))
             self['info'].setText(_('Error loading data: {}').format(str(e)))
 
     def okRun(self):
@@ -4144,7 +4471,7 @@ class RaiPlayAZPrograms(SafeScreen):
     def loadData(self):
         """Load A-Z program list with improved structure handling"""
         try:
-            print("[AZ] Loading " + self.program_type + " programs")
+            print("[DEBUG][AZ] Loading " + self.program_type + " programs")
             if self.program_type == "tv":
                 # "https://www.raiplay.it/dl/RaiTV/RaiPlayMobile/Prod/Config/programmiAZ-elenco.json"
                 url = self.api.RAIPLAY_AZ_TV_SHOW_PATH
@@ -4155,25 +4482,24 @@ class RaiPlayAZPrograms(SafeScreen):
             # Add cache busting parameter to avoid stale data
             url += "?t=" + str(int(time.time()))
 
-            print("[AZ] Fetching URL: {}".format(url))
+            print("[DEBUG][AZ] Fetching URL: {}".format(url))
             response = requests.get(url, timeout=15)
             response.raise_for_status()
             data = response.json()
 
-            """
-            # # Debug: save JSON for analysis
-            # debug_path = join(self.api.debug_dir, "az_{}.json".format(self.program_type))
-            # with open(debug_path, "w", encoding="utf-8") as f:
-                # dump(data, f, indent=2)
-            # print("[AZ] Saved JSON to {}".format(debug_path))
-            """
+            # Debug: save JSON for analysis
+            if DEBUG_MODE:
+                debug_path = join(self.api.debug_dir, "az_{}.json".format(self.program_type))
+                with open(debug_path, "w", encoding="utf-8") as f:
+                    dump(data, f, indent=2)
+                print("[DEBUG][AZ] Saved JSON to {}".format(debug_path))
 
             self.programs = []
 
             # Handle different JSON structures
             if isinstance(data, dict):
                 # Dictionary format: keys are letters (A, B, ..., 0-9)
-                print("[AZ] Processing dictionary format")
+                print("[DEBUG][AZ] Processing dictionary format")
                 for letter, items in data.items():
                     if isinstance(items, list):
                         for program in items:
@@ -4183,7 +4509,7 @@ class RaiPlayAZPrograms(SafeScreen):
                               str(letter) + ": " + str(type(items)))
             elif isinstance(data, list):
                 # Array format: list of programs
-                print("[AZ] Processing array format")
+                print("[DEBUG][AZ] Processing array format")
                 for program in data:
                     self.add_program(program)
             else:
@@ -4198,26 +4524,31 @@ class RaiPlayAZPrograms(SafeScreen):
             if not self.programs:
                 self['info'].setText(_('No programs found in A-Z list'))
                 if isinstance(data, dict):
-                    print("[AZ] No programs found. JSON keys: " +
+                    print("[DEBUG][AZ] No programs found. JSON keys: " +
                           str(list(data.keys())))
                 else:
-                    print("[AZ] No programs found. JSON keys: N/A")
+                    print("[DEBUG][AZ] No programs found. JSON keys: N/A")
                 return
 
             # Sort alphabetically
             self.programs.sort(key=lambda x: x["title"].lower())
 
             # icon = self.api.getThumbnailUrl2(channel)
-            print("[AZ] Found {} programs".format(len(self.programs)))
+            print("[DEBUG][AZ] Found {} programs".format(len(self.programs)))
             self.names = [p["title"] for p in self.programs]
             self.icons = [p["icon"] for p in self.programs]
             show_list(self.names, self['text'])
             self['info'].setText(_('Select program'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
-
         except Exception as e:
-            print("[AZ] Error loading data: {}".format(str(e)))
+            print("[DEBUG][AZ] Error loading data: {}".format(str(e)))
             self['info'].setText(
                 _('Error loading A-Z programs: {}').format(str(e)))
 
@@ -4273,7 +4604,7 @@ class RaiPlayAZPrograms(SafeScreen):
                     "icon": icon
                 })
             except Exception as e:
-                print("[AZ] Error processing program: {}".format(str(e)))
+                print("[DEBUG][AZ] Error processing program: {}".format(str(e)))
 
         return result
 
@@ -4477,6 +4808,12 @@ class RaiPlayNewsCategories(SafeScreen):
         show_list(self.names, self['text'])
         self['info'].setText(_('Select category'))
         self["text"].moveToIndex(0)
+        restored = self.restore_state()
+        if restored:
+            self["text"].moveToIndex(self.state_index)
+        else:
+            if self.names:
+                self["text"].moveToIndex(0)
         self.selectionChanged()
 
     def okRun(self):
@@ -4520,7 +4857,7 @@ class RaiPlayNewsCategory(SafeScreen):
 
     def loadData(self):
         """Load and parse news items for the selected category"""
-        print("[NewsCategory] Loading: " + str(self.url))
+        print("[DEBUG][NewsCategory] Loading: " + str(self.url))
         try:
             data = Utils.getUrlSiVer(self.url)
             if not data:
@@ -4534,14 +4871,14 @@ class RaiPlayNewsCategory(SafeScreen):
                     data
                 )
                 if json_match:
-                    print("[NewsCategory] Found JSON in HTML")
+                    print("[DEBUG][NewsCategory] Found JSON in HTML")
                     raw_json = _html.unescape(json_match.group(1))
                     response = loads(raw_json)
                 else:
                     raise Exception("No JSON found in response")
 
             # DEBUG: Save response for analysis
-            if config.plugins.raiplay.debug.value:
+            if DEBUG_MODE:
                 debug_file = join(self.api.debug_dir,
                                   "news_category_" + str(self.name) + ".json")
                 with open(debug_file, "w", encoding="utf-8") as f:
@@ -4551,14 +4888,14 @@ class RaiPlayNewsCategory(SafeScreen):
             # SPECIAL CASE: New thematic structure (e.g., Environment)
             if "tematiche" in response and isinstance(
                     response["tematiche"], list):
-                print("[NewsCategory] Found thematic structure")
+                print("[DEBUG][NewsCategory] Found thematic structure")
                 self.handle_thematic_structure(response)
                 return
 
             # CASE 1: Response with "contents" structure
             if "contents" in response and isinstance(
                     response["contents"], list):
-                print("[NewsCategory] Found 'contents' array")
+                print("[DEBUG][NewsCategory] Found 'contents' array")
                 for content_block in response["contents"]:
                     if "contents" in content_block and isinstance(
                             content_block["contents"], list):
@@ -4570,24 +4907,24 @@ class RaiPlayNewsCategory(SafeScreen):
 
             # CASE 2: Response with direct "cards" structure
             elif "cards" in response and isinstance(response["cards"], list):
-                print("[NewsCategory] Found direct 'cards' array")
+                print("[DEBUG][NewsCategory] Found direct 'cards' array")
                 for card in response["cards"]:
                     self.add_news_item(card)
 
             # CASE 3: Response with "items" structure
             elif "items" in response and isinstance(response["items"], list):
-                print("[NewsCategory] Found 'items' array")
+                print("[DEBUG][NewsCategory] Found 'items' array")
                 for item in response["items"]:
                     self.add_news_item(item)
 
             # CASE 4: New structure for thematic archive
             elif "tematiche" in response and isinstance(response["tematiche"], list):
-                print("[NewsCategory] Found new thematic structure")
+                print("[DEBUG][NewsCategory] Found new thematic structure")
                 self.handle_new_thematic_structure(response)
                 return  # Exit after handling new structure
 
             if not self.items:
-                print("[NewsCategory] No items found. Response keys: " +
+                print("[DEBUG][NewsCategory] No items found. Response keys: " +
                       str(list(response.keys())))
                 self['info'].setText(_('No items found in this category'))
                 return
@@ -4614,7 +4951,7 @@ class RaiPlayNewsCategory(SafeScreen):
                             self.add_news_item(item)
 
             if not self.items:
-                print("[NewsCategory] No items found. Response keys: " +
+                print("[DEBUG][NewsCategory] No items found. Response keys: " +
                       str(list(response.keys())))
                 self['info'].setText(_('No items found in this category'))
                 return
@@ -4641,13 +4978,19 @@ class RaiPlayNewsCategory(SafeScreen):
             self['title'].setText(str(self.name) + " Archive")
             self['info'].setText(_('Select item'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
 
         except Exception as e:
-            print("[NewsCategory] Error loading news category: " + str(e))
+            print("[DEBUG][NewsCategory] Error loading news category: " + str(e))
             self['info'].setText(_('Error: Could not load news data'))
             # Attempt to show the raw response for debugging
-            if config.plugins.raiplay.debug.value and data:
+            if DEBUG_MODE and data:
                 debug_path = join(self.api.debug_dir,
                                   "news_error_" + str(self.name) + ".txt")
                 with open(debug_path, "w", encoding="utf-8") as f:
@@ -4657,7 +5000,7 @@ class RaiPlayNewsCategory(SafeScreen):
     def handle_thematic_archive(self, response):
         """Handles the special structure of thematic archives"""
         try:
-            print("[ThematicArchive] Handling thematic archive structure")
+            print("[DEBUG][ThematicArchive] Handling thematic archive structure")
 
             # Get the archive URL
             archive_url = response.get("meta", {}).get("canonical")
@@ -4665,7 +5008,7 @@ class RaiPlayNewsCategory(SafeScreen):
                 self['info'].setText(_('Archive URL not found'))
                 return
 
-            print("[ThematicArchive] Loading archive: " + str(archive_url))
+            print("[DEBUG][ThematicArchive] Loading archive: " + str(archive_url))
             archive_data = Utils.getUrlSiVer(archive_url)
             if not archive_data:
                 self['info'].setText(_('No archive data found'))
@@ -4711,17 +5054,23 @@ class RaiPlayNewsCategory(SafeScreen):
             self['title'].setText(response.get("mainThemeName", self.name))
             self['info'].setText(_('Select item'))
             self["text"].moveToIndex(0)
+            restored = self.restore_state()
+            if restored:
+                self["text"].moveToIndex(self.state_index)
+            else:
+                if self.names:
+                    self["text"].moveToIndex(0)
             self.selectionChanged()
 
         except Exception as e:
-            print("[ThematicArchive] Error: " + str(e))
+            print("[DEBUG][ThematicArchive] Error: " + str(e))
             self['info'].setText(_('Error processing archive'))
             traceback.print_exc()
 
     def openArchiveScreen(self, title, payload):
         """Open the API archive screen after a short delay"""
         try:
-            print("[Archive] Opening API archive for: {}".format(title))
+            print("[DEBUG][Archive] Opening API archive for: {}".format(title))
             self.session.openWithCallback(
                 self.archiveClosedCallback,
                 RaiPlayNewsAPIArchive,
@@ -4729,10 +5078,10 @@ class RaiPlayNewsCategory(SafeScreen):
                 payload
             )
         except Exception as e:
-            print("[Archive] Error opening archive: {}".format(str(e)))
+            print("[DEBUG][Archive] Error opening archive: {}".format(str(e)))
 
     def archiveClosedCallback(self, *args, **kwargs):
-        print("[Category] Archive screen closed")
+        print("[DEBUG][Category] Archive screen closed")
         self['info'].setText(_('Select category'))
         self['title'].setText(self.name)
         self.loadData()
@@ -4740,7 +5089,7 @@ class RaiPlayNewsCategory(SafeScreen):
     def handle_thematic_structure(self, response):
         """Handles the new thematic structure (e.g., Environment)"""
         try:
-            print("[ThematicStructure] Handling thematic structure")
+            print("[DEBUG][ThematicStructure] Handling thematic structure")
 
             # Extract main information from the response
             main_theme = response.get("mainThemeName", self.name)
@@ -4762,7 +5111,7 @@ class RaiPlayNewsCategory(SafeScreen):
                 }
             }
 
-            print("[ThematicStructure] API payload: " + str(payload))
+            print("[DEBUG][ThematicStructure] API payload: " + str(payload))
 
             # Perform the API search request
             headers = {
@@ -4831,21 +5180,27 @@ class RaiPlayNewsCategory(SafeScreen):
                 self['title'].setText(main_theme)
                 self['info'].setText(_('Select item'))
                 self["text"].moveToIndex(0)
+                restored = self.restore_state()
+                if restored:
+                    self["text"].moveToIndex(self.state_index)
+                else:
+                    if self.names:
+                        self["text"].moveToIndex(0)
                 self.selectionChanged()
 
             except Exception as e:
-                print("[ThematicStructure] API request error: " + str(e))
+                print("[DEBUG][ThematicStructure] API request error: " + str(e))
                 self['info'].setText(_('Error loading content from API'))
 
         except Exception as e:
-            print("[ThematicStructure] Error: " + str(e))
+            print("[DEBUG][ThematicStructure] Error: " + str(e))
             self['info'].setText(_('Error processing thematic content'))
             traceback.print_exc()
 
     def handle_new_thematic_structure(self, response):
         """Handles the new thematic structure (e.g., Environment)"""
         try:
-            print("[NewThematic] Handling new thematic structure")
+            print("[DEBUG][NewThematic] Handling new thematic structure")
             main_theme = response.get("mainThemeName", "")
             main_theme_unique = response.get("mainThemeUniqueName", "")
             category_domain = response.get("categoryDomain", "RaiNews")
@@ -4867,7 +5222,7 @@ class RaiPlayNewsCategory(SafeScreen):
             self.archive_title = main_theme
             self.openArchiveScreen(main_theme, self.archive_payload)
         except Exception as e:
-            print("[NewThematic] Error: " + str(e))
+            print("[DEBUG][NewThematic] Error: " + str(e))
             self['info'].setText(_('Error processing archive'))
             traceback.print_exc()
 
@@ -4947,12 +5302,12 @@ class RaiPlayNewsAPIArchive(SafeScreen):
 
     def restore_state(self):
         """Disable state restoration for this screen"""
-        print("[APIArchive] Skipping state restoration")
+        print("[DEBUG][APIArchive] Skipping state restoration")
         return False
 
     def save_state(self):
         """Disable state saving for this screen"""
-        print("[APIArchive] Skipping state saving")
+        print("[DEBUG][APIArchive] Skipping state saving")
         pass
 
     def loadData(self):
@@ -4960,8 +5315,8 @@ class RaiPlayNewsAPIArchive(SafeScreen):
         self.videos = []
         self.names = []
         self['info'].setText(_('Loading archive data...'))
-        print("[APIArchive] Loading archive for: {}".format(self.name))
-        print("[APIArchive] Payload: {}".format(
+        print("[DEBUG][APIArchive] Loading archive for: {}".format(self.name))
+        print("[DEBUG][APIArchive] Payload: {}".format(
             dumps(self.api_payload, indent=2)))
 
         headers = {
@@ -5035,7 +5390,7 @@ class RaiPlayNewsAPIArchive(SafeScreen):
                     self["text"].moveToIndex(0)
             self.selectionChanged()
         except Exception as e:
-            print("Error loading archive: " + str(e))
+            print("[ERROR] loading archive: " + str(e))
             self['info'].setText(
                 _('Error loading archive data: {}').format(
                     str(e)))
@@ -5085,7 +5440,7 @@ class RaiPlayNewsAPIArchive(SafeScreen):
                     player_data = loads(player_json)
                     video_url = player_data.get("content_url", "")
                 except Exception as e:
-                    print("Error parsing player JSON: " + str(e))
+                    print("[ERROR] parsing player JSON: " + str(e))
 
             # Method 2: Search for direct URL in JSON
             if not video_url:
@@ -5111,7 +5466,7 @@ class RaiPlayNewsAPIArchive(SafeScreen):
                 self['info'].setText(_('Could not find video URL'))
 
         except Exception as e:
-            print("Error extracting video URL: " + str(e))
+            print("[ERROR] extracting video URL: " + str(e))
             self['info'].setText(_('Error extracting video URL'))
 
 
@@ -5537,7 +5892,7 @@ class RaiPlayTGDirectArchive(SafeScreen):
             self.selectionChanged()
 
         except Exception as e:
-            print("Error loading archive: " + str(e))
+            print("[ERROR] loading archive: " + str(e))
             self['info'].setText(
                 _('Error loading archive data: {}').format(
                     str(e)))
@@ -5657,7 +6012,7 @@ class RaiPlayTGDirectArchive(SafeScreen):
                             "")}
                     self.videos.append(video)
             except Exception as e:
-                print("Error parsing JSON archive: " + str(e))
+                print("[ERROR] parsing JSON archive: " + str(e))
 
         # If no videos found, try HTML parsing
         if not self.videos:
@@ -5745,7 +6100,7 @@ class RaiPlayTGDirectArchive(SafeScreen):
                 self['info'].setText(_('Could not find video URL'))
 
         except Exception as e:
-            print("Error extracting video URL: " + str(e))
+            print("[ERROR] extracting video URL: " + str(e))
             self['info'].setText(_('Error extracting video URL'))
 
     def nextPage(self):
@@ -6116,17 +6471,17 @@ class RaiPlaySport(SafeScreen):
 
     def loadSubcategories(self, category):
         """Load subcategories for a specific category"""
-        print("[Sport] Loading subcategories for: " + category['title'])
+        print("[DEBUG][Sport] Loading subcategories for: " + category['title'])
         self.navigation_stack.append({
             'type': 'category',
             'data': category
         })
 
         self.subcategories = self.api.getSportSubcategories(category['key'])
-        print("[Sport] Found {} subcategories".format(len(self.subcategories)))
+        print("[DEBUG][Sport] Found {} subcategories".format(len(self.subcategories)))
 
         if not self.subcategories:
-            print("[Sport] No subcategories found, loading videos directly")
+            print("[DEBUG][Sport] No subcategories found, loading videos directly")
             self.loadVideos(category)
             return
 
@@ -6231,7 +6586,7 @@ class RaiPlaySportVideos(SafeScreen):
     def loadVideosThread(self):
         """Load ALL available videos removing duplicates"""
         try:
-            print("[Sport] Loading ALL videos for key: " + str(self.key))
+            print("[DEBUG][Sport] Loading ALL videos for key: " + str(self.key))
             page = 0
             max_pages = 100
             unique_videos = []  # List for unique videos
@@ -6268,7 +6623,7 @@ class RaiPlaySportVideos(SafeScreen):
                     _("Page with duplicate") +
                     " " +
                     str(page))
-            print("[Sport] Total unique videos: " + str(len(unique_videos)))
+            print("[DEBUG][Sport] Total unique videos: " + str(len(unique_videos)))
 
             # Sort videos by date (most recent first)
             try:
@@ -6281,7 +6636,7 @@ class RaiPlaySportVideos(SafeScreen):
                     reverse=True)
 
             except Exception as e:
-                print("[Sport] Sorting error: " + str(e))
+                print("[DEBUG][Sport] Sorting error: " + str(e))
 
             self.all_videos = unique_videos
             self.total_pages = (len(self.all_videos) +
@@ -6290,7 +6645,7 @@ class RaiPlaySportVideos(SafeScreen):
             # Show the first page
             self.showCurrentPage()
         except Exception as e:
-            print("[Sport] Error loading videos: " + str(e))
+            print("[DEBUG][Sport] Error loading videos: " + str(e))
             self.session.open(
                 MessageBox,
                 _("Error loading videos: ") + str(e),
@@ -6367,10 +6722,13 @@ class RaiPlaySportVideos(SafeScreen):
                               str(self.total_pages))
 
         # 7. Restore selection
-        if self.restore_state():
+        restored = self.restore_state()
+        if restored:
             self["text"].moveToIndex(self.state_index)
         else:
-            self["text"].moveToIndex(0)
+            if self.names:
+                self["text"].moveToIndex(0)
+        self.selectionChanged()
 
         # 8. Update poster
         self.updatePoster()
@@ -6719,7 +7077,7 @@ class RaiPlaySearch(SafeScreen):
             self.selectionChanged()
 
         except Exception as e:
-            print("Search error: " + str(e))
+            print("[DEBUG]Search error: " + str(e))
             self['info'].setText(_('Search error. Please try again.'))
 
     def closeVirtualKeyboard(self):
@@ -6953,15 +7311,15 @@ class Playstream2(
     def startPlayback(self):
         """Start playback with the appropriate method"""
         try:
-            print("[Player] Starting: {}".format(self.name))
-            print("[Player] URL: {}".format(self.url))
+            print("[DEBUG][Player] Starting: {}".format(self.name))
+            print("[DEBUG][Player] URL: {}".format(self.url))
 
             # If the URL is a relinker, extract URL and license key
             if 'relinkerServlet' in self.url:
                 self.url, self.license_key = self.api.process_relinker(
                     self.url)
-                print("[Player] Processed URL: {}".format(self.url))
-                print("[Player] DRM: {}".format(self.license_key is not None))
+                print("[DEBUG][Player] Processed URL: {}".format(self.url))
+                print("[DEBUG][Player] DRM: {}".format(self.license_key is not None))
 
             # If Widevine DRM content
             if self.license_key:
@@ -6971,31 +7329,31 @@ class Playstream2(
                 """
                 # h = Helper(protocol="mpd", drm="widevine")
                 # if not h.check_inputstream():
-                    # print("[Player] Widevine not ready or installed, trying to install...")
+                    # print("[DEBUG][Player] Widevine not ready or installed, trying to install...")
                     # if not h.install_widevine():
                         # raise Exception("Widevine installation failed")
                 # At this point Widevine is ready
                 """
-                print("[Player] Using ServiceApp for DRM playback")
+                print("[DEBUG][Player] Using ServiceApp for DRM playback")
                 self.play_with_serviceapp()
                 return
 
             if is_serviceapp_available():
-                print("[Player] Using ServiceApp for playback")
+                print("[DEBUG][Player] Using ServiceApp for playback")
                 self.use_serviceapp()
             else:
-                print("[Player] Using standard playback")
+                print("[DEBUG][Player] Using standard playback")
                 self.use_standard_method()
 
         except Exception as e:
             error_msg = "Playback error: {}".format(str(e))
-            print("[Player] {}".format(error_msg))
+            print("[DEBUG][Player] {}".format(error_msg))
             self.show_error(error_msg)
 
     def play_with_serviceapp(self):
         """DRM playback with ServiceApp"""
         try:
-            print("[ServiceApp-DRM] Starting playback: {}".format(self.url))
+            print("[DEBUG][ServiceApp-DRM] Starting playback: {}".format(self.url))
 
             if not self.license_key:
                 raise ValueError("License key is missing")
@@ -7020,7 +7378,7 @@ class Playstream2(
                         data_value = bytearray(self.license_key, "utf-8")
 
                     ref.setData(2, data_value)
-                    print("License passed as {}".format(data_format))
+                    print("[DEBUG]License passed as {}".format(data_format))
                     license_passed = True
                     break  # Stop at first success
                 except Exception as e:
@@ -7031,46 +7389,46 @@ class Playstream2(
             if not license_passed:
                 raise RuntimeError("Failed to pass license key to ServiceRef")
 
-            print("[ServiceApp-DRM] ServiceRef: {}".format(ref.toString()))
+            print("[DEBUG][ServiceApp-DRM] ServiceRef: {}".format(ref.toString()))
 
             self.session.nav.stopService()
             self.session.nav.playService(ref)
 
             self.show()
             self.state = self.STATE_PLAYING
-            print("[ServiceApp-DRM] Playback started")
+            print("[DEBUG][ServiceApp-DRM] Playback started")
 
         except Exception as e:
             error_msg = "ServiceApp DRM error: " + str(e)
-            print("[Player] {}".format(error_msg))
+            print("[DEBUG][Player] {}".format(error_msg))
             self.show_error(error_msg)
 
     def use_serviceapp(self):
         """Standard playback with ServiceApp"""
         try:
-            print("[ServiceApp] Playing: {}".format(self.url))
+            print("[DEBUG][ServiceApp] Playing: {}".format(self.url))
 
             ref = eServiceReference(4097, 0, self.url)
             ref.setName(self.name)
 
-            print("[ServiceApp] ServiceRef: {}".format(ref.toString()))
+            print("[DEBUG][ServiceApp] ServiceRef: {}".format(ref.toString()))
 
             self.session.nav.stopService()
             self.session.nav.playService(ref)
 
             self.show()
             self.state = self.STATE_PLAYING
-            print("[ServiceApp] Playback started")
+            print("[DEBUG][ServiceApp] Playback started")
 
         except Exception as e:
             error_msg = "ServiceApp error: {}".format(str(e))
-            print("[Player] {}".format(error_msg))
+            print("[DEBUG][Player] {}".format(error_msg))
             self.show_error(error_msg)
 
     def use_standard_method(self):
         """Standard playback without ServiceApp"""
         try:
-            print("[Standard] Playing: {}".format(self.url))
+            print("[DEBUG][Standard] Playing: {}".format(self.url))
 
             # Format URL for standard playback
             if '://' in self.url:
@@ -7082,18 +7440,18 @@ class Playstream2(
             sref = eServiceReference(ref)
             sref.setName(self.name)
 
-            print("[Standard] ServiceRef: {}".format(sref.toString()))
+            print("[DEBUG][Standard] ServiceRef: {}".format(sref.toString()))
 
             self.session.nav.stopService()
             self.session.nav.playService(sref)
 
             self.show()
             self.state = self.STATE_PLAYING
-            print("[Standard] Playback started")
+            print("[DEBUG][Standard] Playback started")
 
         except Exception as e:
             error_msg = "Standard playback error: {}".format(str(e))
-            print("[Player] {}".format(error_msg))
+            print("[DEBUG][Player] {}".format(error_msg))
             self.show_error(error_msg)
 
     def openTest(self, servicetype, url):
@@ -7121,32 +7479,32 @@ class Playstream2(
             self.servicetype = stream_types[next_idx]
         except ValueError:
             self.servicetype = "4097"
-        print("Switching stream type to: {}".format(self.servicetype))
+        print("[DEBUG]Switching stream type to: {}".format(self.servicetype))
         self.openTest(self.servicetype, self.url)
 
     def playpauseService(self):
         """Toggle play/pause"""
         service = self.session.nav.getCurrentService()
         if not service:
-            print("Warning: No current service")
+            print("[WARNING] No current service")
             return
 
         pauseable = service.pause()
         if pauseable is None:
-            print("Warning: Service is not pauseable")
+            print("[WARNING] Service is not pauseable")
             # Instead of failing, just stop and restart the service
             if self.state == self.STATE_PLAYING:
                 current_ref = self.session.nav.getCurrentlyPlayingServiceReference()
                 if current_ref:
                     self.session.nav.stopService()
                     self.state = self.STATE_PAUSED
-                    print("Info: Playback stopped (pause not supported)")
+                    print("[DEBUG]Info: Playback stopped (pause not supported)")
             elif self.state == self.STATE_PAUSED:
                 current_ref = self.session.nav.getCurrentlyPlayingServiceReference()
                 if current_ref:
                     self.session.nav.playService(current_ref)
                     self.state = self.STATE_PLAYING
-                    print("Info: Playback resumed (pause not supported)")
+                    print("[DEBUG]Info: Playback resumed (pause not supported)")
             return
 
         try:
@@ -7154,14 +7512,14 @@ class Playstream2(
                 if hasattr(pauseable, "pause"):
                     pauseable.pause()
                     self.state = self.STATE_PAUSED
-                    print("Info: Playback paused")
+                    print("[DEBUG]Info: Playback paused")
             elif self.state == self.STATE_PAUSED:
                 if hasattr(pauseable, "play"):
                     pauseable.play()
                     self.state = self.STATE_PLAYING
-                    print("Info: Playback resumed")
+                    print("[DEBUG]Info: Playback resumed")
         except Exception as e:
-            print("Error: Play/pause error: " + str(e))
+            print("[ERROR]: Play/pause error: " + str(e))
             self.show_error(_("Play/pause not supported for this stream"))
 
     def show_error(self, message):
@@ -7261,7 +7619,7 @@ def main(session, **kwargs):
     try:
         session.open(RaiPlayMain)
     except Exception as e:
-        print("Error starting plugin:", str(e))
+        print("[ERROR] starting plugin:", str(e))
         traceback.print_exc()
         session.open(
             MessageBox,
