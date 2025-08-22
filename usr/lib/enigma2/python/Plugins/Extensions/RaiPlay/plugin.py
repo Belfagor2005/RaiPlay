@@ -684,7 +684,9 @@ class SafeScreen(Screen):
                 return
 
             icon_url = self.icons[idx]
-            print("[DEBUG]Updating poster for index %d: %s" % (idx, str(icon_url)))
+            print(
+                "[DEBUG]Updating poster for index %d: %s" %
+                (idx, str(icon_url)))
 
             if not icon_url or not isinstance(
                     icon_url, str) or not icon_url.startswith("http"):
@@ -1914,7 +1916,9 @@ class RaiPlayAPI:
                 print("[DEBUG]>>> Using transparent-icon:", icon_url)
                 return self.getThumbnailUrl(icon_url)
             else:
-                print("[DEBUG]>>> Skipping invalid transparent-icon:", icon_url)
+                print(
+                    "[DEBUG]>>> Skipping invalid transparent-icon:",
+                    icon_url)
 
         # 3. chImage
         if "chImage" in item:
@@ -1944,7 +1948,9 @@ class RaiPlayAPI:
                 print("[DEBUG]>>> Using portrait43:", images["portrait43"])
                 return self.getThumbnailUrl(images["portrait43"])
             elif "portrait_logo" in images:
-                print("[DEBUG]>>> Using portrait_logo:", images["portrait_logo"])
+                print(
+                    "[DEBUG]>>> Using portrait_logo:",
+                    images["portrait_logo"])
                 return self.getThumbnailUrl(images["portrait_logo"])
             elif "square" in images:
                 print("[DEBUG]>>> Using square:", images["square"])
@@ -2682,11 +2688,21 @@ class RaiPlayMain(SafeScreen):
         ]
 
         categories += [
-            (_("On Air Programs"), "on_air", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-            (_("A-Z All Programs"), "all_programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("A-Z TV Shows"), "az_tv", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("A-Z Radio Shows"), "az_radio", "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
-            (_("News Categories"), "news_categories", "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"),
+            (_("On Air Programs"),
+             "on_air",
+             "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
+            (_("A-Z All Programs"),
+             "all_programs",
+             "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("A-Z TV Shows"),
+             "az_tv",
+             "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+            (_("A-Z Radio Shows"),
+             "az_radio",
+             "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
+            (_("News Categories"),
+             "news_categories",
+             "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png"),
         ]
         categories += [
             (_("Search"), "search", png_search),
@@ -3709,11 +3725,14 @@ class RaiPlayAllPrograms(SafeScreen):
             programs = []
 
             # Extract all programs from the contents
-            if "contents" in response and isinstance(response["contents"], dict):
+            if "contents" in response and isinstance(
+                    response["contents"], dict):
                 for letter, items in response["contents"].items():
                     for program in items:
-                        # Get the correct URL - use info_url if available, otherwise use path_id
-                        program_url = program.get("info_url", program.get("path_id", ""))
+                        # Get the correct URL - use info_url if available,
+                        # otherwise use path_id
+                        program_url = program.get(
+                            "info_url", program.get("path_id", ""))
                         if program_url and not program_url.startswith("http"):
                             program_url = self.api.getFullUrl(program_url)
 
@@ -3734,7 +3753,8 @@ class RaiPlayAllPrograms(SafeScreen):
             # Group programs by first letter
             self.programs_by_letter = {}
             for program in programs:
-                first_letter = program['name'][0].upper() if program['name'] else '#'
+                first_letter = program['name'][0].upper(
+                ) if program['name'] else '#'
                 if first_letter not in self.programs_by_letter:
                     self.programs_by_letter[first_letter] = []
                 self.programs_by_letter[first_letter].append(program)
@@ -3824,7 +3844,10 @@ class RaiPlayProgramsByLetter(SafeScreen):
         # First, try to get the content directly
         content_data = Utils.getUrlSiVer(program['url'])
         if not content_data:
-            self.session.open(MessageBox, _("Could not load program content"), MessageBox.TYPE_ERROR)
+            self.session.open(
+                MessageBox,
+                _("Could not load program content"),
+                MessageBox.TYPE_ERROR)
             return
 
         try:
@@ -3834,17 +3857,28 @@ class RaiPlayProgramsByLetter(SafeScreen):
             print("[DEBUG]Content JSON keys:", list(content_json.keys()))
 
             # Check if this is a content set with items
-            if content_json.get('items') and isinstance(content_json['items'], list):
+            if content_json.get('items') and isinstance(
+                    content_json['items'], list):
                 # This is a content set, open it directly
-                self.session.open(RaiPlayContentSet, program['name'], program['url'])
+                self.session.open(
+                    RaiPlayContentSet,
+                    program['name'],
+                    program['url'])
             # Check if this is a program with blocks
             elif content_json.get('blocks') and isinstance(content_json['blocks'], list):
-                # For programs with blocks, we need to find the actual content set
+                # For programs with blocks, we need to find the actual content
+                # set
                 content_set_url = self.find_content_set_url(content_json)
                 if content_set_url:
-                    self.session.open(RaiPlayContentSet, program['name'], content_set_url)
+                    self.session.open(
+                        RaiPlayContentSet,
+                        program['name'],
+                        content_set_url)
                 else:
-                    self.session.open(MessageBox, _("No content found in this program"), MessageBox.TYPE_ERROR)
+                    self.session.open(
+                        MessageBox,
+                        _("No content found in this program"),
+                        MessageBox.TYPE_ERROR)
             # Check if this is a direct video item
             elif content_json.get('video_url'):
                 # This is a direct video, play it
@@ -3864,12 +3898,19 @@ class RaiPlayProgramsByLetter(SafeScreen):
                 }])
             else:
                 # Unknown content type - try to debug by printing the structure
-                print("[DEBUG]Unknown content structure:", dumps(content_json, indent=2)[:500])
-                self.session.open(MessageBox, _("Unknown content type"), MessageBox.TYPE_ERROR)
+                print("[DEBUG]Unknown content structure:",
+                      dumps(content_json, indent=2)[:500])
+                self.session.open(
+                    MessageBox,
+                    _("Unknown content type"),
+                    MessageBox.TYPE_ERROR)
 
         except Exception as e:
             print("[ERROR] parsing content:", str(e))
-            self.session.open(MessageBox, _("Error parsing content"), MessageBox.TYPE_ERROR)
+            self.session.open(
+                MessageBox,
+                _("Error parsing content"),
+                MessageBox.TYPE_ERROR)
 
     def find_content_set_url(self, program_json):
         """Find the content set URL in a program with blocks"""
@@ -4111,7 +4152,8 @@ class RaiPlayContentSet(SafeScreen):
             items = response.get("items", [])
             for item in items:
                 # Get video URL - try multiple possible fields
-                video_url = item.get("video_url") or item.get("content_url") or ""
+                video_url = item.get("video_url") or item.get(
+                    "content_url") or ""
                 if not video_url:
                     # Check if there's a video object
                     video_obj = item.get("video", {})
@@ -4150,7 +4192,8 @@ class RaiPlayContentSet(SafeScreen):
                     return
 
             self.names = [video["title"] for video in self.videos]
-            self.icons = [video.get("icon", self.api.DEFAULT_ICON_URL) for video in self.videos]
+            self.icons = [video.get("icon", self.api.DEFAULT_ICON_URL)
+                          for video in self.videos]
             show_list(self.names, self['text'])
             self['info'].setText(_('Select video'))
             self["text"].moveToIndex(0)
@@ -4489,7 +4532,10 @@ class RaiPlayAZPrograms(SafeScreen):
 
             # Debug: save JSON for analysis
             if DEBUG_MODE:
-                debug_path = join(self.api.debug_dir, "az_{}.json".format(self.program_type))
+                debug_path = join(
+                    self.api.debug_dir,
+                    "az_{}.json".format(
+                        self.program_type))
                 with open(debug_path, "w", encoding="utf-8") as f:
                     dump(data, f, indent=2)
                 print("[DEBUG][AZ] Saved JSON to {}".format(debug_path))
@@ -4604,7 +4650,9 @@ class RaiPlayAZPrograms(SafeScreen):
                     "icon": icon
                 })
             except Exception as e:
-                print("[DEBUG][AZ] Error processing program: {}".format(str(e)))
+                print(
+                    "[DEBUG][AZ] Error processing program: {}".format(
+                        str(e)))
 
         return result
 
@@ -5008,7 +5056,9 @@ class RaiPlayNewsCategory(SafeScreen):
                 self['info'].setText(_('Archive URL not found'))
                 return
 
-            print("[DEBUG][ThematicArchive] Loading archive: " + str(archive_url))
+            print(
+                "[DEBUG][ThematicArchive] Loading archive: " +
+                str(archive_url))
             archive_data = Utils.getUrlSiVer(archive_url)
             if not archive_data:
                 self['info'].setText(_('No archive data found'))
@@ -6478,7 +6528,8 @@ class RaiPlaySport(SafeScreen):
         })
 
         self.subcategories = self.api.getSportSubcategories(category['key'])
-        print("[DEBUG][Sport] Found {} subcategories".format(len(self.subcategories)))
+        print("[DEBUG][Sport] Found {} subcategories".format(
+            len(self.subcategories)))
 
         if not self.subcategories:
             print("[DEBUG][Sport] No subcategories found, loading videos directly")
@@ -6623,7 +6674,8 @@ class RaiPlaySportVideos(SafeScreen):
                     _("Page with duplicate") +
                     " " +
                     str(page))
-            print("[DEBUG][Sport] Total unique videos: " + str(len(unique_videos)))
+            print("[DEBUG][Sport] Total unique videos: " +
+                  str(len(unique_videos)))
 
             # Sort videos by date (most recent first)
             try:
@@ -7319,7 +7371,9 @@ class Playstream2(
                 self.url, self.license_key = self.api.process_relinker(
                     self.url)
                 print("[DEBUG][Player] Processed URL: {}".format(self.url))
-                print("[DEBUG][Player] DRM: {}".format(self.license_key is not None))
+                print(
+                    "[DEBUG][Player] DRM: {}".format(
+                        self.license_key is not None))
 
             # If Widevine DRM content
             if self.license_key:
