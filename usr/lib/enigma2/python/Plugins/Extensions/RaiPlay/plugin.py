@@ -159,8 +159,10 @@ def update_mounts_configuration():
 DEBUG_MODE = False
 config.plugins.raiplay = ConfigSubsection()
 config.plugins.raiplay.debug = ConfigYesNo(default=True)
-default_dir = config.movielist.last_videodir.value if isdir(config.movielist.last_videodir.value) else default_movie_path()
-config.plugins.raiplay.lastdir = ConfigSelection(default=default_dir, choices=[])
+default_dir = config.movielist.last_videodir.value if isdir(
+    config.movielist.last_videodir.value) else default_movie_path()
+config.plugins.raiplay.lastdir = ConfigSelection(
+    default=default_dir, choices=[])
 
 
 if config.plugins.raiplay.debug.value:
@@ -500,7 +502,11 @@ def show_list(data, listas):
 
 class RaiPlaySettings(Setup):
     def __init__(self, session, parent=None):
-        Setup.__init__(self, session, setup="RaiPlaySettings", plugin="Extensions/RaiPlay")
+        Setup.__init__(
+            self,
+            session,
+            setup="RaiPlaySettings",
+            plugin="Extensions/RaiPlay")
         self.parent = parent
 
     def keySave(self):
@@ -724,7 +730,9 @@ class SafeScreen(Screen):
                 return
 
             icon_url = self.icons[idx]
-            print("[DEBUG]Updating poster for index %d: %s" % (idx, str(icon_url)))
+            print(
+                "[DEBUG]Updating poster for index %d: %s" %
+                (idx, str(icon_url)))
 
             if not icon_url or not isinstance(
                     icon_url, str) or not icon_url.startswith("http"):
@@ -894,7 +902,8 @@ class SafeScreen(Screen):
             # Ensure download manager exists
             if not hasattr(self.session, 'download_manager'):
                 print("[DEBUG] Creating new download manager instance...")
-                self.session.download_manager = RaiPlayDownloadManager(self.session)
+                self.session.download_manager = RaiPlayDownloadManager(
+                    self.session)
             else:
                 print("[DEBUG] Using existing download manager")
 
@@ -913,10 +922,12 @@ class SafeScreen(Screen):
             normalized_url = normalize_url(url)
             print(f"[DEBUG] Normalized download URL: {normalized_url}")
 
-            download_id = self.session.download_manager.add_download(title, normalized_url)
+            download_id = self.session.download_manager.add_download(
+                title, normalized_url)
 
             if download_id:
-                print(f"[DEBUG] Download added successfully with ID: {download_id}")
+                print(
+                    f"[DEBUG] Download added successfully with ID: {download_id}")
 
                 # Force save and reload to verify
                 self.session.download_manager.save_downloads()
@@ -925,10 +936,8 @@ class SafeScreen(Screen):
 
                 # Show confirmation with queue info
                 self.session.open(
-                    MessageBox,
-                    _("Added to download queue: {}\nTotal downloads: {}").format(title, len(queue)),
-                    MessageBox.TYPE_INFO
-                )
+                    MessageBox, _("Added to download queue: {}\nTotal downloads: {}").format(
+                        title, len(queue)), MessageBox.TYPE_INFO)
             else:
                 print("[DEBUG] Failed to add download")
                 self.session.open(
@@ -1972,7 +1981,9 @@ class RaiPlayAPI:
                 print("[DEBUG]>>> Using transparent-icon:", icon_url)
                 return self.getThumbnailUrl(icon_url)
             else:
-                print("[DEBUG]>>> Skipping invalid transparent-icon:", icon_url)
+                print(
+                    "[DEBUG]>>> Skipping invalid transparent-icon:",
+                    icon_url)
 
         # 3. chImage
         if "chImage" in item:
@@ -2002,7 +2013,9 @@ class RaiPlayAPI:
                 print("[DEBUG]>>> Using portrait43:", images["portrait43"])
                 return self.getThumbnailUrl(images["portrait43"])
             elif "portrait_logo" in images:
-                print("[DEBUG]>>> Using portrait_logo:", images["portrait_logo"])
+                print(
+                    "[DEBUG]>>> Using portrait_logo:",
+                    images["portrait_logo"])
                 return self.getThumbnailUrl(images["portrait_logo"])
             elif "square" in images:
                 print("[DEBUG]>>> Using square:", images["square"])
@@ -2741,17 +2754,23 @@ class RaiPlayMain(SafeScreen):
             (_("Programs"), "programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png")
         ]
 
-        categories += [
-            (_("On Air Programs"), "on_air", "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
-            (_("A-Z All Programs"), "all_programs", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("A-Z TV Shows"), "az_tv", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
-            (_("A-Z Radio Shows"), "az_radio", "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
-            (_("News Categories"), "news_categories", "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png")
-        ]
-        categories += [
-            (_("Search"), "search", png_search),
-            (_("Download Manager"), "downloads", "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png")
-        ]
+        categories += [(_("On Air Programs"),
+                        "on_air",
+                        "https://www.rai.it/dl/img/2016/06/10/1465549191335_icon_live.png"),
+                       (_("A-Z All Programs"),
+                        "all_programs",
+                        "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+                       (_("A-Z TV Shows"),
+                        "az_tv",
+                        "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png"),
+                       (_("A-Z Radio Shows"),
+                        "az_radio",
+                        "https://www.rai.it/dl/img/2018/06/08/1528459668481_ico-musica.png"),
+                       (_("News Categories"),
+                        "news_categories",
+                        "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png")]
+        categories += [(_("Search"), "search", png_search), (_("Download Manager"), "downloads",
+                                                             "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png")]
 
         # Populate immediate lists
         self.names = [name for name, x, y in categories]
@@ -3055,7 +3074,10 @@ class RaiPlayLiveTV(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -3185,7 +3207,10 @@ class RaiPlayLiveRadio(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -3365,7 +3390,10 @@ class RaiPlayReplayPrograms(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -3743,7 +3771,10 @@ class RaiPlayBlockItems(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -3865,7 +3896,8 @@ class RaiPlayOnDemandCategory(SafeScreen):
                         break
 
                 if is_movie and program_data['info'].get("first_item_path"):
-                    # PER I FILM: mostra menu play/download invece di play diretto
+                    # PER I FILM: mostra menu play/download invece di play
+                    # diretto
                     self.selected_name = name
                     self.selected_url = program_data['info']["first_item_path"]
 
@@ -3900,7 +3932,8 @@ class RaiPlayOnDemandCategory(SafeScreen):
 
             try:
                 response = loads(data)
-                print(f"[DEBUG] Video JSON response keys: {list(response.keys())}")
+                print(
+                    f"[DEBUG] Video JSON response keys: {list(response.keys())}")
                 video_url = response.get("video", {}).get("content_url", None)
                 if video_url:
                     print(f"[DEBUG] Found video URL: {video_url}")
@@ -3922,7 +3955,8 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     )
                     return  # ← AGGIUNGI RETURN
                 else:
-                    print(f"[DEBUG] No video URL found in response. Available keys: {list(response.keys())}")
+                    print(
+                        f"[DEBUG] No video URL found in response. Available keys: {list(response.keys())}")
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
@@ -3970,7 +4004,10 @@ class RaiPlayOnDemandCategory(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -4146,11 +4183,14 @@ class RaiPlayAllPrograms(SafeScreen):
             programs = []
 
             # Extract all programs from the contents
-            if "contents" in response and isinstance(response["contents"], dict):
+            if "contents" in response and isinstance(
+                    response["contents"], dict):
                 for letter, items in response["contents"].items():
                     for program in items:
-                        # Get the correct URL - use info_url if available, otherwise use path_id
-                        program_url = program.get("info_url", program.get("path_id", ""))
+                        # Get the correct URL - use info_url if available,
+                        # otherwise use path_id
+                        program_url = program.get(
+                            "info_url", program.get("path_id", ""))
                         if program_url and not program_url.startswith("http"):
                             program_url = self.api.getFullUrl(program_url)
 
@@ -4171,7 +4211,8 @@ class RaiPlayAllPrograms(SafeScreen):
             # Group programs by first letter
             self.programs_by_letter = {}
             for program in programs:
-                first_letter = program['name'][0].upper() if program['name'] else '#'
+                first_letter = program['name'][0].upper(
+                ) if program['name'] else '#'
                 if first_letter not in self.programs_by_letter:
                     self.programs_by_letter[first_letter] = []
                 self.programs_by_letter[first_letter].append(program)
@@ -4262,7 +4303,10 @@ class RaiPlayProgramsByLetter(SafeScreen):
         # First, try to get the content directly
         content_data = Utils.getUrlSiVer(program['url'])
         if not content_data:
-            self.session.open(MessageBox, _("Could not load program content"), MessageBox.TYPE_ERROR)
+            self.session.open(
+                MessageBox,
+                _("Could not load program content"),
+                MessageBox.TYPE_ERROR)
             return
 
         try:
@@ -4272,17 +4316,28 @@ class RaiPlayProgramsByLetter(SafeScreen):
             print("[DEBUG]Content JSON keys:", list(content_json.keys()))
 
             # Check if this is a content set with items
-            if content_json.get('items') and isinstance(content_json['items'], list):
+            if content_json.get('items') and isinstance(
+                    content_json['items'], list):
                 # This is a content set, open it directly
-                self.session.open(RaiPlayContentSet, program['name'], program['url'])
+                self.session.open(
+                    RaiPlayContentSet,
+                    program['name'],
+                    program['url'])
             # Check if this is a program with blocks
             elif content_json.get('blocks') and isinstance(content_json['blocks'], list):
-                # For programs with blocks, we need to find the actual content set
+                # For programs with blocks, we need to find the actual content
+                # set
                 content_set_url = self.find_content_set_url(content_json)
                 if content_set_url:
-                    self.session.open(RaiPlayContentSet, program['name'], content_set_url)
+                    self.session.open(
+                        RaiPlayContentSet,
+                        program['name'],
+                        content_set_url)
                 else:
-                    self.session.open(MessageBox, _("No content found in this program"), MessageBox.TYPE_ERROR)
+                    self.session.open(
+                        MessageBox,
+                        _("No content found in this program"),
+                        MessageBox.TYPE_ERROR)
             # Check if this is a direct video item
             elif content_json.get('video_url'):
                 # This is a direct video, play it
@@ -4302,12 +4357,19 @@ class RaiPlayProgramsByLetter(SafeScreen):
                 }])
             else:
                 # Unknown content type - try to debug by printing the structure
-                print("[DEBUG]Unknown content structure:", dumps(content_json, indent=2)[:500])
-                self.session.open(MessageBox, _("Unknown content type"), MessageBox.TYPE_ERROR)
+                print("[DEBUG]Unknown content structure:",
+                      dumps(content_json, indent=2)[:500])
+                self.session.open(
+                    MessageBox,
+                    _("Unknown content type"),
+                    MessageBox.TYPE_ERROR)
 
         except Exception as e:
             print("[ERROR] parsing content:", str(e))
-            self.session.open(MessageBox, _("Error parsing content"), MessageBox.TYPE_ERROR)
+            self.session.open(
+                MessageBox,
+                _("Error parsing content"),
+                MessageBox.TYPE_ERROR)
 
     def find_content_set_url(self, program_json):
         """Find the content set URL in a program with blocks"""
@@ -4542,7 +4604,8 @@ class RaiPlayContentSet(SafeScreen):
             items = response.get("items", [])
             for item in items:
                 # Get video URL - try multiple possible fields
-                video_url = item.get("video_url") or item.get("content_url") or ""
+                video_url = item.get("video_url") or item.get(
+                    "content_url") or ""
                 if not video_url:
                     # Check if there's a video object
                     video_obj = item.get("video", {})
@@ -4581,7 +4644,8 @@ class RaiPlayContentSet(SafeScreen):
                     return
 
             self.names = [video["title"] for video in self.videos]
-            self.icons = [video.get("icon", self.api.DEFAULT_ICON_URL) for video in self.videos]
+            self.icons = [video.get("icon", self.api.DEFAULT_ICON_URL)
+                          for video in self.videos]
             show_list(self.names, self['text'])
             self['info'].setText(_('Select video'))
             self["text"].moveToIndex(0)
@@ -4679,7 +4743,10 @@ class RaiPlayContentSet(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -4852,7 +4919,10 @@ class RaiPlayOnDemandProgramItems(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -5032,7 +5102,10 @@ class RaiPlayOnAir(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -5082,7 +5155,10 @@ class RaiPlayAZPrograms(SafeScreen):
 
             # Debug: save JSON for analysis
             if DEBUG_MODE:
-                debug_path = join(self.api.debug_dir, "az_{}.json".format(self.program_type))
+                debug_path = join(
+                    self.api.debug_dir,
+                    "az_{}.json".format(
+                        self.program_type))
                 with open(debug_path, "w", encoding="utf-8") as f:
                     dump(data, f, indent=2)
                 print("[DEBUG][AZ] Saved JSON to {}".format(debug_path))
@@ -5197,7 +5273,9 @@ class RaiPlayAZPrograms(SafeScreen):
                     "icon": icon
                 })
             except Exception as e:
-                print("[DEBUG][AZ] Error processing program: {}".format(str(e)))
+                print(
+                    "[DEBUG][AZ] Error processing program: {}".format(
+                        str(e)))
 
         return result
 
@@ -5602,7 +5680,9 @@ class RaiPlayNewsCategory(SafeScreen):
                 self['info'].setText(_('Archive URL not found'))
                 return
 
-            print("[DEBUG][ThematicArchive] Loading archive: " + str(archive_url))
+            print(
+                "[DEBUG][ThematicArchive] Loading archive: " +
+                str(archive_url))
             archive_data = Utils.getUrlSiVer(archive_url)
             if not archive_data:
                 self['info'].setText(_('No archive data found'))
@@ -6254,7 +6334,10 @@ class RaiPlayTGList(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -6428,7 +6511,10 @@ class RaiPlayTGArchive(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -6903,7 +6989,8 @@ class RaiPlayTGDirectArchive(SafeScreen):
             if self.selected_url and self.selected_url.startswith('http'):
                 self.playDirect(self.selected_name, self.selected_url)
             else:
-                self.extractAndPlay({'title': self.selected_name, 'page_url': self.selected_url})
+                self.extractAndPlay(
+                    {'title': self.selected_name, 'page_url': self.selected_url})
         elif choice[1] == "download":
             print("[DEBUG] User selected DOWNLOAD")
             self.addToDownloadQueue(self.selected_name, self.selected_url)
@@ -6913,10 +7000,13 @@ class RaiPlayTGDirectArchive(SafeScreen):
                 self.playDirect(self.selected_name, self.selected_url)
                 # Add small delay before starting download
                 timer = eTimer()
-                timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+                timer.callback.append(
+                    lambda: self.addToDownloadQueue(
+                        self.selected_name, self.selected_url))
                 timer.start(1000, True)
             else:
-                self.extractAndPlay({'title': self.selected_name, 'page_url': self.selected_url})
+                self.extractAndPlay(
+                    {'title': self.selected_name, 'page_url': self.selected_url})
 
 
 class tgrRai2(SafeScreen):
@@ -7295,7 +7385,10 @@ class tgrRai4(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -7358,7 +7451,8 @@ class RaiPlaySport(SafeScreen):
         })
 
         self.subcategories = self.api.getSportSubcategories(category['key'])
-        print("[DEBUG][Sport] Found {} subcategories".format(len(self.subcategories)))
+        print("[DEBUG][Sport] Found {} subcategories".format(
+            len(self.subcategories)))
 
         if not self.subcategories:
             print("[DEBUG][Sport] No subcategories found, loading videos directly")
@@ -7504,7 +7598,8 @@ class RaiPlaySportVideos(SafeScreen):
                     _("Page with duplicate") +
                     " " +
                     str(page))
-            print("[DEBUG][Sport] Total unique videos: " + str(len(unique_videos)))
+            print("[DEBUG][Sport] Total unique videos: " +
+                  str(len(unique_videos)))
 
             # Sort videos by date (most recent first)
             try:
@@ -7670,7 +7765,8 @@ class RaiPlaySportVideos(SafeScreen):
         """Main method - displays the play/download menu for sport videos"""
         print("[DEBUG] okRun called in RaiPlaySportVideos")
 
-        if not self.displayed_videos or self.displayed_videos[0].get("is_empty"):
+        if not self.displayed_videos or self.displayed_videos[0].get(
+                "is_empty"):
             return
 
         idx = self["text"].getSelectionIndex()
@@ -7753,7 +7849,10 @@ class RaiPlaySportVideos(SafeScreen):
             self.playDirect(self.selected_name, self.selected_url)
             # Add small delay before starting download
             timer = eTimer()
-            timer.callback.append(lambda: self.addToDownloadQueue(self.selected_name, self.selected_url))
+            timer.callback.append(
+                lambda: self.addToDownloadQueue(
+                    self.selected_name,
+                    self.selected_url))
             timer.start(1000, True)  # 1 second delay
         else:
             print(f"[DEBUG] Unknown action: {action}")
@@ -8278,7 +8377,9 @@ class Playstream2(
                 self.url, self.license_key = self.api.process_relinker(
                     self.url)
                 print("[DEBUG][Player] Processed URL: {}".format(self.url))
-                print("[DEBUG][Player] DRM: {}".format(self.license_key is not None))
+                print(
+                    "[DEBUG][Player] DRM: {}".format(
+                        self.license_key is not None))
 
             # If Widevine DRM content
             if self.license_key:
@@ -8599,7 +8700,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
     def updateList(self):
         """Update download list"""
-        if hasattr(self, '_last_update') and time.time() - self._last_update < 1:
+        if hasattr(self, '_last_update') and time.time() - \
+                self._last_update < 1:
             return
 
         self._last_update = time.time()
@@ -8616,7 +8718,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
             print("[DOWNLOAD MANAGER] No downloads in queue")
         else:
             for i, item in enumerate(queue):
-                print(f"[DOWNLOAD MANAGER] Item {i}: {item['title']} - {item['status']}")
+                print(
+                    f"[DOWNLOAD MANAGER] Item {i}: {item['title']} - {item['status']}")
                 status_icons = {
                     'queued': '⏳',
                     'waiting': '⏱️',
@@ -8629,7 +8732,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 icon = status_icons.get(item['status'], '❓')
 
                 # Progress and size info
-                progress_text = f" - {item['progress']}%" if item['status'] in ['downloading', 'waiting', 'completed'] else ""
+                progress_text = f" - {item['progress']}%" if item['status'] in [
+                    'downloading', 'waiting', 'completed'] else ""
 
                 size_info = ""
                 if item['downloaded_bytes'] > 0:
@@ -8660,15 +8764,15 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         total = len(queue)
         active = self.download_manager.get_active_count()
         queued = self.download_manager.get_queued_count()
-        completed = len([item for item in queue if item['status'] == 'completed'])
+        completed = len(
+            [item for item in queue if item['status'] == 'completed'])
         errors = len([item for item in queue if item['status'] == 'error'])
 
         # Get disk space
         free_space, total_space = self.download_manager.get_disk_space()
 
         stats = _("Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}").format(
-            total=total, active=active, queued=queued, completed=completed, errors=errors
-        )
+            total=total, active=active, queued=queued, completed=completed, errors=errors)
 
         disk_info = _("Free Space: {free} of {total}").format(
             free=free_space, total=total_space
@@ -8718,24 +8822,43 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
             return
 
         item = self.items[idx]
-        print(f"[DOWNLOAD MANAGER] startStopDownload - Current status: {item['status']}")
+        print(
+            f"[DOWNLOAD MANAGER] startStopDownload - Current status: {item['status']}")
 
         if item['status'] == 'paused':
-            print(f"[DOWNLOAD MANAGER] Starting paused download: {item['title']}")
+            print(
+                f"[DOWNLOAD MANAGER] Starting paused download: {item['title']}")
             # Start download directly
             self.download_manager.start_download(item)
-            self.session.open(MessageBox, _("Download started: {}").format(item['title']), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(
+                MessageBox,
+                _("Download started: {}").format(
+                    item['title']),
+                MessageBox.TYPE_INFO,
+                timeout=5)
 
         elif item['status'] == 'queued':
-            print(f"[DOWNLOAD MANAGER] Starting queued download: {item['title']}")
+            print(
+                f"[DOWNLOAD MANAGER] Starting queued download: {item['title']}")
             # Start download directly
             self.download_manager.start_download(item)
-            self.session.open(MessageBox, _("Download started: {}").format(item['title']), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(
+                MessageBox,
+                _("Download started: {}").format(
+                    item['title']),
+                MessageBox.TYPE_INFO,
+                timeout=5)
 
         elif item['status'] in ['downloading', 'waiting']:
-            print(f"[DOWNLOAD MANAGER] Stopping active download: {item['title']}")
+            print(
+                f"[DOWNLOAD MANAGER] Stopping active download: {item['title']}")
             self.download_manager.pause_download(item['id'])
-            self.session.open(MessageBox, _("Download stopped: {}").format(item['title']), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(
+                MessageBox,
+                _("Download stopped: {}").format(
+                    item['title']),
+                MessageBox.TYPE_INFO,
+                timeout=5)
 
         self.updateList()
 
@@ -8748,7 +8871,11 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         item = self.items[idx]
 
         if item['status'] in ['downloading', 'waiting']:
-            self.session.open(MessageBox, _("Cannot remove active download. Stop it first."), MessageBox.TYPE_WARNING, timeout=5)
+            self.session.open(
+                MessageBox,
+                _("Cannot remove active download. Stop it first."),
+                MessageBox.TYPE_WARNING,
+                timeout=5)
             return
 
         self.session.openWithCallback(
@@ -8763,7 +8890,11 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         if result:
             self.download_manager.remove_download(item['id'])
             self.updateList()
-            self.session.open(MessageBox, _("Download removed"), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(
+                MessageBox,
+                _("Download removed"),
+                MessageBox.TYPE_INFO,
+                timeout=5)
 
     def playDownloadedFile(self, item):
         """Play downloaded file"""
@@ -8792,11 +8923,20 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         test_title = "Test Download"
 
         if hasattr(self.session, 'download_manager'):
-            result = self.session.download_manager.add_download(test_title, test_url)
+            result = self.session.download_manager.add_download(
+                test_title, test_url)
             if result:
-                self.session.open(MessageBox, _("Test download added to queue"), MessageBox.TYPE_INFO, timeout=5)
+                self.session.open(
+                    MessageBox,
+                    _("Test download added to queue"),
+                    MessageBox.TYPE_INFO,
+                    timeout=5)
             else:
-                self.session.open(MessageBox, _("Test download failed"), MessageBox.TYPE_ERROR, timeout=5)
+                self.session.open(
+                    MessageBox,
+                    _("Test download failed"),
+                    MessageBox.TYPE_ERROR,
+                    timeout=5)
 
     def handle_normal_selection(self, idx):
         """Override per compatibilità - non usato in questa schermata"""

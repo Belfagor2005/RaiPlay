@@ -113,14 +113,17 @@ class RaiPlayDownloadManager:
         if not self.download_dir.endswith("/"):
             self.download_dir += "/"
 
-        self.downloads_file = os.path.join(self.download_dir, "raiplay_downloads.json")
+        self.downloads_file = os.path.join(
+            self.download_dir, "raiplay_downloads.json")
 
         if not exists(self.download_dir):
             try:
                 makedirs(self.download_dir)
-                print(f"[DOWNLOAD MANAGER] Created movie directory: {self.download_dir}")
+                print(
+                    f"[DOWNLOAD MANAGER] Created movie directory: {self.download_dir}")
             except Exception as e:
-                print(f"[DOWNLOAD MANAGER] Error creating movie directory: {e}")
+                print(
+                    f"[DOWNLOAD MANAGER] Error creating movie directory: {e}")
 
         # Configuration
         self.max_concurrent = 2  # Maximum simultaneous downloads
@@ -195,7 +198,8 @@ class RaiPlayDownloadManager:
                         self.download_queue = json.loads(content)
                     else:
                         self.download_queue = []
-                print(f"[DOWNLOAD] Loaded {len(self.download_queue)} downloads")
+                print(
+                    f"[DOWNLOAD] Loaded {len(self.download_queue)} downloads")
             except Exception as e:
                 print(f"[DOWNLOAD] Error loading downloads: {e}")
                 import traceback
@@ -263,7 +267,8 @@ class RaiPlayDownloadManager:
             self.save_downloads()
 
             print(f"[DOWNLOAD] Successfully added: {title}")
-            print(f"[DOWNLOAD] Stream type: {'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'}")
+            print(
+                f"[DOWNLOAD] Stream type: {'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'}")
             print(f"[DOWNLOAD] Output file: {file_path}")
 
             return download_id
@@ -298,12 +303,14 @@ class RaiPlayDownloadManager:
     def start_download(self, item):
         """Start a paused download - UPDATED VERSION"""
         if item['status'] in ['completed', 'error']:
-            print(f"[DOWNLOAD] Cannot start download with status: {item['status']}")
+            print(
+                f"[DOWNLOAD] Cannot start download with status: {item['status']}")
             return
 
         try:
             print(f"[DOWNLOAD] Starting download: {item['title']}")
-            print(f"[DOWNLOAD] URL type: {'HLS' if '.m3u8' in item['url'] else 'Direct'}")
+            print(
+                f"[DOWNLOAD] URL type: {'HLS' if '.m3u8' in item['url'] else 'Direct'}")
 
             final_url = item['url']
 
@@ -314,12 +321,18 @@ class RaiPlayDownloadManager:
                 return
 
             # Use appropriate download command
-            cmd = self.build_download_command(final_url, item['file_path'], False)
+            cmd = self.build_download_command(
+                final_url, item['file_path'], False)
 
             # Update status
             self.update_download_status(item['id'], "downloading", 1)
 
-            job = downloadJob(self, cmd, item['file_path'], item['title'], item['id'])
+            job = downloadJob(
+                self,
+                cmd,
+                item['file_path'],
+                item['title'],
+                item['id'])
             JobManager.AddJob(job)
 
             print(f"[DOWNLOAD] Download job started: {item['title']}")
@@ -332,7 +345,8 @@ class RaiPlayDownloadManager:
 
     def update_download_status(self, download_id, status, progress=0):
         """Update download status and progress by ID"""
-        print(f"[DOWNLOAD] update_download_status - ID: {download_id}, Status: {status}, Progress: {progress}")
+        print(
+            f"[DOWNLOAD] update_download_status - ID: {download_id}, Status: {status}, Progress: {progress}")
 
         for item in self.download_queue:
             if item['id'] == download_id:
@@ -340,7 +354,8 @@ class RaiPlayDownloadManager:
                 if status == "error":
                     item['status'] = "error"
                     item['progress'] = 0
-                    print(f"[DOWNLOAD] Download error: {item['title']} - It will NOT be retried automatically")
+                    print(
+                        f"[DOWNLOAD] Download error: {item['title']} - It will NOT be retried automatically")
                 else:
                     item['status'] = status
                     item['progress'] = progress
@@ -407,7 +422,8 @@ class RaiPlayDownloadManager:
                 return False
 
             # Check for dangerous shell injection patterns
-            dangerous_patterns = ['`', '$', ';', '|', '&', '>', '<', '\n', '\r', '\t']
+            dangerous_patterns = [
+                '`', '$', ';', '|', '&', '>', '<', '\n', '\r', '\t']
             for pattern in dangerous_patterns:
                 if pattern in url:
                     print(f"[DOWNLOAD] Dangerous pattern in URL: {pattern}")
@@ -542,16 +558,19 @@ class RaiPlayDownloadManager:
                     self.save_downloads()
                     print(f"[DOWNLOAD] Completed: {title}")
                 else:
-                    print(f"[DOWNLOAD] Download already marked as completed: {title}")
+                    print(
+                        f"[DOWNLOAD] Download already marked as completed: {title}")
                 break
 
     def pause_download(self, download_id):
         """Pause a download"""
         for item in self.download_queue:
-            if item['id'] == download_id and item['status'] in ['downloading', 'waiting']:
+            if item['id'] == download_id and item['status'] in [
+                    'downloading', 'waiting']:
                 # Cancel the job
                 for job in JobManager.getPendingJobs():
-                    if hasattr(job, 'download_id') and job.download_id == download_id:
+                    if hasattr(
+                            job, 'download_id') and job.download_id == download_id:
                         job.cancel()
                         break
 
@@ -581,7 +600,8 @@ class RaiPlayDownloadManager:
 
             self.download_queue.remove(item_to_remove)
             self.save_downloads()
-            print(f"[DOWNLOAD] Removed from queue (file preserved): {item_to_remove['title']}")
+            print(
+                f"[DOWNLOAD] Removed from queue (file preserved): {item_to_remove['title']}")
 
     def get_real_video_url_TEST(self, url):
         """Extract real video URL from relinker - TEMPORARY TEST"""
@@ -609,7 +629,8 @@ class RaiPlayDownloadManager:
             test_cmd = f"wget --spider --timeout=10 --tries=1 '{final_url}'"
             print(f"Testing with: {test_cmd}")
             try:
-                result = subprocess.run(test_cmd, shell=True, capture_output=True, text=True)
+                result = subprocess.run(
+                    test_cmd, shell=True, capture_output=True, text=True)
                 if result.returncode == 0:
                     print("✓ URL TEST PASSED - Download should work")
                 else:
@@ -658,11 +679,16 @@ class RaiPlayDownloadManager:
             }
 
             # Fetch relinker response
-            response = requests.get(relinker_url, headers=headers, timeout=30, verify=False)
+            response = requests.get(
+                relinker_url,
+                headers=headers,
+                timeout=30,
+                verify=False)
             response.raise_for_status()
             content = response.text
 
-            print(f"[DOWNLOAD] Relinker response length: {len(content)} characters")
+            print(
+                f"[DOWNLOAD] Relinker response length: {len(content)} characters")
 
             # Save for debugging
             debug_path = join(self.download_dir, "relinker_debug.xml")
@@ -678,7 +704,8 @@ class RaiPlayDownloadManager:
 
                 # Process HLS master playlists for quality selection
                 if '.m3u8' in video_url:
-                    print("[DOWNLOAD] HLS master playlist detected - selecting best quality")
+                    print(
+                        "[DOWNLOAD] HLS master playlist detected - selecting best quality")
                     processed_url = self.process_hls_master_playlist(video_url)
                     return processed_url or video_url
 
@@ -696,7 +723,9 @@ class RaiPlayDownloadManager:
         video_url = None
 
         # Pattern 1: URL in <url> tag
-        url_match = search(r'<url[^>]*type="content"[^>]*>([^<]*)</url>', xml_content)
+        url_match = search(
+            r'<url[^>]*type="content"[^>]*>([^<]*)</url>',
+            xml_content)
         if url_match:
             video_url = url_match.group(1).strip()
             print(f"[DOWNLOAD] Found video URL in <url> tag: {video_url}")
@@ -721,7 +750,8 @@ class RaiPlayDownloadManager:
                 video_match = search(pattern, xml_content)
                 if video_match:
                     video_url = video_match.group(0)
-                    print(f"[DOWNLOAD] Found video URL with pattern: {video_url}")
+                    print(
+                        f"[DOWNLOAD] Found video URL with pattern: {video_url}")
                     break
 
         return video_url
@@ -766,7 +796,11 @@ class RaiPlayDownloadManager:
             }
 
             # Download master playlist
-            response = requests.get(master_url, headers=headers, timeout=30, verify=False)
+            response = requests.get(
+                master_url,
+                headers=headers,
+                timeout=30,
+                verify=False)
             response.raise_for_status()
             playlist_content = response.text
 
@@ -786,20 +820,23 @@ class RaiPlayDownloadManager:
                     bandwidth_match = search(r'BANDWIDTH=(\d+)', line)
                     if bandwidth_match:
                         bandwidth = int(bandwidth_match.group(1))
-                        print(f"[DOWNLOAD] Found stream with bandwidth: {bandwidth}")
+                        print(
+                            f"[DOWNLOAD] Found stream with bandwidth: {bandwidth}")
 
                         # Get stream URL from next line
                         if i + 1 < len(lines):
                             stream_url = lines[i + 1].strip()
                             if stream_url and not stream_url.startswith('#'):
                                 # Construct full URL
-                                full_url = stream_url if stream_url.startswith('http') else base_url + stream_url
+                                full_url = stream_url if stream_url.startswith(
+                                    'http') else base_url + stream_url
 
                                 # Select stream with highest bandwidth
                                 if bandwidth > best_bandwidth:
                                     best_bandwidth = bandwidth
                                     best_stream_url = full_url
-                                    print(f"[DOWNLOAD] New best quality: {bandwidth} bps - {full_url}")
+                                    print(
+                                        f"[DOWNLOAD] New best quality: {bandwidth} bps - {full_url}")
                         i += 2  # Skip info and URL lines
                     else:
                         i += 1
@@ -808,7 +845,8 @@ class RaiPlayDownloadManager:
 
             if best_stream_url:
                 quality = "2400p" if best_bandwidth >= 2344000 else "1800p" if best_bandwidth >= 1758000 else "1200p"
-                print(f"[DOWNLOAD] Selected {quality} stream: {best_stream_url}")
+                print(
+                    f"[DOWNLOAD] Selected {quality} stream: {best_stream_url}")
                 return best_stream_url
             else:
                 print("[DOWNLOAD] No suitable stream found in master playlist")
@@ -829,7 +867,8 @@ class RaiPlayDownloadManager:
                         current_size = getsize(item['file_path'])
                         item['downloaded_bytes'] = current_size
                         if item['file_size'] > 0:
-                            item['progress'] = min(99, int((current_size / item['file_size']) * 100))
+                            item['progress'] = min(
+                                99, int((current_size / item['file_size']) * 100))
                     except OSError:
                         pass
 
@@ -868,13 +907,20 @@ class RaiPlayDownloadManager:
 
 
 class downloadJob(Job):
-    def __init__(self, download_manager, cmdline, filename, title, download_id):
+    def __init__(
+            self,
+            download_manager,
+            cmdline,
+            filename,
+            title,
+            download_id):
         Job.__init__(self, title)
         self.cmdline = cmdline
         self.filename = filename
         self.download_manager = download_manager
         self.download_id = download_id
-        self.downloadTask = downloadTask(self, cmdline, filename, title, download_id)
+        self.downloadTask = downloadTask(
+            self, cmdline, filename, title, download_id)
 
     def retry(self):
         """Retry failed download"""
@@ -921,7 +967,9 @@ class downloadTask(Task):
                     print(f"[DOWNLOAD TASK] Progress: {self.progress}%")
 
                     # UPDATE PROGRESS IN MANAGER
-                    if hasattr(self, 'download_manager') and hasattr(self, 'download_id'):
+                    if hasattr(
+                            self, 'download_manager') and hasattr(
+                            self, 'download_id'):
                         self.download_manager.update_download_status(
                             self.download_id, "downloading", self.progress
                         )
@@ -935,7 +983,11 @@ class downloadTask(Task):
             if "ERROR" in data_str or "failed" in data_str.lower():
                 print(f"[DOWNLOAD TASK] Wget error detected: {data_str}")
                 # self.error = True
-                if hasattr(self, 'download_manager') and hasattr(self, 'download_id'):
+                if hasattr(
+                        self,
+                        'download_manager') and hasattr(
+                        self,
+                        'download_id'):
                     self.download_manager.update_download_status(
                         self.download_id, "error", 0
                     )
@@ -948,7 +1000,8 @@ class downloadTask(Task):
 
     def afterRun(self):
         """Called after download completes"""
-        print(f"[DOWNLOAD TASK] afterRun - Progress: {self.progress}%, Return code: {self.returncode}")
+        print(
+            f"[DOWNLOAD TASK] afterRun - Progress: {self.progress}%, Return code: {self.returncode}")
 
         try:
             # Check if file actually exists and has content
@@ -958,20 +1011,26 @@ class downloadTask(Task):
 
                 if file_size > 0 and self.returncode == 0:
                     # SUCCESS: Download completed
-                    self.download_manager.download_finished(self.filename, self.title, self.download_id)
-                    print(f"[DOWNLOAD TASK] Download completed successfully: {self.title}")
+                    self.download_manager.download_finished(
+                        self.filename, self.title, self.download_id)
+                    print(
+                        f"[DOWNLOAD TASK] Download completed successfully: {self.title}")
                 else:
                     # ERROR: File empty or wget failed
-                    print("[DOWNLOAD TASK] Download failed - empty file or error code")
-                    self.download_manager.update_download_status(self.download_id, "error", 0)
+                    print(
+                        "[DOWNLOAD TASK] Download failed - empty file or error code")
+                    self.download_manager.update_download_status(
+                        self.download_id, "error", 0)
             else:
                 # ERROR: File doesn't exist
                 print("[DOWNLOAD TASK] Download failed - file not found")
-                self.download_manager.update_download_status(self.download_id, "error", 0)
+                self.download_manager.update_download_status(
+                    self.download_id, "error", 0)
 
         except Exception as e:
             print(f"[DOWNLOAD TASK] Error in afterRun: {e}")
-            self.download_manager.update_download_status(self.download_id, "error", 0)
+            self.download_manager.update_download_status(
+                self.download_id, "error", 0)
 
 
 def convert_size(size_bytes):
