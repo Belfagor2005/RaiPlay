@@ -11,8 +11,8 @@
 	<!-- Menu List -->
 	<widget name="text" position="294,307" size="1374,800" scrollbarMode="showOnDemand" transparent="1" zPosition="5" foregroundColor="#00a0a0a0" foregroundColorSelected="#ffffff" backgroundColor="#20000000" backgroundColorSelected="#0b2049" selectionPixmap="/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/res/pics/sliderb.png" />
 	<!-- Colors 1220 -->
-	<eLabel backgroundColor="red" position="360,1311" size="400,6" zPosition="10" />
+<!-- 	<eLabel backgroundColor="red" position="360,1311" size="400,6" zPosition="10" />
 	<eLabel backgroundColor="green" position="358,1389" size="400,6" zPosition="10" />
 	<widget name="key_red" position="360,1254" size="400,54" font="Regular;40" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
-	<widget name="key_green" position="360,1334" size="400,54" font="Regular;40" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" />
+	<widget name="key_green" position="360,1334" size="400,54" font="Regular;40" halign="left" valign="center" backgroundColor="#20000000" zPosition="5" transparent="1" /> -->
 </screen>
