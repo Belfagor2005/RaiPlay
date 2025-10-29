@@ -3933,7 +3933,9 @@ class RaiPlayOnDemandCategory(SafeScreen):
             try:
                 response = loads(data)
                 print(
-                    f"[DEBUG] Video JSON response keys: {list(response.keys())}")
+                    f"[DEBUG] Video JSON response keys: {
+                        list(
+                            response.keys())}")
                 video_url = response.get("video", {}).get("content_url", None)
                 if video_url:
                     print(f"[DEBUG] Found video URL: {video_url}")
@@ -3956,7 +3958,9 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     return  # ← AGGIUNGI RETURN
                 else:
                     print(
-                        f"[DEBUG] No video URL found in response. Available keys: {list(response.keys())}")
+                        f"[DEBUG] No video URL found in response. Available keys: {
+                            list(
+                                response.keys())}")
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
@@ -8747,7 +8751,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 # Status text
                 status_text = _(item['status'].capitalize())
 
-                name = f"{icon} {item['title']}{progress_text}{size_info} [{status_text}]"
+                name = f"{icon} {
+                    item['title']}{progress_text}{size_info} [{status_text}]"
                 self.names.append(name)
 
         self['text'].setList(self.names)
@@ -8827,7 +8832,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
         if item['status'] == 'paused':
             print(
-                f"[DOWNLOAD MANAGER] Starting paused download: {item['title']}")
+                f"[DOWNLOAD MANAGER] Starting paused download: {
+                    item['title']}")
             # Start download directly
             self.download_manager.start_download(item)
             self.session.open(
@@ -8839,7 +8845,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
         elif item['status'] == 'queued':
             print(
-                f"[DOWNLOAD MANAGER] Starting queued download: {item['title']}")
+                f"[DOWNLOAD MANAGER] Starting queued download: {
+                    item['title']}")
             # Start download directly
             self.download_manager.start_download(item)
             self.session.open(
@@ -8851,7 +8858,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
         elif item['status'] in ['downloading', 'waiting']:
             print(
-                f"[DOWNLOAD MANAGER] Stopping active download: {item['title']}")
+                f"[DOWNLOAD MANAGER] Stopping active download: {
+                    item['title']}")
             self.download_manager.pause_download(item['id'])
             self.session.open(
                 MessageBox,

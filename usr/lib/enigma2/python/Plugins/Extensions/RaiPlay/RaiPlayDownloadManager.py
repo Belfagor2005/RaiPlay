@@ -120,7 +120,8 @@ class RaiPlayDownloadManager:
             try:
                 makedirs(self.download_dir)
                 print(
-                    f"[DOWNLOAD MANAGER] Created movie directory: {self.download_dir}")
+                    f"[DOWNLOAD MANAGER] Created movie directory: {
+                        self.download_dir}")
             except Exception as e:
                 print(
                     f"[DOWNLOAD MANAGER] Error creating movie directory: {e}")
@@ -268,7 +269,8 @@ class RaiPlayDownloadManager:
 
             print(f"[DOWNLOAD] Successfully added: {title}")
             print(
-                f"[DOWNLOAD] Stream type: {'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'}")
+                f"[DOWNLOAD] Stream type: {
+                    'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'}")
             print(f"[DOWNLOAD] Output file: {file_path}")
 
             return download_id
@@ -304,13 +306,15 @@ class RaiPlayDownloadManager:
         """Start a paused download - UPDATED VERSION"""
         if item['status'] in ['completed', 'error']:
             print(
-                f"[DOWNLOAD] Cannot start download with status: {item['status']}")
+                f"[DOWNLOAD] Cannot start download with status: {
+                    item['status']}")
             return
 
         try:
             print(f"[DOWNLOAD] Starting download: {item['title']}")
             print(
-                f"[DOWNLOAD] URL type: {'HLS' if '.m3u8' in item['url'] else 'Direct'}")
+                f"[DOWNLOAD] URL type: {
+                    'HLS' if '.m3u8' in item['url'] else 'Direct'}")
 
             final_url = item['url']
 
@@ -355,7 +359,8 @@ class RaiPlayDownloadManager:
                     item['status'] = "error"
                     item['progress'] = 0
                     print(
-                        f"[DOWNLOAD] Download error: {item['title']} - It will NOT be retried automatically")
+                        f"[DOWNLOAD] Download error: {
+                            item['title']} - It will NOT be retried automatically")
                 else:
                     item['status'] = status
                     item['progress'] = progress
@@ -601,7 +606,8 @@ class RaiPlayDownloadManager:
             self.download_queue.remove(item_to_remove)
             self.save_downloads()
             print(
-                f"[DOWNLOAD] Removed from queue (file preserved): {item_to_remove['title']}")
+                f"[DOWNLOAD] Removed from queue (file preserved): {
+                    item_to_remove['title']}")
 
     def get_real_video_url_TEST(self, url):
         """Extract real video URL from relinker - TEMPORARY TEST"""
@@ -688,7 +694,8 @@ class RaiPlayDownloadManager:
             content = response.text
 
             print(
-                f"[DOWNLOAD] Relinker response length: {len(content)} characters")
+                f"[DOWNLOAD] Relinker response length: {
+                    len(content)} characters")
 
             # Save for debugging
             debug_path = join(self.download_dir, "relinker_debug.xml")
@@ -1001,7 +1008,9 @@ class downloadTask(Task):
     def afterRun(self):
         """Called after download completes"""
         print(
-            f"[DOWNLOAD TASK] afterRun - Progress: {self.progress}%, Return code: {self.returncode}")
+            f"[DOWNLOAD TASK] afterRun - Progress: {
+                self.progress}%, Return code: {
+                self.returncode}")
 
         try:
             # Check if file actually exists and has content
@@ -1014,7 +1023,8 @@ class downloadTask(Task):
                     self.download_manager.download_finished(
                         self.filename, self.title, self.download_id)
                     print(
-                        f"[DOWNLOAD TASK] Download completed successfully: {self.title}")
+                        f"[DOWNLOAD TASK] Download completed successfully: {
+                            self.title}")
                 else:
                     # ERROR: File empty or wget failed
                     print(
