@@ -104,3 +104,4 @@ See the [LICENSE](LICENSE) file for details.
 ## Contact
 
 For questions or feedback, please open an issue or contact Lululla.
+
