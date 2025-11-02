@@ -44,13 +44,13 @@ from Components.Label import Label
 from Screens.Screen import Screen
 
 # 🧰 ENIGMA2 TOOLS
-from Tools.Notifications import AddNotification
+# from Tools.Notifications import AddNotification
 
 # 📺 ENIGMA2 CORE
 from enigma import eTimer
 
 # 🌐 EXTERNAL / SYSTEM
-import NavigationInstance
+# import NavigationInstance
 
 
 class SimpleNotifyWidget(Screen):
@@ -97,6 +97,37 @@ class HybridNotificationManager:
         if self.notification_window:
             self.notification_window.hide()
 
+    def _show_global_notification(self, message, duration=3000):
+        """Show global notification - THE ORIGINAL VERSION"""
+        try:
+            # Check if we can use screen notification first
+            if self.notification_window and self.is_initialized:
+                self.hide_timer.stop()
+                self.notification_window.updateMessage(message)
+                self.notification_window.show()
+                self.hide_timer.start(duration, True)
+                print(f"[SCREEN NOTIFY] {message}")
+                return True
+
+            # Fallback for outside plugin - only for download messages
+            if not self.is_initialized:
+                allowed_messages = ['Download completed', 'Download error', 'Download failed']
+                if any(allowed in message for allowed in allowed_messages):
+                    # Use screen notification even outside plugin for important messages
+                    if self.notification_window:
+                        self.hide_timer.stop()
+                        self.notification_window.updateMessage(message)
+                        self.notification_window.show()
+                        self.hide_timer.start(duration, True)
+                        print(f"[SCREEN NOTIFY - OUTSIDE] {message}")
+                        return True
+
+            return False
+
+        except Exception as e:
+            print(f"[NOTIFY ERROR] {e}")
+            return False
+
     def _show_global_notification_all(self, message, timeout=5000):
         """Show global Enigma2 notification - USING SCREEN"""
         try:
@@ -113,7 +144,11 @@ class HybridNotificationManager:
             return False
 
     def showMessage(self, message, duration=3000):
-        """Show hybrid notification with filter for outside plugin"""
+        """The original version you had"""
+        self._show_global_notification(message, duration)
+
+    """
+    def showMessage(self, message, duration=3000):
         # If we are OUTSIDE the plugin, only show important download
         # notifications
         if not self.is_initialized:
@@ -143,49 +178,7 @@ class HybridNotificationManager:
                 print(f"[HYBRID NOTIFY] Plugin notification error: {e}")
         else:
             print("[HYBRID NOTIFY] Plugin not initialized - NO NOTIFICATION")
-
-    def showMessage(self, message, duration=3000):
-        """Show hybrid notification with filter for outside plugin
-        Args:
-            message (str): Text to display
-            duration (int): Duration in milliseconds
-        """
-        # If we are OUTSIDE the plugin, only show important download
-        # notifications
-        if not self.is_initialized:
-            allowed_messages = [
-                'Download completed',
-                'Download error',
-                'Download failed']
-            if not any(allowed in message for allowed in allowed_messages):
-                print(f"[NOTIFY FILTER] Skipped (outside plugin): {message}")
-                return
-
-        global_success = self._show_global_notification(message, duration)
-
-        # Then try plugin notification (only if plugin is active)
-        if self.is_initialized and self.notification_window:
-            try:
-                # Stop any previous timer
-                self.hide_timer.stop()
-
-                # Update and show message
-                self.notification_window.updateMessage(message)
-                self.notification_window.show()
-
-                # Start auto-hide timer
-                self.hide_timer.start(duration, True)
-                print(f"[HYBRID NOTIFY] Plugin notification: {message}")
-
-            except Exception as e:
-                print(f"[HYBRID NOTIFY] Plugin notification error: {e}")
-                # If plugin notification fails, fall back to global
-                if not global_success:
-                    self._show_global_notification(message, duration)
-        else:
-            print("[HYBRID NOTIFY] Plugin not initialized, using global only")
-            if not global_success:
-                print("[HYBRID NOTIFY] No notification method available")
+    """
 
     def show_download_status(self, title, status, file_size=0):
         """Display a download status notification"""
