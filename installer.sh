@@ -2,8 +2,8 @@
 
 ## setup command=wget -q "--no-check-certificate" https://raw.githubusercontent.com/Belfagor2005/RaiPlay/main/installer.sh -O - | /bin/sh
 ## Only This 2 lines to edit with new version ######
-version='1.9'
-changelog='\nAdd Download Manager - Notify'
+version='1.7'
+changelog='\nRai Play Final Version'
 ##############################################################
 TMPPATH=/tmp/RaiPlay-main
 FILEPATH=/tmp/main.tar.gz
