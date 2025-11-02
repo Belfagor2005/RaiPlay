@@ -231,11 +231,9 @@ class RaiPlayDownloadManager:
             self.save_downloads()
 
             self.session.open(MessageBox, f"📥 Added to queue: {title}", MessageBox.TYPE_INFO, timeout=3)
-            print(f"[DOWNLOAD] Successfully added: {title}")
-            print(
-                f"[DOWNLOAD] Stream type: {
-                    'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'}")
-            print(f"[DOWNLOAD] Output file: {file_path}")
+            print("[DOWNLOAD] Successfully added: {}".format(title))
+            print("[DOWNLOAD] Stream type: {}".format('HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'))
+            print("[DOWNLOAD] Output file: {}".format(file_path))
 
             return download_id
 
