@@ -938,7 +938,8 @@ class SafeScreen(Screen):
                 title, normalized_url)
 
             if download_id:
-                print("[DEBUG] Download added successfully with ID: {}".format(download_id))
+                print(
+                    "[DEBUG] Download added successfully with ID: {}".format(download_id))
 
                 # Force save and reload queue to verify
                 self.session.download_manager.save_downloads()
@@ -3941,7 +3942,10 @@ class RaiPlayOnDemandCategory(SafeScreen):
 
             try:
                 response = loads(data)
-                print("[DEBUG] Video JSON response keys: {}".format(list(response.keys())))
+                print(
+                    "[DEBUG] Video JSON response keys: {}".format(
+                        list(
+                            response.keys())))
                 video_url = response.get("video", {}).get("content_url", None)
                 if video_url:
                     print(f"[DEBUG] Found video URL: {video_url}")
@@ -3963,7 +3967,10 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     )
                     return  # ← AGGIUNGI RETURN
                 else:
-                    print("[DEBUG] No video URL found in response. Available keys: {}".format(list(video_json.keys())))
+                    print(
+                        "[DEBUG] No video URL found in response. Available keys: {}".format(
+                            list(
+                                video_json.keys())))
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
@@ -8751,7 +8758,6 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 progress_text = " - {}%".format(item['progress']) if item['status'] in [
                     'downloading', 'waiting', 'completed'] else ""
 
-                              
                 size_info = ""
                 if item['downloaded_bytes'] > 0:
                     size_mb = item['downloaded_bytes'] / (1024 * 1024)
