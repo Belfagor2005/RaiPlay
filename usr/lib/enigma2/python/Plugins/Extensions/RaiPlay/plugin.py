@@ -3963,7 +3963,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     )
                     return  # ← AGGIUNGI RETURN
                 else:
-                    print("[DEBUG] No video URL found in response. Available keys: {}".format(list(video_json.keys())))
+                    print("[DEBUG] No video URL found in response. Available keys: {}".format(list(response.keys())))
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
@@ -8751,7 +8751,6 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 progress_text = " - {}%".format(item['progress']) if item['status'] in [
                     'downloading', 'waiting', 'completed'] else ""
 
-                              
                 size_info = ""
                 if item['downloaded_bytes'] > 0:
                     size_mb = item['downloaded_bytes'] / (1024 * 1024)
