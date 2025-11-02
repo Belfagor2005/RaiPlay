@@ -53,27 +53,22 @@ import re
 
 class RaiPlayProgressParser:
     """Advanced FFmpeg progress parser for RaiPlay Download Manager"""
-
+    
     def __init__(self):
         self.total_duration_seconds = 0
         self.downloaded_duration_seconds = 0
         self.is_live_stream = False
         self.header_processed = False
         self.last_update_timestamp = datetime.datetime.now()
-
+        
         # Custom regex patterns for RaiPlay
         self.progress_patterns = {}
-        self.progress_patterns['start_timestamp'] = re.compile(
-            r'\sstart\:\s*?([0-9]+?)\.')
-        self.progress_patterns['time_duration'] = re.compile(
-            r'[\s=]([0-9]+?)\:([0-9]+?)\:([0-9]+?)\.')
-        self.progress_patterns['file_size_kb'] = re.compile(
-            r'size=\s*?([0-9]+?)kB')
-        self.progress_patterns['bitrate_kbps'] = re.compile(
-            r'bitrate=\s*?([0-9]+?(?:\.[0-9]+?)?)kbits')
-        self.progress_patterns['speed_multiplier'] = re.compile(
-            r'speed=\s*?([0-9]+?(?:\.[0-9]+?)?)x')
-
+        self.progress_patterns['start_timestamp'] = re.compile(r'\sstart\:\s*?([0-9]+?)\.')
+        self.progress_patterns['time_duration'] = re.compile(r'[\s=]([0-9]+?)\:([0-9]+?)\:([0-9]+?)\.')
+        self.progress_patterns['file_size_kb'] = re.compile(r'size=\s*?([0-9]+?)kB')
+        self.progress_patterns['bitrate_kbps'] = re.compile(r'bitrate=\s*?([0-9]+?(?:\.[0-9]+?)?)kbits')
+        self.progress_patterns['speed_multiplier'] = re.compile(r'speed=\s*?([0-9]+?(?:\.[0-9]+?)?)x')
+    
     def analyze_ffmpeg_output(self, data_line):
         """Analyze FFmpeg output and extract progress information"""
         progress_data = {
@@ -82,18 +77,14 @@ class RaiPlayProgressParser:
             'completion_percentage': 0,
             'current_duration_sec': 0
         }
-
+        
         try:
             if not self.header_processed:
                 if 'Duration:' in data_line:
-                    detected_duration = self._extract_duration_seconds(
-                        data_line) - self._extract_start_time(data_line)
-                    if detected_duration > 0 and (
-                            detected_duration < self.total_duration_seconds or 0 == self.total_duration_seconds):
+                    detected_duration = self._extract_duration_seconds(data_line) - self._extract_start_time(data_line)
+                    if detected_duration > 0 and (detected_duration < self.total_duration_seconds or 0 == self.total_duration_seconds):
                         self.total_duration_seconds = detected_duration
-                        print(
-                            f"[RAIPLAY PARSER] Total duration found: {
-                                self.total_duration_seconds} seconds")
+                        print(f"[RAIPLAY PARSER] Total duration found: {self.total_duration_seconds}s")
                 elif 'Stream mapping:' in data_line:
                     self.header_processed = True
                     if self.total_duration_seconds == 0:
@@ -121,59 +112,46 @@ class RaiPlayProgressParser:
 
                 # Calculate completion percentage
                 if self.total_duration_seconds > 0 and current_duration > 0:
-                    completion_pct = min(
-                        99, int(
-                            (current_duration / self.total_duration_seconds) * 100))
+                    completion_pct = min(99, int((current_duration / self.total_duration_seconds) * 100))
                     progress_data['completion_percentage'] = completion_pct
-                    print(
-                        f"[RAIPLAY PARSER] Progress: {current_duration}s/{
-                            self.total_duration_seconds}s = {completion_pct}%")
+                    print(f"[RAIPLAY PARSER] Progress: {current_duration}s/{self.total_duration_seconds}s = {completion_pct}%")
                 elif file_size_bytes > 0:
                     # Alternative: estimate based on typical file sizes
                     estimated_total_size = self._calculate_estimated_size()
                     if estimated_total_size > 0:
-                        completion_pct = min(
-                            99, int(
-                                (file_size_bytes / estimated_total_size) * 100))
+                        completion_pct = min(99, int((file_size_bytes / estimated_total_size) * 100))
                         progress_data['completion_percentage'] = completion_pct
-                        print(
-                            f"[RAIPLAY PARSER] Size-based progress: {file_size_bytes}/{estimated_total_size} = {completion_pct}%")
+                        print(f"[RAIPLAY PARSER] Size-based progress: {file_size_bytes}/{estimated_total_size} = {completion_pct}%")
 
         except Exception as parse_error:
             print(f"[RAIPLAY PARSER] Error analyzing output: {parse_error}")
-
+        
         return progress_data
 
     def _extract_duration_seconds(self, data_line):
         try:
-            match_result = self.progress_patterns['time_duration'].search(
-                data_line)
-            return 3600 * int(match_result.group(1)) + 60 * \
-                int(match_result.group(2)) + int(match_result.group(3))
+            match_result = self.progress_patterns['time_duration'].search(data_line)
+            return 3600 * int(match_result.group(1)) + 60 * int(match_result.group(2)) + int(match_result.group(3))
         except Exception:
             return 0
 
     def _extract_start_time(self, data_line):
         try:
-            match_result = self.progress_patterns['start_timestamp'].search(
-                data_line)
+            match_result = self.progress_patterns['start_timestamp'].search(data_line)
             return int(match_result.group(1))
         except Exception:
             return 0
 
     def _extract_file_size_bytes(self, data_line):
         try:
-            return int(self.progress_patterns['file_size_kb'].search(
-                data_line).group(1)) * 1024
+            return int(self.progress_patterns['file_size_kb'].search(data_line).group(1)) * 1024
         except Exception:
             return 0
 
     def _extract_download_speed_bps(self, data_line):
         try:
-            bitrate_kbps = float(
-                self.progress_patterns['bitrate_kbps'].search(data_line).group(1))
-            speed_multiplier = float(
-                self.progress_patterns['speed_multiplier'].search(data_line).group(1))
+            bitrate_kbps = float(self.progress_patterns['bitrate_kbps'].search(data_line).group(1))
+            speed_multiplier = float(self.progress_patterns['speed_multiplier'].search(data_line).group(1))
             return int(bitrate_kbps * speed_multiplier * 1024 / 8)
         except Exception:
             return 0
