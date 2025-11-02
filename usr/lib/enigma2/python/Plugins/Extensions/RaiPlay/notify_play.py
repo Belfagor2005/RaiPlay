@@ -88,7 +88,8 @@ class HybridNotificationManager:
     def initialize(self, session):
         """Initialize manager with session"""
         if not self.is_initialized:
-            self.notification_window = session.instantiateDialog(SimpleNotifyWidget)
+            self.notification_window = session.instantiateDialog(
+                SimpleNotifyWidget)
             self.is_initialized = True
 
     def _hideNotification(self):
@@ -113,9 +114,13 @@ class HybridNotificationManager:
 
     def showMessage(self, message, duration=3000):
         """Show hybrid notification with filter for outside plugin"""
-        # If we are OUTSIDE the plugin, only show important download notifications
+        # If we are OUTSIDE the plugin, only show important download
+        # notifications
         if not self.is_initialized:
-            allowed_messages = ['Download completed', 'Download error', 'Download failed']
+            allowed_messages = [
+                'Download completed',
+                'Download error',
+                'Download failed']
             if not any(allowed in message for allowed in allowed_messages):
                 print(f"[NOTIFY FILTER] Skipped (outside plugin): {message}")
                 return
@@ -145,9 +150,13 @@ class HybridNotificationManager:
             message (str): Text to display
             duration (int): Duration in milliseconds
         """
-        # If we are OUTSIDE the plugin, only show important download notifications
+        # If we are OUTSIDE the plugin, only show important download
+        # notifications
         if not self.is_initialized:
-            allowed_messages = ['Download completed', 'Download error', 'Download failed']
+            allowed_messages = [
+                'Download completed',
+                'Download error',
+                'Download failed']
             if not any(allowed in message for allowed in allowed_messages):
                 print(f"[NOTIFY FILTER] Skipped (outside plugin): {message}")
                 return
@@ -267,7 +276,8 @@ def show_download_notification(title, status, file_size=0):
     if _hybrid_notification_manager.is_initialized and _hybrid_notification_manager.notification_window:
         try:
             _hybrid_notification_manager.hide_timer.stop()
-            _hybrid_notification_manager.notification_window.updateMessage(message)
+            _hybrid_notification_manager.notification_window.updateMessage(
+                message)
             _hybrid_notification_manager.notification_window.show()
             _hybrid_notification_manager.hide_timer.start(5000, True)
             print(f"[DOWNLOAD NOTIFY] Plugin notification: {message}")
@@ -284,7 +294,11 @@ def show_download_notification_all(title, status, file_size=0):
         status (str): download status
         file_size (int): file size in bytes
     """
-    icons = {'completed': '✅', 'error': '❌', 'downloading': '🚀', 'paused': '⏸️'}
+    icons = {
+        'completed': '✅',
+        'error': '❌',
+        'downloading': '🚀',
+        'paused': '⏸️'}
     icon = icons.get(status, 'ℹ️')
 
     if status == 'completed' and file_size > 0:
