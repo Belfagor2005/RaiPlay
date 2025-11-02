@@ -3952,10 +3952,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     )
                     return  # ← AGGIUNGI RETURN
                 else:
-                    print(
-                        f"[DEBUG] No video URL found in response. Available keys: {
-                            list(
-                                response.keys())}")
+                    print("[DEBUG] No video URL found in response. Available keys: {}".format(list(video_json.keys())))
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
