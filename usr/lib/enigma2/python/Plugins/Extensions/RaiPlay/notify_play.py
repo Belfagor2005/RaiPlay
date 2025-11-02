@@ -111,9 +111,13 @@ class HybridNotificationManager:
 
             # Fallback for outside plugin - only for download messages
             if not self.is_initialized:
-                allowed_messages = ['Download completed', 'Download error', 'Download failed']
+                allowed_messages = [
+                    'Download completed',
+                    'Download error',
+                    'Download failed']
                 if any(allowed in message for allowed in allowed_messages):
-                    # Use screen notification even outside plugin for important messages
+                    # Use screen notification even outside plugin for important
+                    # messages
                     if self.notification_window:
                         self.hide_timer.stop()
                         self.notification_window.updateMessage(message)
