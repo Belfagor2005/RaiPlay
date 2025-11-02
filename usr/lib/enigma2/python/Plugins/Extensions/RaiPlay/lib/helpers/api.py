@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
-from .kodiutils import ADDON, log
-from .helper import Helper
 
 """
 #########################################################
@@ -34,6 +32,9 @@ from .helper import Helper
 __author__ = "Lululla"
 
 """This is the actual InputStream Helper API script"""
+
+from .helper import Helper
+from .kodiutils import ADDON, log
 
 
 def run(params):
@@ -74,10 +75,7 @@ def check_inputstream(protocol, drm=None):
 def widevine_install(choose_version=False):
     """The API interface to install Widevine CDM"""
     choose_version = choose_version in ("True", "true")
-    Helper(
-        "mpd",
-        drm="widevine").install_widevine(
-        choose_version=choose_version)
+    Helper("mpd", drm="widevine").install_widevine(choose_version=choose_version)
 
 
 def widevine_install_from():

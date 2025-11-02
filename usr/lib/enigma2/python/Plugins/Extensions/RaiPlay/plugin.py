@@ -5,16 +5,17 @@ from __future__ import print_function
 #########################################################
 #                                                       #
 #  Rai Play View Plugin                                 #
-#  Version: 1.8                                         #
+#  Version: 1.9                                         #
 #  Created by Lululla                                   #
 #  License: CC BY-NC-SA 4.0                             #
 #  https://creativecommons.org/licenses/by-nc-sa/4.0/   #
-#  Last Modified: 18:22 - 2025-10-16                    #
+#  Last Modified: 15:35 - 2025-11-02                    #
 #                                                       #
 #  Features:                                            #
 #    - Access Rai Play content                          #
 #    - Browse categories, programs, and videos          #
 #    - Play streaming video                             #
+#    - Download streaming video                         #
 #    - JSON API integration                             #
 #    - Debug logging                                    #
 #    - User-friendly interface                          #
@@ -34,31 +35,41 @@ from __future__ import print_function
 
 __author__ = "Lululla"
 
-# Standard library
+# ======================== IMPORTS ========================
+# 🧠 STANDARD LIBRARIES
 import codecs
-import sys
-from json import loads, dumps, load, dump
-from os import access, W_OK, remove, makedirs
-from os.path import join, exists, isdir
-from re import search, match, findall, DOTALL
-from datetime import date, datetime, timedelta
-import requests
+import chardet
 import html as _html
+import sys
 import threading
 import time
-import chardet
+import traceback
+from datetime import date, datetime, timedelta
+from json import dump, dumps, load, loads
+from os import access, W_OK, makedirs, remove, system
+from os.path import exists, isdir, join
+from re import DOTALL, findall, match, search
+from urllib.parse import parse_qs, urljoin, urlparse, urlencode, urlunparse
 
-# Enigma2 Components
+# 🌐 EXTERNAL LIBRARIES
+import requests
+from twisted.web.client import downloadPage
+
+# 🧩 ENIGMA2 COMPONENTS
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.MenuList import MenuList
 from Components.MultiContent import MultiContentEntryPixmapAlphaTest, MultiContentEntryText
-from Components.ServiceEventTracker import ServiceEventTracker, InfoBarBase
-# from Components.Sources.StaticText import StaticText
-from Components.config import config, ConfigSubsection, ConfigSelection, ConfigYesNo
 from Components.Pixmap import Pixmap
+from Components.ServiceEventTracker import InfoBarBase, ServiceEventTracker
+from Components.config import ConfigSelection, ConfigSubsection, ConfigYesNo, config
 
-# Enigma2 Screens
+try:
+    from Components.AVSwitch import AVSwitch
+except ImportError:
+    from Components.AVSwitch import eAVControl as AVSwitch
+
+# 🪟 ENIGMA2 SCREENS
 from Screens.InfoBarGenerics import (
     InfoBarAudioSelection,
     InfoBarMenu,
@@ -71,45 +82,47 @@ from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 
-# Enigma2 Tools
-from Tools.Directories import SCOPE_PLUGINS, resolveFilename
-from Tools.Directories import defaultRecordingLocation
-import traceback
-try:
-    from Components.AVSwitch import AVSwitch
-except ImportError:
-    from Components.AVSwitch import eAVControl as AVSwitch
+# 🧰 ENIGMA2 TOOLS
+from Tools.Directories import SCOPE_PLUGINS, defaultRecordingLocation, resolveFilename
 
-from urllib.parse import urljoin, urlparse, parse_qs, urlencode, urlunparse
-from twisted.web.client import downloadPage
-
-# Enigma2 enigma
+# 📺 ENIGMA2 CORE
 from enigma import (
     RT_HALIGN_LEFT,
     RT_VALIGN_CENTER,
     eListboxPythonMultiContent,
+    ePicLoad,
     eServiceReference,
     eTimer,
     gFont,
     getDesktop,
     iPlayableService,
     loadPNG,
-    ePicLoad
 )
 
-# Local imports
+# 🧱 LOCAL MODULES
 from . import _
 from . import Utils
-from .lib.html_conv import html_unescape
-from .lib.helpers.helper import Helper
 from .RaiPlayDownloadManager import RaiPlayDownloadManager
+from .lib.helpers.helper import Helper
+from .lib.html_conv import html_unescape
 
+# Import notification system
+try:
+    from .notify_play import init_notification_system
+    NOTIFICATION_AVAILABLE = True
+except ImportError as e:
+    print("[DEBUG] Notification system not available:", e)
+    NOTIFICATION_AVAILABLE = False
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # ==================== UTILITY FUNCTIONS ====================
+def deletetmp():
+    system('rm -rf /tmp/unzipped;rm -f /tmp/*.ipk;rm -f /tmp/*.tar;rm -f /tmp/*.zip;rm -f /tmp/*.tar.gz;rm -f /tmp/*.tar.bz2;rm -f /tmp/*.tar.tbz2;rm -f /tmp/*.tar.tbz;rm -f /tmp/*.m3u')
+    return
+
 
 def get_mounted_devices():
     """Get list of mounted and writable devices."""
@@ -204,7 +217,7 @@ def check_widevine_ready():
 
 
 name_plugin = 'TiVu Rai Play'
-currversion = '1.8'
+currversion = '1.9'
 desc_plugin = '..:: TiVu Rai Play by Lululla %s ::.. ' % currversion
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
 plugin_res = join(plugin_path, "res", "pics")
@@ -894,7 +907,7 @@ class SafeScreen(Screen):
         return self.api.DEFAULT_ICON_URL
 
     def addToDownloadQueue(self, title, url):
-        """Adds a video to download queue"""
+        """Adds a video to the download queue"""
         print(f"[DEBUG] addToDownloadQueue called: {title}")
         print(f"[DEBUG] URL: {url}")
 
@@ -902,10 +915,7 @@ class SafeScreen(Screen):
             # Ensure download manager exists
             if not hasattr(self.session, 'download_manager'):
                 print("[DEBUG] Creating new download manager instance...")
-                self.session.download_manager = RaiPlayDownloadManager(
-                    self.session)
-            else:
-                print("[DEBUG] Using existing download manager")
+                self.session.download_manager = RaiPlayDownloadManager(self.session)
 
             if not self.session.download_manager:
                 print("[DEBUG] ERROR: Download manager is None!")
@@ -922,39 +932,25 @@ class SafeScreen(Screen):
             normalized_url = normalize_url(url)
             print(f"[DEBUG] Normalized download URL: {normalized_url}")
 
-            download_id = self.session.download_manager.add_download(
-                title, normalized_url)
+            # Add download to manager and get the assigned ID
+            download_id = self.session.download_manager.add_download(title, normalized_url)
 
             if download_id:
-                print(
-                    f"[DEBUG] Download added successfully with ID: {download_id}")
+                print(f"[DEBUG] Download added successfully with ID: {download_id}")
 
-                # Force save and reload to verify
+                # Force save and reload queue to verify
                 self.session.download_manager.save_downloads()
                 queue = self.session.download_manager.get_queue()
                 print(f"[DEBUG] Queue now has {len(queue)} items")
-
-                # Show confirmation with queue info
-                self.session.open(
-                    MessageBox, _("Added to download queue: {}\nTotal downloads: {}").format(
-                        title, len(queue)), MessageBox.TYPE_INFO)
             else:
                 print("[DEBUG] Failed to add download")
-                self.session.open(
-                    MessageBox,
-                    _("Error adding to download queue"),
-                    MessageBox.TYPE_ERROR
-                )
+                self.session.open(MessageBox, f"📥 Added to queue: {title}", MessageBox.TYPE_INFO, timeout=3)
 
         except Exception as e:
             print(f"[DEBUG] Exception in addToDownloadQueue: {e}")
             import traceback
             traceback.print_exc()
-            self.session.open(
-                MessageBox,
-                _("Error: {}").format(str(e)),
-                MessageBox.TYPE_ERROR
-            )
+            self.session.open(MessageBox, "Error adding download", MessageBox.TYPE_ERROR, timeout=5)
 
     def playDirect(self, name, url):
         """Direct playback with provided URL."""
@@ -1044,8 +1040,11 @@ class SafeScreen(Screen):
             self.session.download_manager.stop_worker()
 
         self.cleanup()
-        Utils.deletetmp()
+        deletetmp()
         self.restore_state()
+        if NOTIFICATION_AVAILABLE:
+            from .notify_play import cleanup_notifications
+            cleanup_notifications()
         super(SafeScreen, self).close(*args, **kwargs)
 
     def force_close(self):
@@ -1154,42 +1153,6 @@ class RaiPlayAPI:
             "x", "facebook", "instagram", "login"  # , "raiplay"
         }
 
-    def getPage(self, url):
-        """Fetch the content of a page from a URL using HTTP GET.
-        """
-        try:
-            # Skip URLs in the blacklist
-            if any(ep in url for ep in self.exclude_paths):
-                return False, None
-
-            print("[DEBUG] Fetching URL: %s" % url)
-            response = requests.get(
-                url,
-                headers=self.HTTP_HEADER,
-                timeout=15,
-                verify=False
-            )
-            response.raise_for_status()
-            print("[DEBUG] Response status: %d" % response.status_code)
-            return True, response.text
-        except Exception as e:
-            print("[ERROR] Error fetching page: %s" % str(e))
-            return False, None
-
-    def getFullUrl(self, url):
-        """Return a full, absolute URL from a possibly relative or partial URL.
-        """
-        if not url:
-            return ""
-
-        if url.startswith('http'):
-            return url
-
-        if url.startswith("//"):
-            return "https:" + url
-
-        return urljoin(self.MAIN_URL, url)
-
     def load_categories_cached(self):
         """Load RaiSport categories from a cache file if available, otherwise download and cache them.
         """
@@ -1232,6 +1195,258 @@ class RaiPlayAPI:
         except Exception as e:
             print("[ERROR] Failed to download categories JSON:", e)
             return None
+
+    def find_category_by_unique_name(self, node, unique_name):
+        """Helper function to find category by unique name"""
+        if node.get("uniqueName") == unique_name:
+            return node
+        for child in node.get("children", []):
+            result = self.find_category_by_unique_name(child, unique_name)
+            if result:
+                return result
+        return None
+
+    def fixPath(self, path):
+        """
+        Fixes malformed paths by ensuring the path starts with '/tipologia/'.
+        Returns the original path if it's already correctly formatted.
+        """
+        if not path:
+            return ""
+
+        # If the path is already in the correct format, return it as is
+        if match(r"^/tipologia/[^/]+/PublishingBlock-", path):
+            return path
+
+        # Fix malformed paths like /tipologiafiction/PublishingBlock-...
+        malformed = match(r"^/tipologia([a-z]+)(/PublishingBlock-.*)", path)
+        if malformed:
+            fixed = "/tipologia/" + malformed.group(1) + malformed.group(2)
+            print(
+                "[DEBUG] fixPath: fixed malformed path: " +
+                path +
+                " -> " +
+                fixed)
+            return fixed
+
+        return path
+
+    def prepare_url(self, url):
+        """Prepare the URL using existing functions with exclusion check"""
+        if not url:
+            return ""
+
+        # First check if URL contains any excluded path
+        url_lower = url.lower()
+        if any(ep in url_lower for ep in self.exclude_paths):
+            return ""
+
+        # Then process the URL
+        url = self.convert_old_url(url)
+        url = normalize_url(url)
+        if url.startswith("https://www.raiplay.it//"):
+            url = url.replace("//", "/", 1)
+            url = "https://www.raiplay.it" + url
+        return url
+
+    def convert_old_url(self, old_url):
+        print("[DEBUG] Converting old URL: " + str(old_url))
+        if not old_url:
+            return old_url
+
+        # Always convert www.rai.it to www.raiplay.it
+        if "www.rai.it" in old_url:
+            old_url = old_url.replace("www.rai.it", "www.raiplay.it")
+
+        # Extract the relative path from the absolute URL (if any)
+        parsed = urlparse(old_url)
+        path = parsed.path
+        query = ("?" + parsed.query) if parsed.query else ""
+
+        path_and_query = path + query
+
+        special_mapping = {
+            "/raiplay/?json": "index.json",
+            "/raiplay/fiction/?json": "tipologia/serieitaliane/index.json",
+            "/raiplay/serietv/?json": "tipologia/serieinternazionali/index.json",
+            "/raiplay/bambini//?json": "tipologia/bambini/index.json",
+            "/raiplay/bambini/?json": "tipologia/bambini/index.json",
+            "/raiplay/programmi/?json": "tipologia/programmi/index.json",
+            "/raiplay/film/?json": "tipologia/film/index.json",
+            "/raiplay/documentari/?json": "tipologia/documentari/index.json",
+            "/raiplay/musica/?json": "tipologia/musica/index.json",
+            "/raiplay/sport/?json": "tipologia/sport/index.json",
+            "/raiplay/crime/?json": "tipologia/crime/index.json",
+            "/raiplay/original/?json": "tipologia/original/index.json",
+            "/raiplay/teen/?json": "tipologia/teen/index.json",
+            "/raiplay/musica-e-teatro/?json": "tipologia/musica-e-teatro/index.json",
+            "/raiplay/techerai/?json": "tipologia/techerai/index.json",
+            "/raiplay/learning/?json": "tipologia/learning/index.json",
+            "/raiplay/sostenibilita/?json": "tipologia/sostenibilita/index.json"}
+
+        # Usa path+query per verificare se esiste nella mappa speciale
+        if path_and_query in special_mapping:
+            new_url = self.MAIN_URL + special_mapping[path_and_query]
+            print("[DEBUG] Special mapping: {} -> {}".format(path_and_query, new_url))
+            return new_url
+
+        # Fix double extension issue (.html + /index.json)
+        if ".html/index.json" in path_and_query:
+            new_url = path_and_query.replace(".html/index.json", ".json")
+            print(
+                "[DEBUG] Fixed double extension: {} -> {}".format(path_and_query, new_url))
+            return new_url
+
+        # Generic conversion using regex
+        matched = search(r'/raiplay/([^/]+)/?\?json', path_and_query)
+        if matched:
+            category = matched.group(1)
+            new_url = self.MAIN_URL + "tipologia/" + category + "/index.json"
+            print(
+                "[DEBUG] Generic conversion: {} -> {}".format(path_and_query, new_url))
+            return new_url
+
+        # If it was an absolute URL but not found in the map, return the
+        # original URL
+        if parsed.scheme in ("http", "https"):
+            print(
+                "[DEBUG] No conversion for absolute URL {}, returning as is".format(old_url))
+            return old_url
+
+        # If relative URL without scheme and not in mapping, add MAIN_URL
+        if not old_url.startswith("/"):
+            new_url = self.MAIN_URL.rstrip("/") + "/" + old_url.lstrip("/")
+            print(
+                "[DEBUG] Added MAIN_URL to relative URL: {} -> {}".format(old_url, new_url))
+            return new_url
+
+        # No conversion found, return original URL
+        print("[DEBUG] No conversion for {}, returning as is".format(old_url))
+        return old_url
+
+    def process_relinker(self, url):
+        """Process relinker URL to extract playback URL and license key"""
+        try:
+            if "relinkerServlet" not in url:
+                print("[Relinker] Not a relinker URL, skipping processing")
+                return url, None
+
+            print("[Relinker] Processing URL: " + url)
+
+            # Modify URL to get XML response
+            parsed = urlparse(url)
+            query = parse_qs(parsed.query)
+            query["output"] = ["56"]  # Request XML format
+            new_query = urlencode(query, doseq=True)
+            new_url = urlunparse(parsed._replace(query=new_query))
+
+            print("[Relinker] Fetching XML from: " + new_url)
+            response = requests.get(
+                new_url, headers=self.HTTP_HEADER, timeout=15)
+            response.raise_for_status()
+            content = response.text
+
+            # Debug: save XML content
+            if DEBUG_MODE:
+                with open("/tmp/relinker.xml", "w") as f:
+                    f.write(content)
+                print("[Relinker] Saved XML to /tmp/relinker.xml")
+
+            # Parse XML response
+            url_match = search(r'<url type="content">(.*?)</url>', content)
+            if not url_match:
+                print("[Relinker] No content URL found in XML")
+                return url, None
+
+            content_url = url_match.group(1)
+            print("[Relinker] Raw content URL: " + content_url)
+
+            # Extract URL from CDATA if present
+            if "<![CDATA[" in content_url:
+                cdata_match = search(r'<!\[CDATA\[(.*?)\]\]>', content_url)
+                if cdata_match:
+                    content_url = cdata_match.group(1)
+                    print("[Relinker] Extracted CDATA URL: " + content_url)
+
+            # Check for DRM license
+            license_key = None
+
+            license_match = search(
+                r'<license_url>(.*?)</license_url>', content)
+            if license_match:
+                license_json_str = license_match.group(1)
+                print("[Relinker] Raw license JSON: " + license_json_str)
+
+                if "<![CDATA[" in license_json_str:
+
+                    cdata_match = search(
+                        r'<!\[CDATA\[(.*?)\]\]>', license_json_str)
+                    if cdata_match:
+                        license_json_str = cdata_match.group(1)
+
+                        print(
+                            "[Relinker] Extracted CDATA license JSON: " +
+                            license_json_str)
+
+                try:
+                    license_data = loads(license_json_str)
+                    print("[Relinker] License data: " + str(license_data))
+
+                    for item in license_data.get("drmLicenseUrlValues", []):
+                        if item.get("drm") == "WIDEVINE":
+                            license_key = item.get("licenceUrl")
+
+                            print(
+                                "[Relinker] Found Widevine license: " +
+                                str(license_key))
+
+                            break
+                except Exception as e:
+                    print("[Relinker] License parse error: " + str(e))
+
+            print("[DEBUG][Relinker] Final URL: " + content_url)
+            print("[DEBUG][Relinker] License key: " + str(license_key))
+            return content_url, license_key
+
+        except Exception as e:
+            print("[DEBUG][Relinker] Error: " + str(e))
+            return url, None
+
+    def getPage(self, url):
+        """Fetch the content of a page from a URL using HTTP GET.
+        """
+        try:
+            # Skip URLs in the blacklist
+            if any(ep in url for ep in self.exclude_paths):
+                return False, None
+
+            print("[DEBUG] Fetching URL: %s" % url)
+            response = requests.get(
+                url,
+                headers=self.HTTP_HEADER,
+                timeout=15,
+                verify=False
+            )
+            response.raise_for_status()
+            print("[DEBUG] Response status: %d" % response.status_code)
+            return True, response.text
+        except Exception as e:
+            print("[ERROR] Error fetching page: %s" % str(e))
+            return False, None
+
+    def getFullUrl(self, url):
+        """Return a full, absolute URL from a possibly relative or partial URL.
+        """
+        if not url:
+            return ""
+
+        if url.startswith('http'):
+            return url
+
+        if url.startswith("//"):
+            return "https:" + url
+
+        return urljoin(self.MAIN_URL, url)
 
     def getLiveTVChannels(self):
         """Fetch live TV channels and add archived videos.
@@ -1609,99 +1824,6 @@ class RaiPlayAPI:
             print("[DEBUG]Error in getOnDemandMenu: " + str(e))
             return []
 
-    def prepare_url(self, url):
-        """Prepare the URL using existing functions with exclusion check"""
-        if not url:
-            return ""
-
-        # First check if URL contains any excluded path
-        url_lower = url.lower()
-        if any(ep in url_lower for ep in self.exclude_paths):
-            return ""
-
-        # Then process the URL
-        url = self.convert_old_url(url)
-        url = normalize_url(url)
-        if url.startswith("https://www.raiplay.it//"):
-            url = url.replace("//", "/", 1)
-            url = "https://www.raiplay.it" + url
-        return url
-
-    def convert_old_url(self, old_url):
-        print("[DEBUG] Converting old URL: " + str(old_url))
-        if not old_url:
-            return old_url
-
-        # Always convert www.rai.it to www.raiplay.it
-        if "www.rai.it" in old_url:
-            old_url = old_url.replace("www.rai.it", "www.raiplay.it")
-
-        # Extract the relative path from the absolute URL (if any)
-        parsed = urlparse(old_url)
-        path = parsed.path
-        query = ("?" + parsed.query) if parsed.query else ""
-
-        path_and_query = path + query
-
-        special_mapping = {
-            "/raiplay/?json": "index.json",
-            "/raiplay/fiction/?json": "tipologia/serieitaliane/index.json",
-            "/raiplay/serietv/?json": "tipologia/serieinternazionali/index.json",
-            "/raiplay/bambini//?json": "tipologia/bambini/index.json",
-            "/raiplay/bambini/?json": "tipologia/bambini/index.json",
-            "/raiplay/programmi/?json": "tipologia/programmi/index.json",
-            "/raiplay/film/?json": "tipologia/film/index.json",
-            "/raiplay/documentari/?json": "tipologia/documentari/index.json",
-            "/raiplay/musica/?json": "tipologia/musica/index.json",
-            "/raiplay/sport/?json": "tipologia/sport/index.json",
-            "/raiplay/crime/?json": "tipologia/crime/index.json",
-            "/raiplay/original/?json": "tipologia/original/index.json",
-            "/raiplay/teen/?json": "tipologia/teen/index.json",
-            "/raiplay/musica-e-teatro/?json": "tipologia/musica-e-teatro/index.json",
-            "/raiplay/techerai/?json": "tipologia/techerai/index.json",
-            "/raiplay/learning/?json": "tipologia/learning/index.json",
-            "/raiplay/sostenibilita/?json": "tipologia/sostenibilita/index.json"}
-
-        # Usa path+query per verificare se esiste nella mappa speciale
-        if path_and_query in special_mapping:
-            new_url = self.MAIN_URL + special_mapping[path_and_query]
-            print("[DEBUG] Special mapping: {} -> {}".format(path_and_query, new_url))
-            return new_url
-
-        # Fix double extension issue (.html + /index.json)
-        if ".html/index.json" in path_and_query:
-            new_url = path_and_query.replace(".html/index.json", ".json")
-            print(
-                "[DEBUG] Fixed double extension: {} -> {}".format(path_and_query, new_url))
-            return new_url
-
-        # Generic conversion using regex
-        matched = search(r'/raiplay/([^/]+)/?\?json', path_and_query)
-        if matched:
-            category = matched.group(1)
-            new_url = self.MAIN_URL + "tipologia/" + category + "/index.json"
-            print(
-                "[DEBUG] Generic conversion: {} -> {}".format(path_and_query, new_url))
-            return new_url
-
-        # If it was an absolute URL but not found in the map, return the
-        # original URL
-        if parsed.scheme in ("http", "https"):
-            print(
-                "[DEBUG] No conversion for absolute URL {}, returning as is".format(old_url))
-            return old_url
-
-        # If relative URL without scheme and not in mapping, add MAIN_URL
-        if not old_url.startswith("/"):
-            new_url = self.MAIN_URL.rstrip("/") + "/" + old_url.lstrip("/")
-            print(
-                "[DEBUG] Added MAIN_URL to relative URL: {} -> {}".format(old_url, new_url))
-            return new_url
-
-        # No conversion found, return original URL
-        print("[DEBUG] No conversion for {}, returning as is".format(old_url))
-        return old_url
-
     def getOnDemandCategory(self, url):
         """
         Fetch and parse JSON data from the given URL and extract category items.
@@ -1905,31 +2027,6 @@ class RaiPlayAPI:
             print("[ERROR] in getOnDemandCategory: " + str(e))
             traceback.print_exc()
             return []
-
-    def fixPath(self, path):
-        """
-        Fixes malformed paths by ensuring the path starts with '/tipologia/'.
-        Returns the original path if it's already correctly formatted.
-        """
-        if not path:
-            return ""
-
-        # If the path is already in the correct format, return it as is
-        if match(r"^/tipologia/[^/]+/PublishingBlock-", path):
-            return path
-
-        # Fix malformed paths like /tipologiafiction/PublishingBlock-...
-        malformed = match(r"^/tipologia([a-z]+)(/PublishingBlock-.*)", path)
-        if malformed:
-            fixed = "/tipologia/" + malformed.group(1) + malformed.group(2)
-            print(
-                "[DEBUG] fixPath: fixed malformed path: " +
-                path +
-                " -> " +
-                fixed)
-            return fixed
-
-        return path
 
     def getThumbnailUrl(self, pathOrUrl):
         """
@@ -2385,16 +2482,6 @@ class RaiPlayAPI:
             traceback.print_exc()
             return []
 
-    def find_category_by_unique_name(self, node, unique_name):
-        """Helper function to find category by unique name"""
-        if node.get("uniqueName") == unique_name:
-            return node
-        for child in node.get("children", []):
-            result = self.find_category_by_unique_name(child, unique_name)
-            if result:
-                return result
-        return None
-
     def getSportVideos(self, key, root_json, page=0):
         print(
             "[API] getSportVideos called: key=" +
@@ -2556,94 +2643,6 @@ class RaiPlayAPI:
             print("[API] Error getting page " + str(page) + ": " + str(e))
             return []
 
-    def process_relinker(self, url):
-        """Process relinker URL to extract playback URL and license key"""
-        try:
-            if "relinkerServlet" not in url:
-                print("[Relinker] Not a relinker URL, skipping processing")
-                return url, None
-
-            print("[Relinker] Processing URL: " + url)
-
-            # Modify URL to get XML response
-            parsed = urlparse(url)
-            query = parse_qs(parsed.query)
-            query["output"] = ["56"]  # Request XML format
-            new_query = urlencode(query, doseq=True)
-            new_url = urlunparse(parsed._replace(query=new_query))
-
-            print("[Relinker] Fetching XML from: " + new_url)
-            response = requests.get(
-                new_url, headers=self.HTTP_HEADER, timeout=15)
-            response.raise_for_status()
-            content = response.text
-
-            # Debug: save XML content
-            if DEBUG_MODE:
-                with open("/tmp/relinker.xml", "w") as f:
-                    f.write(content)
-                print("[Relinker] Saved XML to /tmp/relinker.xml")
-
-            # Parse XML response
-            url_match = search(r'<url type="content">(.*?)</url>', content)
-            if not url_match:
-                print("[Relinker] No content URL found in XML")
-                return url, None
-
-            content_url = url_match.group(1)
-            print("[Relinker] Raw content URL: " + content_url)
-
-            # Extract URL from CDATA if present
-            if "<![CDATA[" in content_url:
-                cdata_match = search(r'<!\[CDATA\[(.*?)\]\]>', content_url)
-                if cdata_match:
-                    content_url = cdata_match.group(1)
-                    print("[Relinker] Extracted CDATA URL: " + content_url)
-
-            # Check for DRM license
-            license_key = None
-
-            license_match = search(
-                r'<license_url>(.*?)</license_url>', content)
-            if license_match:
-                license_json_str = license_match.group(1)
-                print("[Relinker] Raw license JSON: " + license_json_str)
-
-                if "<![CDATA[" in license_json_str:
-
-                    cdata_match = search(
-                        r'<!\[CDATA\[(.*?)\]\]>', license_json_str)
-                    if cdata_match:
-                        license_json_str = cdata_match.group(1)
-
-                        print(
-                            "[Relinker] Extracted CDATA license JSON: " +
-                            license_json_str)
-
-                try:
-                    license_data = loads(license_json_str)
-                    print("[Relinker] License data: " + str(license_data))
-
-                    for item in license_data.get("drmLicenseUrlValues", []):
-                        if item.get("drm") == "WIDEVINE":
-                            license_key = item.get("licenceUrl")
-
-                            print(
-                                "[Relinker] Found Widevine license: " +
-                                str(license_key))
-
-                            break
-                except Exception as e:
-                    print("[Relinker] License parse error: " + str(e))
-
-            print("[DEBUG][Relinker] Final URL: " + content_url)
-            print("[DEBUG][Relinker] License key: " + str(license_key))
-            return content_url, license_key
-
-        except Exception as e:
-            print("[DEBUG][Relinker] Error: " + str(e))
-            return url, None
-
     def debug_images(self, item):
         """Log all possible image paths in an item for debugging"""
         print("[DEBUG] Starting image debug for item:")
@@ -2769,9 +2768,9 @@ class RaiPlayMain(SafeScreen):
                        (_("News Categories"),
                         "news_categories",
                         "https://www.rai.it/dl/img/2018/06/08/1528459744316_ico-documentari.png")]
+
         categories += [(_("Search"), "search", png_search), (_("Download Manager"), "downloads",
                                                              "https://www.rai.it/dl/img/2018/06/08/1528459923094_ico-programmi.png")]
-
         # Populate immediate lists
         self.names = [name for name, x, y in categories]
         self.urls = [url for x, url, y in categories]
@@ -2793,6 +2792,9 @@ class RaiPlayMain(SafeScreen):
             if self.names:
                 self["text"].moveToIndex(0)
         self.selectionChanged()
+
+    def open_settings(self):
+        self.session.open(RaiPlaySettings)
 
     def load_program_categories(self):
         """Load categories synchronously"""
@@ -2933,9 +2935,6 @@ class RaiPlayMain(SafeScreen):
         for screen in self.session.dialog_stack:
             if isinstance(screen, VirtualKeyBoard):
                 screen.close()
-
-    def open_settings(self):
-        self.session.open(RaiPlaySettings)
 
 
 class RaiPlayLiveTV(SafeScreen):
@@ -3896,8 +3895,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
                         break
 
                 if is_movie and program_data['info'].get("first_item_path"):
-                    # PER I FILM: mostra menu play/download invece di play
-                    # diretto
+                    # FOR MOVIES: Show play/download menu instead of direct play
                     self.selected_name = name
                     self.selected_url = program_data['info']["first_item_path"]
 
@@ -8672,9 +8670,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         self.onClose.append(self.onCloseScreen)
 
     def onStart(self):
-        """Initialize screen"""
-        # self.fix_existing_errors()
-        self.update_timer.start(3000)
+        """Initialize screen with slower updates"""
+        self.update_timer.start(5000)  # 5 seconds instead of 3000
         self.updateList()
         self.updateButtons()
 
@@ -8687,12 +8684,16 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 self.download_manager.fix_error_status(item['id'])
 
     def close(self, *args, **kwargs):
-        """Override close method to properly stop the manager"""
-        print("[DOWNLOAD MANAGER] Closing screen and stopping updates")
-        if hasattr(self, 'update_timer'):
-            self.update_timer.stop()
+        """Override close method with safe handling"""
+        print("[DEBUG][SafeScreen] Closing " + self.__class__.__name__)
 
-        # Don't stop the manager completely, just UI updates
+        # DON'T stop the worker - it causes deadlocks
+        # if hasattr(self.session, 'download_manager'):
+        #     self.session.download_manager.stop_worker()  # COMMENT THIS
+
+        self.cleanup()
+        deletetmp()
+        self.restore_state()
         super(SafeScreen, self).close(*args, **kwargs)
 
     def onCloseScreen(self):
@@ -8703,15 +8704,19 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
             print("[DOWNLOAD MANAGER] Update timer stopped")
 
     def updateList(self):
-        """Update download list"""
-        if hasattr(self, '_last_update') and time.time() - \
-                self._last_update < 1:
-            return
+        """Update download list with throttling"""
+        if hasattr(self, '_last_update') and time.time() - self._last_update < 5:
+            return  # Skip if less than 5 seconds passed
 
         self._last_update = time.time()
         print("[DOWNLOAD MANAGER] Updating list...")
 
-        queue = self.download_manager.get_queue()
+        # Update progress from file size (less frequently)
+        if hasattr(self, '_last_progress_update') and time.time() - self._last_progress_update > 10:
+            self.download_manager.update_progress_from_filesize()
+            self._last_progress_update = time.time()
+
+        queue = self.download_manager.get_queue()  # This now returns read-only copy
         print(f"[DOWNLOAD MANAGER] Got {len(queue)} items from queue")
 
         self.names = []
@@ -8870,8 +8875,25 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
         self.updateList()
 
+    def cleanup_queue(self):
+        """Clean duplicate and error downloads from queue"""
+        unique_downloads = []
+        seen_titles = set()
+
+        for item in self.download_manager.download_queue:
+            # Keep only first occurrence of each title
+            if item['title'] not in seen_titles:
+                unique_downloads.append(item)
+                seen_titles.add(item['title'])
+
+        self.download_manager.download_queue = unique_downloads
+        self.download_manager.save_downloads()
+        self.updateList()
+
+        self.session.open(MessageBox, "Clean queue from duplicates", MessageBox.TYPE_INFO, timeout=3)
+
     def removeDownload(self):
-        """Remove selected download"""
+        """Remove selected download with enhanced confirmation"""
         idx = self["text"].getSelectionIndex()
         if idx is None or not self.items or idx >= len(self.items):
             return
@@ -8881,9 +8903,10 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         if item['status'] in ['downloading', 'waiting']:
             self.session.open(
                 MessageBox,
-                _("Cannot remove active download. Stop it first."),
+                _("Stop the download first before removing"),
                 MessageBox.TYPE_WARNING,
-                timeout=5)
+                timeout=3
+            )
             return
 
         self.session.openWithCallback(
@@ -8898,11 +8921,7 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         if result:
             self.download_manager.remove_download(item['id'])
             self.updateList()
-            self.session.open(
-                MessageBox,
-                _("Download removed"),
-                MessageBox.TYPE_INFO,
-                timeout=5)
+            self.session.open(MessageBox, _(f"Download removed: {str(item['title'])}"), MessageBox.TYPE_INFO, timeout=5)
 
     def playDownloadedFile(self, item):
         """Play downloaded file"""
@@ -9012,8 +9031,14 @@ class RaiPlayInfo(SafeScreen):
 
 def main(session, **kwargs):
     try:
+        # Initialize download manager
         if not hasattr(session, 'download_manager'):
             session.download_manager = RaiPlayDownloadManager(session)
+
+        # Initialize notification system
+        if NOTIFICATION_AVAILABLE:
+            init_notification_system(session)
+            print("[DEBUG] Notification system initialized")
 
         session.open(RaiPlayMain)
     except Exception as e:
