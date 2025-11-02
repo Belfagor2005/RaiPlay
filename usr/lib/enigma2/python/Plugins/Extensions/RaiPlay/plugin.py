@@ -915,7 +915,8 @@ class SafeScreen(Screen):
             # Ensure download manager exists
             if not hasattr(self.session, 'download_manager'):
                 print("[DEBUG] Creating new download manager instance...")
-                self.session.download_manager = RaiPlayDownloadManager(self.session)
+                self.session.download_manager = RaiPlayDownloadManager(
+                    self.session)
 
             if not self.session.download_manager:
                 print("[DEBUG] ERROR: Download manager is None!")
@@ -933,10 +934,11 @@ class SafeScreen(Screen):
             print(f"[DEBUG] Normalized download URL: {normalized_url}")
 
             # Add download to manager and get the assigned ID
-            download_id = self.session.download_manager.add_download(title, normalized_url)
+            download_id = self.session.download_manager.add_download(
+                title, normalized_url)
 
             if download_id:
-                print(f"[DEBUG] Download added successfully with ID: {download_id}")
+                print("[DEBUG] Download added successfully with ID: {}".format(download_id))
 
                 # Force save and reload queue to verify
                 self.session.download_manager.save_downloads()
@@ -944,13 +946,21 @@ class SafeScreen(Screen):
                 print(f"[DEBUG] Queue now has {len(queue)} items")
             else:
                 print("[DEBUG] Failed to add download")
-                self.session.open(MessageBox, f"📥 Added to queue: {title}", MessageBox.TYPE_INFO, timeout=3)
+                self.session.open(
+                    MessageBox,
+                    f"📥 Added to queue: {title}",
+                    MessageBox.TYPE_INFO,
+                    timeout=3)
 
         except Exception as e:
             print(f"[DEBUG] Exception in addToDownloadQueue: {e}")
             import traceback
             traceback.print_exc()
-            self.session.open(MessageBox, "Error adding download", MessageBox.TYPE_ERROR, timeout=5)
+            self.session.open(
+                MessageBox,
+                "Error adding download",
+                MessageBox.TYPE_ERROR,
+                timeout=5)
 
     def playDirect(self, name, url):
         """Direct playback with provided URL."""
@@ -3895,7 +3905,8 @@ class RaiPlayOnDemandCategory(SafeScreen):
                         break
 
                 if is_movie and program_data['info'].get("first_item_path"):
-                    # FOR MOVIES: Show play/download menu instead of direct play
+                    # FOR MOVIES: Show play/download menu instead of direct
+                    # play
                     self.selected_name = name
                     self.selected_url = program_data['info']["first_item_path"]
 
@@ -8699,14 +8710,16 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
     def updateList(self):
         """Update download list with throttling"""
-        if hasattr(self, '_last_update') and time.time() - self._last_update < 5:
+        if hasattr(self, '_last_update') and time.time() - \
+                self._last_update < 5:
             return  # Skip if less than 5 seconds passed
 
         self._last_update = time.time()
         print("[DOWNLOAD MANAGER] Updating list...")
 
         # Update progress from file size (less frequently)
-        if hasattr(self, '_last_progress_update') and time.time() - self._last_progress_update > 10:
+        if hasattr(self, '_last_progress_update') and time.time() - \
+                self._last_progress_update > 10:
             self.download_manager.update_progress_from_filesize()
             self._last_progress_update = time.time()
 
@@ -8735,8 +8748,10 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 icon = status_icons.get(item['status'], '❓')
 
                 # Progress and size info
-                progress_text = " - {}%".format(item['progress']) if item['status'] in ['downloading', 'waiting', 'completed'] else ""
+                progress_text = " - {}%".format(item['progress']) if item['status'] in [
+                    'downloading', 'waiting', 'completed'] else ""
 
+                              
                 size_info = ""
                 if item['downloaded_bytes'] > 0:
                     size_mb = item['downloaded_bytes'] / (1024 * 1024)
@@ -8748,7 +8763,8 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
                 # Status text
                 status_text = _(item['status'].capitalize())
-                name = "{} {}{}{} [{}]".format(icon, item['title'], progress_text, size_info, status_text)
+                name = "{} {}{}{} [{}]".format(
+                    icon, item['title'], progress_text, size_info, status_text)
                 self.names.append(name)
 
         self['text'].setList(self.names)
@@ -8823,10 +8839,13 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
             return
 
         item = self.items[idx]
-        print("[DOWNLOAD MANAGER] startStopDownload - Current status: {}".format(item['status']))
+        print(
+            "[DOWNLOAD MANAGER] startStopDownload - Current status: {}".format(item['status']))
 
         if item['status'] == 'paused':
-            print("[DOWNLOAD MANAGER] Starting paused download: {}".format(item['title']))
+            print(
+                "[DOWNLOAD MANAGER] Starting paused download: {}".format(
+                    item['title']))
             # Start download directly
             self.download_manager.start_download(item)
             self.session.open(
@@ -8836,7 +8855,9 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 timeout=5)
 
         elif item['status'] == 'queued':
-            print("[DOWNLOAD MANAGER] Starting queued download: {}".format(item['title']))
+            print(
+                "[DOWNLOAD MANAGER] Starting queued download: {}".format(
+                    item['title']))
             # Start download directly
             self.download_manager.start_download(item)
             self.session.open(
@@ -8846,7 +8867,9 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
                 timeout=5)
 
         elif item['status'] in ['downloading', 'waiting']:
-            print("[DOWNLOAD MANAGER] Stopping active download: {}".format(item['title']))
+            print(
+                "[DOWNLOAD MANAGER] Stopping active download: {}".format(
+                    item['title']))
             self.download_manager.pause_download(item['id'])
             self.session.open(
                 MessageBox,
@@ -8872,7 +8895,11 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         self.download_manager.save_downloads()
         self.updateList()
 
-        self.session.open(MessageBox, "Clean queue from duplicates", MessageBox.TYPE_INFO, timeout=3)
+        self.session.open(
+            MessageBox,
+            "Clean queue from duplicates",
+            MessageBox.TYPE_INFO,
+            timeout=3)
 
     def removeDownload(self):
         """Remove selected download with enhanced confirmation"""
@@ -8903,7 +8930,10 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
         if result:
             self.download_manager.remove_download(item['id'])
             self.updateList()
-            self.session.open(MessageBox, _(f"Download removed: {str(item['title'])}"), MessageBox.TYPE_INFO, timeout=5)
+            self.session.open(MessageBox,
+                              _(f"Download removed: {str(item['title'])}"),
+                              MessageBox.TYPE_INFO,
+                              timeout=5)
 
     def playDownloadedFile(self, item):
         """Play downloaded file"""
