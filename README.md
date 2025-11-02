@@ -81,14 +81,6 @@ It allows users to navigate categories, programs, and videos via Rai Play's JSON
 - Debug logs are printed in console for development assistance.  
 - Contributions welcome — please fork and submit pull requests.
 
-## File Structure
-RaiPlay/
-├── plugin.py # Main plugin interface
-├── RaiPlayDownloadManager.py # Download management system
-├── notify_play.py # Hybrid notification system
-├── RaiPlayProgressParser.py # Advanced progress tracking
-└── [Other support files]
-
 ## License
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0).  
@@ -104,4 +96,5 @@ See the [LICENSE](LICENSE) file for details.
 ## Contact
 
 For questions or feedback, please open an issue or contact Lululla.
+
 
