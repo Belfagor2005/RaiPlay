@@ -92,6 +92,7 @@ class DownloadWorker(threading.Thread):
     Background worker thread for processing download queue.
     Monitors queue and starts downloads when slots are available.
     """
+
     def __init__(self, manager):
         threading.Thread.__init__(self)
         self.manager = manager
@@ -114,7 +115,9 @@ class DownloadWorker(threading.Thread):
                 ])
 
                 if active_count > 0 or queued_count > 0:
-                    print("[DOWNLOAD WORKER] Monitoring: {} active, {} queued/paused".format(active_count, queued_count))
+                    print(
+                        "[DOWNLOAD WORKER] Monitoring: {} active, {} queued/paused".format(
+                            active_count, queued_count))
 
                 # Perform cleanup every 10 cycles (about 5 minutes)
                 if int(time.time()) % 300 < 30:  # Every 5 minutes
@@ -154,9 +157,12 @@ class RaiPlayDownloadManager:
         if not exists(self.download_dir):
             try:
                 makedirs(self.download_dir)
-                print("[DOWNLOAD MANAGER] Created movie directory: {}".format(self.download_dir))
+                print(
+                    "[DOWNLOAD MANAGER] Created movie directory: {}".format(
+                        self.download_dir))
             except Exception as e:
-                print("[DOWNLOAD MANAGER] Error creating movie directory: {}".format(e))
+                print(
+                    "[DOWNLOAD MANAGER] Error creating movie directory: {}".format(e))
 
         # Configuration
         self.max_concurrent = 2
@@ -231,9 +237,14 @@ class RaiPlayDownloadManager:
             self.download_queue.append(download_item)
             self.save_downloads()
 
-            self.session.open(MessageBox, f"📥 Added to queue: {title}", MessageBox.TYPE_INFO, timeout=3)
+            self.session.open(
+                MessageBox,
+                f"📥 Added to queue: {title}",
+                MessageBox.TYPE_INFO,
+                timeout=3)
             print("[DOWNLOAD] Successfully added: {}".format(title))
-            print("[DOWNLOAD] Stream type: {}".format('HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'))
+            print("[DOWNLOAD] Stream type: {}".format(
+                'HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'))
             print("[DOWNLOAD] Output file: {}".format(file_path))
             return download_id
 
@@ -296,7 +307,8 @@ class RaiPlayDownloadManager:
 
             # Save only if there are changes
             self._last_save_state = current_state
-            print("[DOWNLOAD] Saving {} downloads (changes detected)".format(len(self.download_queue)))
+            print("[DOWNLOAD] Saving {} downloads (changes detected)".format(
+                len(self.download_queue)))
             with open(self.downloads_file, "w") as f:
                 json.dump(self.download_queue, f, indent=2)
 
@@ -348,7 +360,9 @@ class RaiPlayDownloadManager:
                     # Remove if completed more than 1 hour ago
                     if time.time() - item['end_time'] > 3600:
                         items_to_remove.append(item)
-                        print("[DOWNLOAD] Removing old completed: {}".format(item['title']))
+                        print(
+                            "[DOWNLOAD] Removing old completed: {}".format(
+                                item['title']))
 
             # Remove error downloads that can't be recovered
             elif item['status'] == 'error':
@@ -371,7 +385,9 @@ class RaiPlayDownloadManager:
     def start_download(self, item):
         """Start a paused download - WITH URL VALIDATION"""
         if item['status'] in ['completed', 'error']:
-            print("[DOWNLOAD] Cannot start download with status: {}".format(item['status']))
+            print(
+                "[DOWNLOAD] Cannot start download with status: {}".format(
+                    item['status']))
             return
 
         try:
@@ -380,7 +396,8 @@ class RaiPlayDownloadManager:
 
             # CRITICAL CHECK: Ensure it's a valid video URL
             if not self.is_video_url(final_url):
-                print("[DOWNLOAD] ERROR: URL is not a valid video: {}".format(final_url))
+                print(
+                    "[DOWNLOAD] ERROR: URL is not a valid video: {}".format(final_url))
                 print("[DOWNLOAD] This appears to be an image or invalid URL")
                 self.update_download_status(item['id'], "error", 0)
 
@@ -484,7 +501,11 @@ class RaiPlayDownloadManager:
 
     def update_download_status(self, download_id, status, progress=0):
         """Update download status and progress by ID - WITH HYBRID NOTIFICATIONS"""
-        print("[DOWNLOAD] update_download_status - ID: {}, Status: {}, Progress: {}".format(download_id, status, progress))
+        print(
+            "[DOWNLOAD] update_download_status - ID: {}, Status: {}, Progress: {}".format(
+                download_id,
+                status,
+                progress))
 
         for item in self.download_queue:
             if item['id'] == download_id:
@@ -681,7 +702,8 @@ class RaiPlayDownloadManager:
                     self.save_downloads()
                     print(f"[DOWNLOAD] Completed: {title}")
                 else:
-                    print("[DOWNLOAD] Download already marked as completed: {}".format(title))
+                    print(
+                        "[DOWNLOAD] Download already marked as completed: {}".format(title))
                 break
 
     def is_video_url(self, url):
@@ -750,7 +772,8 @@ class RaiPlayDownloadManager:
                     # Prefer non-HLS URLs
                     if '.m3u8' not in candidate_url:
                         video_url = candidate_url
-                        print("[DOWNLOAD] Found non-HLS video URL: {}".format(video_url))
+                        print(
+                            "[DOWNLOAD] Found non-HLS video URL: {}".format(video_url))
                         return video_url
 
         print("[DOWNLOAD] No direct video URL found, will use original URL")
@@ -917,12 +940,14 @@ class RaiPlayDownloadManager:
                         ext in match for ext in [
                             '.mp4', '.m3u8', '.ts']):
                         video_url = match.replace('&amp;', '&').strip()
-                        print("[DOWNLOAD] Found video URL: {}".format(video_url))
+                        print(
+                            "[DOWNLOAD] Found video URL: {}".format(video_url))
 
                         # Skip if it's an image
                         if any(img_ext in video_url.lower()
                                for img_ext in ['.png', '.jpg', '.jpeg', '.gif']):
-                            print("[DOWNLOAD] Skipping image URL: {}".format(video_url))
+                            print(
+                                "[DOWNLOAD] Skipping image URL: {}".format(video_url))
                             continue
 
                         return video_url
@@ -1104,27 +1129,33 @@ class RaiPlayDownloadTask(Task):
                 print(f"[RAIPLAY TASK] {data_string.strip()}")
 
             # Use custom parser for FFmpeg output analysis
-            progress_analysis = self.raiplay_parser.analyze_ffmpeg_output(data_string)
+            progress_analysis = self.raiplay_parser.analyze_ffmpeg_output(
+                data_string)
 
             # Update progress based on parser results
             if progress_analysis['completion_percentage'] > 0:
                 self.progress_value = progress_analysis['completion_percentage']
-                print("[RAIPLAY TASK] Progress update: {}%".format(self.progress_value))
+                print(
+                    "[RAIPLAY TASK] Progress update: {}%".format(
+                        self.progress_value))
 
-                if hasattr(self, 'download_handler') and hasattr(self, 'unique_download_id'):
+                if hasattr(
+                        self, 'download_handler') and hasattr(
+                        self, 'unique_download_id'):
                     self.download_handler.update_download_status(
-                        self.unique_download_id, "downloading", self.progress_value
-                    )
+                        self.unique_download_id, "downloading", self.progress_value)
                     self.previous_progress = self.progress_value
 
             # Fallback: file growth tracking if parser doesn't provide progress
             elif progress_analysis['current_size_bytes'] > 0:
-                self._update_progress_using_file_growth(progress_analysis['current_size_bytes'])
+                self._update_progress_using_file_growth(
+                    progress_analysis['current_size_bytes'])
 
             Task.processOutput(self, raw_data)
 
         except Exception as processing_error:
-            print("[RAIPLAY TASK] Error processing output: {}".format(processing_error))
+            print(
+                "[RAIPLAY TASK] Error processing output: {}".format(processing_error))
             Task.processOutput(self, raw_data)
 
     def _update_progress_using_file_growth(self, current_file_size):
@@ -1147,20 +1178,27 @@ class RaiPlayDownloadTask(Task):
                         estimated_total_size = speed_bps * estimated_total_duration
 
                         if estimated_total_size > current_file_size:
-                            self.progress_value = min(99, int((current_file_size / estimated_total_size) * 100))
+                            self.progress_value = min(
+                                99, int((current_file_size / estimated_total_size) * 100))
 
-                            if hasattr(self, 'download_handler') and hasattr(self, 'unique_download_id') and self.progress_value > self.previous_progress:
+                            if hasattr(
+                                    self,
+                                    'download_handler') and hasattr(
+                                    self,
+                                    'unique_download_id') and self.progress_value > self.previous_progress:
                                 self.download_handler.update_download_status(
-                                    self.unique_download_id, "downloading", self.progress_value
-                                )
+                                    self.unique_download_id, "downloading", self.progress_value)
                                 self.previous_progress = self.progress_value
-                                print("[RAIPLAY TASK] Fallback progress: {}%".format(self.progress_value))
+                                print(
+                                    "[RAIPLAY TASK] Fallback progress: {}%".format(
+                                        self.progress_value))
 
             self.previous_file_size = current_file_size
             self.last_check_time = current_timestamp
 
         except Exception as growth_error:
-           print("[RAIPLAY TASK] Error in file growth progress: {}".format(growth_error))
+            print(
+                "[RAIPLAY TASK] Error in file growth progress: {}".format(growth_error))
 
     def _estimate_content_duration(self):
         """Estimate content duration based on title analysis"""
@@ -1199,25 +1237,35 @@ class RaiPlayDownloadTask(Task):
 
     def afterRun(self):
         """Improved completion detection for RaiPlay downloads"""
-        print("[RAIPLAY TASK] Task completed - Progress: {}%, Exit code: {}".format(self.progress_value, self.returncode))
+        print(
+            "[RAIPLAY TASK] Task completed - Progress: {}%, Exit code: {}".format(
+                self.progress_value,
+                self.returncode))
         try:
             if exists(self.output_filename):
                 final_file_size = getsize(self.output_filename)
-                print("[RAIPLAY TASK] Final file size: {} bytes".format(final_file_size))
+                print(
+                    "[RAIPLAY TASK] Final file size: {} bytes".format(final_file_size))
 
                 # SUCCESS: Download completed
                 if final_file_size > 100000:
-                    self.download_handler.download_finished(self.output_filename, self.content_title, self.unique_download_id)
+                    self.download_handler.download_finished(
+                        self.output_filename, self.content_title, self.unique_download_id)
                 else:
                     # ERROR: File too small
-                    self.download_handler.update_download_status(self.unique_download_id, "error", 0)
+                    self.download_handler.update_download_status(
+                        self.unique_download_id, "error", 0)
             else:
                 # ERROR: File doesn't exist
-                self.download_handler.update_download_status(self.unique_download_id, "error", 0)
+                self.download_handler.update_download_status(
+                    self.unique_download_id, "error", 0)
 
         except Exception as completion_error:
-            print("[RAIPLAY TASK] Error in completion handler: {}".format(completion_error))
-            self.download_handler.update_download_status(self.unique_download_id, "error", 0)
+            print(
+                "[RAIPLAY TASK] Error in completion handler: {}".format(completion_error))
+            self.download_handler.update_download_status(
+                self.unique_download_id, "error", 0)
+
 
 def convert_size(size_bytes):
     """Convert bytes to human readable format"""
