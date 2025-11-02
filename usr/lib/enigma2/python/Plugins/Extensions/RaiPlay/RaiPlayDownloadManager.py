@@ -64,6 +64,7 @@ import requests
 
 # 🧱 LOCAL MODULES
 from .RaiPlayProgressParser import RaiPlayProgressParser
+from . import _
 
 # HTTP headers support - preso da IPTVPlayer
 HANDLED_HTTP_HEADER_PARAMS = [
@@ -231,17 +232,17 @@ class RaiPlayDownloadManager:
             self.download_queue.append(download_item)
             self.save_downloads()
 
-            self.session.open(MessageBox, f"📥 Added to queue: {title}", MessageBox.TYPE_INFO, timeout=3)
+            self.session.open(MessageBox, _("Added to queue: {}").format(title), MessageBox.TYPE_INFO, timeout=3)
             print("[DOWNLOAD] Successfully added: {}".format(title))
             print("[DOWNLOAD] Stream type: {}".format('HLS (.m3u8)' if '.m3u8' in final_url else 'Direct'))
             print("[DOWNLOAD] Output file: {}".format(file_path))
             return download_id
 
         except Exception as e:
-            print(f"[DOWNLOAD] Error adding download: {e}")
+            print("[DOWNLOAD] Error adding download: {}".format(e))
             self.session.open(
                 MessageBox,
-                "Error adding download",
+                _("Error adding download"),
                 MessageBox.TYPE_ERROR,
                 timeout=5)
             import traceback
@@ -386,7 +387,7 @@ class RaiPlayDownloadManager:
 
                 self.session.open(
                     MessageBox,
-                    "Invalid video URL detected",
+                    _("Invalid video URL detected"),
                     MessageBox.TYPE_ERROR,
                     timeout=5)
                 return

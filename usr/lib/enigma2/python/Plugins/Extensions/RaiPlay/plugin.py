@@ -938,18 +938,17 @@ class SafeScreen(Screen):
                 title, normalized_url)
 
             if download_id:
-                print(
-                    "[DEBUG] Download added successfully with ID: {}".format(download_id))
+                print("[DEBUG] Download added successfully with ID: {}".format(download_id))
 
                 # Force save and reload queue to verify
                 self.session.download_manager.save_downloads()
                 queue = self.session.download_manager.get_queue()
-                print(f"[DEBUG] Queue now has {len(queue)} items")
+                print("[DEBUG] Queue now has {} items".format(len(queue)))
             else:
                 print("[DEBUG] Failed to add download")
                 self.session.open(
                     MessageBox,
-                    f"📥 Added to queue: {title}",
+                    _("Added to queue: {}").format(title),
                     MessageBox.TYPE_INFO,
                     timeout=3)
 
@@ -959,7 +958,7 @@ class SafeScreen(Screen):
             traceback.print_exc()
             self.session.open(
                 MessageBox,
-                "Error adding download",
+                _("Error adding download"),
                 MessageBox.TYPE_ERROR,
                 timeout=5)
 
@@ -3942,10 +3941,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
 
             try:
                 response = loads(data)
-                print(
-                    "[DEBUG] Video JSON response keys: {}".format(
-                        list(
-                            response.keys())))
+                print("[DEBUG] Video JSON response keys: {}".format(list(response.keys())))
                 video_url = response.get("video", {}).get("content_url", None)
                 if video_url:
                     print(f"[DEBUG] Found video URL: {video_url}")
@@ -3967,10 +3963,7 @@ class RaiPlayOnDemandCategory(SafeScreen):
                     )
                     return  # ← AGGIUNGI RETURN
                 else:
-                    print(
-                        "[DEBUG] No video URL found in response. Available keys: {}".format(
-                            list(
-                                response.keys())))
+                    print("[DEBUG] No video URL found in response. Available keys: {}".format(list(response.keys())))
                     self.session.open(
                         MessageBox,
                         _("No video URL found in the response"),
@@ -8903,7 +8896,7 @@ class RaiPlayDownloadManagerScreen(SafeScreen):
 
         self.session.open(
             MessageBox,
-            "Clean queue from duplicates",
+            _("Clean queue from duplicates"),
             MessageBox.TYPE_INFO,
             timeout=3)
 
