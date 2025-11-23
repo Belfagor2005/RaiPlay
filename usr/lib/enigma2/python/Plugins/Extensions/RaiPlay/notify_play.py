@@ -69,7 +69,16 @@ class SimpleNotifyWidget(Screen):
 
     def _setupUI(self):
         """Setup UI after layout completion"""
-        self.instance.setAnimationMode(0)  # Disable animations
+        # Safe method call - only call if the method exists
+        try:
+            # Check if the method exists before calling it
+            if hasattr(self.instance, 'setAnimationMode'):
+                self.instance.setAnimationMode(0)  # Disable animations
+            else:
+                print("[NOTIFY] setAnimationMode not available in this Enigma2 version")
+        except Exception as e:
+            print(f"[NOTIFY] Error in _setupUI: {e}")
+        # Animation mode is not critical, so we continue even if it fails
 
     def updateMessage(self, text):
         """Update notification text"""
@@ -111,13 +120,9 @@ class HybridNotificationManager:
 
             # Fallback for outside plugin - only for download messages
             if not self.is_initialized:
-                allowed_messages = [
-                    'Download completed',
-                    'Download error',
-                    'Download failed']
+                allowed_messages = ['Download completed', 'Download error', 'Download failed']
                 if any(allowed in message for allowed in allowed_messages):
-                    # Use screen notification even outside plugin for important
-                    # messages
+                    # Use screen notification even outside plugin for important messages
                     if self.notification_window:
                         self.hide_timer.stop()
                         self.notification_window.updateMessage(message)
