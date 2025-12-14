@@ -4,15 +4,28 @@
 
 [![Python package](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml/badge.svg)](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml)
 
-<img src="https://github.com/Belfagor2005/tvRaiPreview/blob/main/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/logo.png">
+<p align="center">
+  <img src="https://github.com/Belfagor2005/tvRaiPreview/blob/main/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/logo.png" height="140">
+</p>
 
-# Rai Play View Plugin
+# 📺 Rai Play View Plugin
+
 ## Overview
 
-Rai Play View is a comprehensive plugin to browse, stream, and download Rai Play content on compatible platforms.  
-It allows users to navigate categories, programs, and videos via Rai Play's JSON API, play streams directly, and manage downloads.
+**Rai Play View** is a comprehensive plugin to **browse, stream, and download Rai Play content** on compatible platforms.
+
+It allows users to:
+- navigate categories, programs, and videos via Rai Play's **JSON API**
+- play streams directly
+- manage downloads
+
+---
 
 ## Features
+- Browse Rai Play categories and programs
+- Direct streaming of videos
+- Download support for offline viewing
+- Works on Enigma2 compatible devices
 
 ### Core Features
 - Browse Rai Play on-demand categories and genres  
@@ -96,5 +109,6 @@ See the [LICENSE](LICENSE) file for details.
 ## Contact
 
 For questions or feedback, please open an issue or contact Lululla.
+
 
 
