@@ -33,6 +33,8 @@ __author__ = "Lululla"
 
 """Widevine repository helper"""
 
+from __future__ import absolute_import, division, unicode_literals
+
 
 def get_widevine_version():
     """Stub: Return current Widevine version in repo"""

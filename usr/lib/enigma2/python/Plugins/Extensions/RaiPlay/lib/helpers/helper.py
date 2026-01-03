@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
-import json
-import re
-import os
 
 """
 #########################################################
@@ -36,9 +33,12 @@ __author__ = "Lululla"
 
 """Implements the main InputStream Helper class for Enigma2"""
 
+import os
+import re
+import json
 
-# Dummy placeholders for Enigma2 environment utilities (da sostituire con
-# le tue implementazioni)
+
+# Dummy placeholders for Enigma2 environment utilities (da sostituire con le tue implementazioni)
 def log(level, msg, **kwargs):
     print("[LOG{}] {}".format(level, msg.format(**kwargs)))
 
@@ -49,10 +49,8 @@ def ok_dialog(title, message):
 
 
 def yesno_dialog(title, message, yeslabel="Yes", nolabel="No"):
-    print("[YESNO DIALOG] {}: {} ({} / {})".format(title,
-          message, yeslabel, nolabel))
-    # Qui puoi mettere logica di risposta, per esempio input da console o
-    # default True
+    print("[YESNO DIALOG] {}: {} ({} / {})".format(title, message, yeslabel, nolabel))
+    # Qui puoi mettere logica di risposta, per esempio input da console o default True
     return True
 
 
@@ -230,8 +228,7 @@ class Helper:
             self.drm = config.DRM_SCHEMES[drm]
 
     def _has_inputstream(self):
-        # Simulato: in Enigma2 normalmente il plugin è sempre disponibile se
-        # installato
+        # Simulato: in Enigma2 normalmente il plugin è sempre disponibile se installato
         log(0, "{} is assumed installed.", addon=self.inputstream_addon)
         return True
 
@@ -242,18 +239,12 @@ class Helper:
     def _supports_widevine(self):
         if arch() not in config.WIDEVINE_SUPPORTED_ARCHS:
             log(4, "Unsupported Widevine architecture: {arch}", arch=arch())
-            ok_dialog(
-                "Widevine Not Supported",
-                "Unsupported architecture: {}".format(
-                    arch()))
+            ok_dialog("Widevine Not Supported", "Unsupported architecture: {}".format(arch()))
             return False
 
         if system_os() not in config.WIDEVINE_SUPPORTED_OS:
             log(4, "Unsupported Widevine OS: {os}", os=system_os())
-            ok_dialog(
-                "Widevine Not Supported",
-                "Unsupported OS: {}".format(
-                    system_os()))
+            ok_dialog("Widevine Not Supported", "Unsupported OS: {}".format(system_os()))
             return False
 
         return True
@@ -267,10 +258,7 @@ class Helper:
             return False
 
         if not self._inputstream_enabled():
-            if not yesno_dialog(
-                "Enable InputStream",
-                "{} is disabled. Enable it?".format(
-                    self.inputstream_addon)):
+            if not yesno_dialog("Enable InputStream", "{} is disabled. Enable it?".format(self.inputstream_addon)):
                 return False
 
         log(0, "{} is installed and enabled.", addon=self.inputstream_addon)
@@ -278,6 +266,5 @@ class Helper:
         return True
 
     def info_dialog(self):
-        text = "System: {}\nArchitecture: {}\nInputStream: {}\nDRM: {}\n".format(
-            system_os(), arch(), self.inputstream_addon, self.drm or "None")
+        text = "System: {}\nArchitecture: {}\nInputStream: {}\nDRM: {}\n".format(system_os(), arch(), self.inputstream_addon, self.drm or "None")
         notification("InputStream Helper Info", text)
