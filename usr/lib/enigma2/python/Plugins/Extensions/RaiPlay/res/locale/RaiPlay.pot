@@ -786,3 +786,35 @@ msgstr ""
 
 #~ msgid "Getting the list, please wait ..."
 #~ msgstr "Ricevo l'elenco , si prega di attendere ..."
+
+# New strings - GitHub Action
+
+msgid "Activate Debug for messages developer."
+msgstr ""
+
+msgid "Active Debug"
+msgstr ""
+
+msgid "Default Folder"
+msgstr ""
+
+msgid "Default folder for opening and saving Movie files"
+msgstr ""
+
+msgid "Download removed: {str(item['title'])}"
+msgstr ""
+
+msgid "Error loading videos:"
+msgstr ""
+
+msgid "Error playing video:"
+msgstr ""
+
+msgid "No programs found for:"
+msgstr ""
+
+msgid "Rai Play Replay:"
+msgstr ""
+
+msgid "RaiPlay Settings"
+msgstr ""
