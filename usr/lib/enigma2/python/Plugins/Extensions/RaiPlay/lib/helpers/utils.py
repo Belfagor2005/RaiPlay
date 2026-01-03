@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
+import urllib.request
+import tempfile
+import shutil
+import platform
+import os
 
 """
 #########################################################
@@ -32,12 +37,6 @@ from __future__ import absolute_import, division, unicode_literals
 __author__ = "Lululla"
 
 """General utilities for InputStream Helper"""
-
-import os
-import platform
-import shutil
-import tempfile
-import urllib.request
 
 
 def arch():
