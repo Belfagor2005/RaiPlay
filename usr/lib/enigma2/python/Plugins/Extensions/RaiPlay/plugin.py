@@ -8645,8 +8645,7 @@ class Playstream2(
 class RaiPlayDownloadManagerScreen(SafeScreen):
     def __init__(self, session):
         self.session = session
-        skin = join(skin_path, 'downloads.xml')
-        # skin = join(skin_path, 'settings.xml')
+        skin = join(skin_path, 'download.xml')
         with codecs.open(skin, "r", encoding="utf-8") as f:
             self.skin = f.read()
         SafeScreen.__init__(self, session)
