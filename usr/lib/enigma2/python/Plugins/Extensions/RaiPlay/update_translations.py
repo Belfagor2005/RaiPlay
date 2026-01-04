@@ -146,7 +146,9 @@ def update_pot_file(xml_strings, py_strings):
             parts = content.split('msgid "')
             if len(parts) > 1:
                 header = parts[0]
-            for m in re.finditer(r'msgid "([^"]+)"\s*\nmsgstr "([^"]*)"', content):
+            for m in re.finditer(
+                r'msgid "([^"]+)"\s*\nmsgstr "([^"]*)"',
+                    content):
                 existing[m.group(1)] = m.group(2)
 
     with codecs.open(POT_FILE, "w", "utf-8") as f:
@@ -190,7 +192,13 @@ def update_po_files():
 
         if os.path.exists(po_file):
             print("Updating:", lang)
-            cmd = ["msgmerge", "--update", "--no-wrap", "-s", po_file, POT_FILE]
+            cmd = [
+                "msgmerge",
+                "--update",
+                "--no-wrap",
+                "-s",
+                po_file,
+                POT_FILE]
             ret, out, err = run_cmd(cmd)
             if ret != 0:
                 print("  ERROR:", err)
@@ -200,7 +208,6 @@ def update_po_files():
             cmd = ["msginit", "-i", POT_FILE, "-o", po_file, "-l", lang]
             run_cmd(cmd)
             print("Created:", lang)
-
 
 
 # =========================================================
@@ -224,7 +231,6 @@ def compile_mo_files():
                 print("Compiled:", lang)
             else:
                 print("ERROR compiling:", lang, err)
-
 
 
 # =========================================================
@@ -253,4 +259,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
