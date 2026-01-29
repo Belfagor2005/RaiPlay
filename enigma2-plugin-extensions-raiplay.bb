@@ -6,9 +6,10 @@ LICENSE = "proprietary"
 
 require conf/license/license-gplv2.inc
 
-inherit gitpkgv
+RDEPENDS:${PN} = "ffmpeg gstplayer exteplayer3 enigma2-plugin-systemplugins-serviceapp"
 
-SRCREV = "${AUTOREV}"
+inherit allarch gitpkgv
+
 PV = "1.0+git${SRCPV}"
 PKGV = "1.0+git${GITPKGV}"
 VER ="1.0"
@@ -18,8 +19,7 @@ SRC_URI = "git://github.com/Belfagor2005/RaiPlay.git;protocol=https;branch=main"
 
 S = "${WORKDIR}/git"
 
-FILES_${PN} = "/usr/*"
-
+FILES:${PN} = "/usr/*"
 do_install() {
-    cp -rp ${S}/usr* ${D}/ 
+    cp -af --no-preserve=ownership ${S}/usr* ${D}/
 }
