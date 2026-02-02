@@ -1,155 +1,60 @@
-name: Advanced Plugin Translations
+# .github/workflows/update-translations.yml
+name: Update Plugin Translations
+
 on:
   push:
     branches: [ main, master ]
+    paths:
+      - '**/*.py'
+      - '**/*.xml'
+      - '**/locale/**'
   schedule:
-    - cron: '0 0 * * 0'  # Ogni domenica a mezzanotte
+    - cron: '0 0 1 * *'  # Il 1° di ogni mese
   workflow_dispatch:
 
 jobs:
-  translation-workflow:
+  process-translations:
     runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        plugin_type: [system, extensions, systemplugins ]
-        
     steps:
-    - name: Checkout repository
+    - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        
-    - name: Set up environment
+      
+    - name: Setup tools
       run: |
-        # Installa tool necessari per Enigma2
         sudo apt-get update
-        sudo apt-get install -y \
-          gettext \
-          msgfmt \
-          msgmerge \
-          msguniq \
-          python3-lxml \
-          python3-xmltodict
-          
-    - name: Discover Enigma2 plugins
-      id: discover
-      run: |
-        # Cerca plugin in tutte le directory standard Enigma2
-        PLUGIN_PATHS=(
-          "/usr/lib/enigma2/python/Plugins/Extensions"
-          "/usr/lib/enigma2/python/Plugins/SystemPlugins"
-        )
+        sudo apt-get install -y gettext python3-lxml
         
-        for path in "${PLUGIN_PATHS[@]}"; do
-          if [ -d "$path" ]; then
-            echo "🔍 Scanning: $path"
-            find "$path" -maxdepth 2 -name "*.py" -type f | head -20
+    - name: Find and run update scripts
+      run: |
+        # Cerca TUTTI gli script update_translations.py nel repo
+        find . -name "update_translations.py" -type f ! -path "./.git/*" | while read script; do
+          plugin_dir=$(dirname "$script")
+          echo "📦 Processing: $(basename "$plugin_dir")"
+          echo "📁 Directory: $plugin_dir"
+          
+          cd "$plugin_dir"
+          
+          # Esegue lo script
+          if python3 update_translations.py; then
+            echo "✅ Success"
+          else
+            echo "⚠️ Script had issues"
           fi
+          
+          cd - > /dev/null
+          echo "---"
         done
         
-    - name: Process translations
-      env:
-        PLUGIN_DIRS: ${{ steps.discover.outputs.plugin_dirs }}
+    - name: Commit changes
       run: |
-        # Script Python per processare tutte le traduzioni
-        python3 << 'EOF'
-        import os
-        import subprocess
-        import json
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'actions@github.com'
         
-        # Percorsi standard Enigma2
-        enigma2_paths = [
-            "/usr/lib/enigma2/python",
-            "/usr/share/enigma2",
-        ]
-        
-        print("🔄 Starting translation processing...")
-        
-        # Trova tutti i file .po nel repository
-        for root, dirs, files in os.walk("."):
-            for file in files:
-                if file.endswith(".po"):
-                    po_file = os.path.join(root, file)
-                    lang = file.split(".")[0]
-                    
-                    print(f"📄 Processing: {po_file}")
-                    
-                    # Usa msguniq per pulire i duplicati
-                    subprocess.run([
-                        "msguniq", "--no-wrap", 
-                        po_file, "-o", po_file
-                    ], check=False)
-                    
-        print("✅ Translation processing complete")
-        EOF
-        
-    - name: Generate translation report
-      run: |
-        # Genera un report delle traduzioni
-        python3 << 'EOF'
-        import os
-        import json
-        
-        translation_stats = {
-            "total_po_files": 0,
-            "total_strings": 0,
-            "languages": {},
-            "plugins": {}
-        }
-        
-        for root, dirs, files in os.walk("."):
-            for file in files:
-                if file.endswith(".po"):
-                    po_path = os.path.join(root, file)
-                    lang = file.split(".")[0]
-                    plugin_name = root.split("/")[-3] if len(root.split("/")) >= 3 else "unknown"
-                    
-                    translation_stats["total_po_files"] += 1
-                    
-                    # Conta le lingue
-                    if lang not in translation_stats["languages"]:
-                        translation_stats["languages"][lang] = 0
-                    translation_stats["languages"][lang] += 1
-                    
-                    # Conta per plugin
-                    if plugin_name not in translation_stats["plugins"]:
-                        translation_stats["plugins"][plugin_name] = []
-                    translation_stats["plugins"][plugin_name].append(lang)
-        
-        # Salva report
-        with open("translation_report.json", "w") as f:
-            json.dump(translation_stats, f, indent=2)
-            
-        print("📊 Translation Report:")
-        print(json.dumps(translation_stats, indent=2))
-        EOF
-        
-    - name: Upload translation artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: translation-files
-        path: |
-          **/*.po
-          **/*.mo
-          **/*.pot
-          translation_report.json
-          
-    - name: Send notification
-      if: always()
-      run: |
-        echo "📧 Sending notification..."
-        # Puoi integrare con email, Slack, Discord, etc.
-        
-    - name: Create summary
-      if: always()
-      run: |
-        echo "### 📋 Translation Workflow Summary" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "✅ **Workflow completed successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "**Processed files:**" >> $GITHUB_STEP_SUMMARY
-        echo "- .po files: $(find . -name "*.po" | wc -l)" >> $GITHUB_STEP_SUMMARY
-        echo "- .mo files: $(find . -name "*.mo" | wc -l)" >> $GITHUB_STEP_SUMMARY
-        echo "- Languages: $(ls locale/ 2>/dev/null | wc -l)" >> $GITHUB_STEP_SUMMARY
-  
+        if git diff --name-only | grep -E '\.(po|mo|pot)$'; then
+          git add --all
+          git commit -m "🌍 Auto-update translations [$(date +'%Y-%m-%d')]"
+          git push
+        else
+          echo "No translation files changed"
+        fi
