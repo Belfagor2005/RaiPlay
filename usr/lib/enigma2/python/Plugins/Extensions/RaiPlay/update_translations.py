@@ -123,11 +123,12 @@ STANDARD_LANGUAGES = [
     'zh_TW',      # Traditional Chinese
 ]
 
+
 def ensure_directory_structure(lang_code):
     """Crea la struttura delle cartelle per una lingua specifica"""
     lang_dir = os.path.join(LOCALE_DIR, lang_code)
     lc_messages_dir = os.path.join(lang_dir, "LC_MESSAGES")
-    
+
     try:
         if not os.path.exists(lc_messages_dir):
             os.makedirs(lc_messages_dir, exist_ok=True)
@@ -136,6 +137,7 @@ def ensure_directory_structure(lang_code):
     except Exception as e:
         print("  ERROR creating directories for {}: {}".format(lang_code, e))
         return None
+
 
 def extract_xml_strings():
     """Extract all strings from setup.xml"""
@@ -183,6 +185,7 @@ def extract_xml_strings():
     print("XML: found {} unique strings".format(len(unique)))
     return clean_strings(unique)
 
+
 def clean_strings(strings):
     """Clean extracted strings to remove common issues"""
     cleaned = []
@@ -195,7 +198,17 @@ def clean_strings(strings):
         s = s.strip()
 
         # Skip strings that are only formatting placeholders without context
-        if s in ['{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}']:
+        if s in [
+            '{0}',
+            '{1}',
+            '{2}',
+            '{3}',
+            '{4}',
+            '{5}',
+            '{6}',
+            '{7}',
+            '{8}',
+                '{9}']:
             continue
 
         # Skip strings that are just numbers or symbols
@@ -205,6 +218,7 @@ def clean_strings(strings):
         cleaned.append(s)
 
     return cleaned
+
 
 def extract_python_strings():
     """Extract strings from all .py files using xgettext"""
@@ -272,6 +286,7 @@ def extract_python_strings():
         print("ERROR extracting Python strings: {}".format(e))
         return []
 
+
 def update_pot_file(xml_strings, py_strings):
     """Create or update the final .pot file"""
     # Ensure the folder exists
@@ -282,7 +297,7 @@ def update_pot_file(xml_strings, py_strings):
 
     # Merge all strings
     all_strings = list(set(xml_strings + py_strings))
-    
+
     # Filter problematic strings
     filtered_strings = []
     for s in all_strings:
@@ -290,7 +305,7 @@ def update_pot_file(xml_strings, py_strings):
             s = s.strip()
         if s and s not in filtered_strings:
             filtered_strings.append(s)
-    
+
     filtered_strings.sort()
     all_strings = filtered_strings
     print("TOTAL: {} unique strings".format(len(all_strings)))
@@ -361,24 +376,27 @@ def update_pot_file(xml_strings, py_strings):
         print("ERROR writing .pot file: {}".format(e))
         return 0
 
+
 def fix_po_file(po_file):
     """Fix common issues in .po files"""
     try:
         with open(po_file, 'r') as f:
             lines = f.readlines()
-        
+
         fixed_lines = []
         i = 0
         while i < len(lines):
             line = lines[i]
-            
+
             # Skip empty msgid blocks
-            if line.strip() == 'msgid ""' and i+1 < len(lines) and lines[i+1].strip() == 'msgstr ""':
+            if line.strip() == 'msgid ""' and i + \
+                    1 < len(lines) and lines[i + 1].strip() == 'msgstr ""':
                 # Check if this is the header (should be only one)
-                if not any(l.strip().startswith('"Project-Id-Version:') for l in fixed_lines):
+                if not any(l.strip().startswith('"Project-Id-Version:')
+                           for l in fixed_lines):
                     # Keep header
                     fixed_lines.append(line)
-                    fixed_lines.append(lines[i+1])
+                    fixed_lines.append(lines[i + 1])
                     i += 2
                     # Continue reading header lines
                     while i < len(lines) and lines[i].strip().startswith('"'):
@@ -389,7 +407,7 @@ def fix_po_file(po_file):
                     # Skip duplicate empty msgid
                     i += 2
                     continue
-            
+
             # Check for syntax errors at specific lines
             if line.strip().startswith('msgid "') and '""' in line:
                 # Fix malformed msgid
@@ -397,10 +415,10 @@ def fix_po_file(po_file):
                 fixed_lines.append(fixed_line)
                 i += 1
                 continue
-            
+
             fixed_lines.append(line)
             i += 1
-        
+
         # Remove duplicate msgid entries
         cleaned_lines = []
         seen_msgids = set()
@@ -412,7 +430,8 @@ def fix_po_file(po_file):
                     # Skip this duplicate block
                     i += 1
                     # Skip until next empty line or end of file
-                    while i < len(fixed_lines) and fixed_lines[i].strip() != '':
+                    while i < len(
+                            fixed_lines) and fixed_lines[i].strip() != '':
                         i += 1
                     continue
                 else:
@@ -422,16 +441,17 @@ def fix_po_file(po_file):
             else:
                 cleaned_lines.append(fixed_lines[i])
                 i += 1
-        
+
         # Write back fixed file
         with open(po_file, 'w') as f:
             f.writelines(cleaned_lines)
-        
+
         return True
-        
+
     except Exception as e:
         print("ERROR fixing {}: {}".format(po_file, e))
         return False
+
 
 def update_po_files():
     """Update all .po files with new strings"""
@@ -445,27 +465,31 @@ def update_po_files():
         for item in os.listdir(LOCALE_DIR):
             item_path = os.path.join(LOCALE_DIR, item)
             if os.path.isdir(item_path) and item != 'templates':
-                po_file = os.path.join(item_path, "LC_MESSAGES", "{}.po".format(PLUGIN_NAME))
+                po_file = os.path.join(
+                    item_path, "LC_MESSAGES", "{}.po".format(PLUGIN_NAME))
                 if os.path.exists(po_file):
                     existing_languages.append(item)
-    
+
     # Combina lingue esistenti con standard
     all_languages = list(set(existing_languages + STANDARD_LANGUAGES))
     all_languages.sort()
-    
-    print("Processing {} languages: {}".format(len(all_languages), ', '.join(all_languages)))
+
+    print(
+        "Processing {} languages: {}".format(
+            len(all_languages),
+            ', '.join(all_languages)))
 
     for lang_code in all_languages:
         # Crea la struttura delle cartelle
         lc_messages_dir = ensure_directory_structure(lang_code)
         if not lc_messages_dir:
             continue
-            
+
         po_file = os.path.join(lc_messages_dir, "{}.po".format(PLUGIN_NAME))
-        
+
         if os.path.exists(po_file):
             print("Updating: {}".format(lang_code))
-            
+
             # First fix the existing .po file
             if fix_po_file(po_file):
                 print("  Fixed syntax issues in {}".format(lang_code))
@@ -508,7 +532,7 @@ def update_po_files():
         else:
             # Create new .po file from template
             print("Creating new: {}".format(lang_code))
-            
+
             cmd = [
                 'msginit',
                 '--no-wrap',
@@ -517,7 +541,8 @@ def update_po_files():
                 '-o',
                 po_file,
                 '-l',
-                lang_code.replace('_', '-')  # msginit usa trattini invece di underscore
+                # msginit usa trattini invece di underscore
+                lang_code.replace('_', '-')
             ]
 
             try:
@@ -537,12 +562,13 @@ def update_po_files():
                     " ✗ ERROR creating file for {}: {}".format(
                         lang_code, e))
 
+
 def create_template_po_file(po_file, lang_code):
     """Create a basic .po template file"""
     try:
         with open(POT_FILE, 'r') as f:
             pot_content = f.read()
-        
+
         # Extract header from POT
         header_end = pot_content.find('msgid ""')
         if header_end == -1:
@@ -553,10 +579,13 @@ def create_template_po_file(po_file, lang_code):
             header += '#\n'
         else:
             header = pot_content[:header_end]
-        
+
         # Extract msgid entries
-        msgid_blocks = re.findall(r'(msgid "[^"]+"\s*\nmsgstr ""\s*\n)', pot_content, re.DOTALL)
-        
+        msgid_blocks = re.findall(
+            r'(msgid "[^"]+"\s*\nmsgstr ""\s*\n)',
+            pot_content,
+            re.DOTALL)
+
         with open(po_file, 'w') as f:
             f.write(header)
             f.write('msgid ""\n')
@@ -565,21 +594,23 @@ def create_template_po_file(po_file, lang_code):
             f.write('"POT-Creation-Date: \\n"\n')
             f.write('"PO-Revision-Date: \\n"\n')
             f.write('"Last-Translator: \\n"\n')
-            f.write('"Language-Team: {} <ekekaz@gmail.com>\\n"\n'.format(lang_code))
+            f.write(
+                '"Language-Team: {} <ekekaz@gmail.com>\\n"\n'.format(lang_code))
             f.write('"Language: {}\\n"\n'.format(lang_code))
             f.write('"MIME-Version: 1.0\\n"\n')
             f.write('"Content-Type: text/plain; charset=UTF-8\\n"\n')
             f.write('"Content-Transfer-Encoding: 8bit\\n"\n\n')
-            
+
             for block in msgid_blocks:
                 f.write(block)
-        
+
         print(" ✓ Created template for: {}".format(lang_code))
         return True
-        
+
     except Exception as e:
         print(" ✗ ERROR creating template for {}: {}".format(lang_code, e))
         return False
+
 
 def compile_mo_files():
     """Compile all .po files into .mo"""
@@ -596,7 +627,7 @@ def compile_mo_files():
             try:
                 # First fix the .po file before compiling
                 fix_po_file(po_file)
-                
+
                 cmd = ['msgfmt', po_file, '-o', mo_file]
                 process = subprocess.Popen(
                     cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -606,39 +637,47 @@ def compile_mo_files():
                         "✓ Compiled: {}/LC_MESSAGES/{}.mo".format(lang_code, PLUGIN_NAME))
                 else:
                     # Try to fix common errors and retry
-                    print("  First compile failed for {}, trying to fix...".format(lang_code))
-                    
+                    print(
+                        "  First compile failed for {}, trying to fix...".format(lang_code))
+
                     # Remove problematic lines
                     try:
                         with open(po_file, 'r') as f:
                             lines = f.readlines()
-                        
+
                         # Rimuovi linee problematiche
                         clean_lines = []
                         for line in lines:
                             # Rimuovi linee vuote duplicate
-                            if line.strip() == '' and len(clean_lines) > 0 and clean_lines[-1].strip() == '':
+                            if line.strip() == '' and len(
+                                    clean_lines) > 0 and clean_lines[-1].strip() == '':
                                 continue
                             clean_lines.append(line)
-                        
+
                         with open(po_file, 'w') as f:
                             f.writelines(clean_lines)
-                        
+
                         # Try compiling again
                         process = subprocess.Popen(
                             cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                         stdout, stderr = process.communicate()
                         if process.returncode == 0:
-                            print("✓ Compiled: {}/LC_MESSAGES/{}.mo (after fix)".format(lang_code, PLUGIN_NAME))
+                            print(
+                                "✓ Compiled: {}/LC_MESSAGES/{}.mo (after fix)".format(lang_code, PLUGIN_NAME))
                         else:
-                            print("✗ ERROR compiling {}: {}".format(lang_code, stderr.decode('utf-8')[:100]))
+                            print("✗ ERROR compiling {}: {}".format(
+                                lang_code, stderr.decode('utf-8')[:100]))
                     except Exception as e:
-                        print("✗ ERROR fixing and compiling {}: {}".format(lang_code, e))
-                        
+                        print(
+                            "✗ ERROR fixing and compiling {}: {}".format(
+                                lang_code, e))
+
             except Exception as e:
                 print("✗ ERROR compiling {}: {}".format(lang_code, e))
 
 # ===== MAIN =====
+
+
 def main():
     print("=" * 60)
     print("UPDATING TRANSLATIONS: {}".format(PLUGIN_NAME))
