@@ -1,0 +1,579 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: enigma 2\n"
+"PO-Revision-Date: 2026-02-03 13:10+0000\n"
+"Last-Translator:  <EMAIL@ADDRESS>\n"
+"Language-Team: English\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=ASCII\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#, fuzzy
+msgid "A-Z All Programs"
+msgstr "A-Z All Programs"
+
+msgid "A-Z Radio Shows"
+msgstr "A-Z Radio Shows"
+
+msgid "A-Z TV Shows"
+msgstr "A-Z TV Shows"
+
+msgid "Activate Debug for messages developer."
+msgstr "Activate Debug for messages developer."
+
+msgid "Active Debug"
+msgstr "Active Debug"
+
+msgid "Added to queue: {}"
+msgstr "Added to queue: {}"
+
+msgid "All Programs"
+msgstr "All Programs"
+
+msgid "Archive URL not found"
+msgstr "Archive URL not found"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Barry Allen"
+msgstr "Barry Allen"
+
+msgid "Choose action for: {}"
+msgstr "Choose action for: {}"
+
+msgid "Clean queue from duplicates"
+msgstr "Clean queue from duplicates"
+
+msgid "Content type not recognized"
+msgstr "Content type not recognized"
+
+msgid "Could not find video URL"
+msgstr "Could not find video URL"
+
+msgid "Could not load program content"
+msgstr "Could not load program content"
+
+msgid "Crime"
+msgstr "Crime"
+
+msgid "Crime Investigations"
+msgstr "Crime Investigations"
+
+msgid "Default Folder"
+msgstr "Default Folder"
+
+msgid "Default folder for opening and saving Movie files"
+msgstr "Default folder for opening and saving Movie files"
+
+msgid "Documentaries"
+msgstr "Documentaries"
+
+msgid "Download"
+msgstr "Download"
+
+msgid "Download Manager"
+msgstr "Download Manager"
+
+msgid "Download removed: {str(item['title'])}"
+msgstr "Download removed: {str(item['title'])}"
+
+msgid "Download started: {}"
+msgstr "Download started: {}"
+
+msgid "Download stopped: {}"
+msgstr "Download stopped: {}"
+
+msgid "Enter search query"
+msgstr "Enter search query"
+
+msgid "Entertainment"
+msgstr "Entertainment"
+
+msgid "Error adding download"
+msgstr "Error adding download"
+
+msgid "Error extracting video URL"
+msgstr "Error extracting video URL"
+
+msgid "Error loading A-Z programs: {}"
+msgstr "Error loading A-Z programs: {}"
+
+msgid "Error loading archive data"
+msgstr "Error loading archive data"
+
+msgid "Error loading archive data: {}"
+msgstr "Error loading archive data: {}"
+
+msgid "Error loading content from API"
+msgstr "Error loading content from API"
+
+msgid "Error loading data"
+msgstr "Error loading data"
+
+msgid "Error loading data: %s"
+msgstr "Error loading data: %s"
+
+msgid "Error loading data: {}"
+msgstr "Error loading data: {}"
+
+msgid "Error loading video data"
+msgstr "Error loading video data"
+
+msgid "Error loading video page"
+msgstr "Error loading video page"
+
+msgid "Error loading videos:"
+msgstr "Error loading videos:"
+
+msgid "Error parsing content"
+msgstr "Error parsing content"
+
+msgid "Error parsing data"
+msgstr "Error parsing data"
+
+msgid "Error parsing video data: {}"
+msgstr "Error parsing video data: {}"
+
+msgid "Error playing file: {}"
+msgstr "Error playing file: {}"
+
+msgid "Error playing stream: {}"
+msgstr "Error playing stream: {}"
+
+msgid "Error playing video:"
+msgstr "Error playing video:"
+
+msgid "Error processing archive"
+msgstr "Error processing archive"
+
+msgid "Error processing thematic content"
+msgstr "Error processing thematic content"
+
+msgid "Error starting plugin"
+msgstr "Error starting plugin"
+
+msgid "Error: Could not load news data"
+msgstr "Error: Could not load news data"
+
+msgid "Error: Download manager not available"
+msgstr "Error: Download manager not available"
+
+msgid "Exclusive Programs"
+msgstr "Exclusive Programs"
+
+msgid "Extracting video URL..."
+msgstr "Extracting video URL..."
+
+msgid "File not found: {}"
+msgstr "File not found: {}"
+
+msgid "Films"
+msgstr "Films"
+
+msgid "Found {0} programs for: {1}"
+msgstr "Found {0} programs for: {1}"
+
+msgid "Free Space: {free} of {total}"
+msgstr "Free Space: {free} of {total}"
+
+msgid "Games & Quizzes"
+msgstr "Games & Quizzes"
+
+msgid "HDD Drive"
+msgstr "HDD Drive"
+
+msgid "History & Art"
+msgstr "History & Art"
+
+msgid "Initializing..."
+msgstr "Initializing..."
+
+msgid "International Series"
+msgstr "International Series"
+
+msgid "Invalid video URL detected"
+msgstr "Invalid video URL detected"
+
+msgid "Italian Series"
+msgstr "Italian Series"
+
+msgid "Kids"
+msgstr "Kids"
+
+msgid "Learning"
+msgstr "Learning"
+
+msgid "Lifestyle"
+msgstr "Lifestyle"
+
+msgid "Live Radio"
+msgstr "Live Radio"
+
+msgid "Live TV"
+msgstr "Live TV"
+
+msgid "Loading all programs..."
+msgstr "Loading all programs..."
+
+msgid "Loading all videos... Please wait"
+msgstr "Loading all videos... Please wait"
+
+msgid "Loading archive data..."
+msgstr "Loading archive data..."
+
+msgid "Loading archive..."
+msgstr "Loading archive..."
+
+msgid "Loading complete! Select an option"
+msgstr "Loading complete! Select an option"
+
+msgid "Loading data... Please wait"
+msgstr "Loading data... Please wait"
+
+msgid "Loading news categories..."
+msgstr "Loading news categories..."
+
+msgid "Loading news items..."
+msgstr "Loading news items..."
+
+msgid "Loading on-air programs..."
+msgstr "Loading on-air programs..."
+
+msgid "Loading program data"
+msgstr "Loading program data"
+
+msgid "Loading program details..."
+msgstr "Loading program details..."
+
+msgid "Loading programs..."
+msgstr "Loading programs..."
+
+msgid "Loading videos..."
+msgstr "Loading videos..."
+
+msgid "Music"
+msgstr "Music"
+
+msgid "Music & Theater"
+msgstr "Music & Theater"
+
+msgid "Music Classic"
+msgstr "Music Classic"
+
+msgid "Network Storage"
+msgstr "Network Storage"
+
+msgid "News & Documentaries"
+msgstr "News & Documentaries"
+
+msgid "News Categories"
+msgstr "News Categories"
+
+msgid "Next page"
+msgstr "Next page"
+
+msgid "No TV channels available"
+msgstr "No TV channels available"
+
+msgid "No archive data found"
+msgstr "No archive data found"
+
+msgid "No categories available"
+msgstr "No categories available"
+
+msgid "No content available"
+msgstr "No content available"
+
+msgid "No content found in this program"
+msgstr "No content found in this program"
+
+msgid "No downloads"
+msgstr "No downloads"
+
+msgid "No downloads in queue"
+msgstr "No downloads in queue"
+
+msgid "No editions available"
+msgstr "No editions available"
+
+msgid "No episodes available"
+msgstr "No episodes available"
+
+msgid "No items available"
+msgstr "No items available"
+
+msgid "No items found"
+msgstr "No items found"
+
+msgid "No items found in this archive"
+msgstr "No items found in this archive"
+
+msgid "No items found in this category"
+msgstr "No items found in this category"
+
+msgid "No main theme found"
+msgstr "No main theme found"
+
+msgid "No program URL available"
+msgstr "No program URL available"
+
+msgid "No program categories available"
+msgstr "No program categories available"
+
+msgid "No programs available for this day"
+msgstr "No programs available for this day"
+
+msgid "No programs currently on air"
+msgstr "No programs currently on air"
+
+msgid "No programs found for:"
+msgstr "No programs found for:"
+
+msgid "No programs found in A-Z list"
+msgstr "No programs found in A-Z list"
+
+msgid "No sports categories available"
+msgstr "No sports categories available"
+
+msgid "No stream URL available"
+msgstr "No stream URL available"
+
+msgid "No video URL available"
+msgstr "No video URL available"
+
+msgid "No video URL found in the response"
+msgstr "No video URL found in the response"
+
+msgid "No videos available"
+msgstr "No videos available"
+
+msgid "No videos found"
+msgstr "No videos found"
+
+msgid "No videos found in archive"
+msgstr "No videos found in archive"
+
+msgid "On Air Programs"
+msgstr "On Air Programs"
+
+msgid "On Demand"
+msgstr "On Demand"
+
+msgid "Originals"
+msgstr "Originals"
+
+msgid "Page"
+msgstr "Page"
+
+msgid "Page with duplicate"
+msgstr "Page with duplicate"
+
+msgid "Pagination not supported for this archive"
+msgstr "Pagination not supported for this archive"
+
+msgid "Play"
+msgstr "Play"
+
+msgid "Play & Download"
+msgstr "Play & Download"
+
+msgid "Play/pause not supported for this stream"
+msgstr "Play/pause not supported for this stream"
+
+msgid "Program list is still loading. Please wait..."
+msgstr "Program list is still loading. Please wait..."
+
+msgid "Programs"
+msgstr "Programs"
+
+msgid "Query too short (min 3 characters)"
+msgstr "Query too short (min 3 characters)"
+
+msgid "Radio Programs A-Z"
+msgstr "Radio Programs A-Z"
+
+msgid "Rai News"
+msgstr "Rai News"
+
+msgid "Rai Play Live"
+msgstr "Rai Play Live"
+
+msgid "Rai Play Live Radio"
+msgstr "Rai Play Live Radio"
+
+msgid "Rai Play Main"
+msgstr "Rai Play Main"
+
+msgid "Rai Play On Demand"
+msgstr "Rai Play On Demand"
+
+msgid "Rai Play Programs"
+msgstr "Rai Play Programs"
+
+msgid "Rai Play Replay TV"
+msgstr "Rai Play Replay TV"
+
+msgid "Rai Play Replay:"
+msgstr "Rai Play Replay:"
+
+msgid "Rai Play Search"
+msgstr "Rai Play Search"
+
+msgid "Rai Sport"
+msgstr "Rai Sport"
+
+msgid "Rai Sport - Categories"
+msgstr "Rai Sport - Categories"
+
+msgid "Rai Sport - Subcategories"
+msgstr "Rai Sport - Subcategories"
+
+msgid "RaiPlay Settings"
+msgstr "RaiPlay Settings"
+
+msgid "Remove"
+msgstr "Remove"
+
+msgid "Remove download: {}?"
+msgstr "Remove download: {}?"
+
+msgid "Removed from queue: {}"
+msgstr "Removed from queue: {}"
+
+msgid "Replay TV"
+msgstr "Replay TV"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "Search error. Please try again."
+msgstr "Search error. Please try again."
+
+msgid "Searching through programs..."
+msgstr "Searching through programs..."
+
+msgid "Select a category"
+msgstr "Select a category"
+
+msgid "Select a video"
+msgstr "Select a video"
+
+msgid "Select block"
+msgstr "Select block"
+
+msgid "Select category"
+msgstr "Select category"
+
+msgid "Select channel"
+msgstr "Select channel"
+
+msgid "Select content set"
+msgstr "Select content set"
+
+msgid "Select date"
+msgstr "Select date"
+
+msgid "Select edition"
+msgstr "Select edition"
+
+msgid "Select episode"
+msgstr "Select episode"
+
+msgid "Select item"
+msgstr "Select item"
+
+msgid "Select letter"
+msgstr "Select letter"
+
+msgid "Select program"
+msgstr "Select program"
+
+msgid "Select program to watch"
+msgstr "Select program to watch"
+
+msgid "Select subcategory"
+msgstr "Select subcategory"
+
+msgid "Select video"
+msgstr "Select video"
+
+msgid "Society & Culture"
+msgstr "Society & Culture"
+
+msgid "Sports"
+msgstr "Sports"
+
+msgid "Start"
+msgstr "Start"
+
+msgid "Stop"
+msgstr "Stop"
+
+msgid "Stop the download first before removing"
+msgstr "Stop the download first before removing"
+
+msgid "Sustainability"
+msgstr "Sustainability"
+
+msgid "TGR and Special Programs"
+msgstr "TGR and Special Programs"
+
+msgid "TV News"
+msgstr "TV News"
+
+msgid "TV Programs A-Z"
+msgstr "TV Programs A-Z"
+
+msgid "Talk Shows"
+msgstr "Talk Shows"
+
+msgid "Tech & Learning"
+msgstr "Tech & Learning"
+
+msgid "Teens"
+msgstr "Teens"
+
+msgid "Temporary"
+msgstr "Temporary"
+
+msgid "Test download added to queue"
+msgstr "Test download added to queue"
+
+msgid "Test download failed"
+msgstr "Test download failed"
+
+msgid "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}"
+msgstr "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}"
+
+msgid "Travel & Adventure"
+msgstr "Travel & Adventure"
+
+msgid "USB Drive"
+msgstr "USB Drive"
+
+msgid "Unknown content type"
+msgstr "Unknown content type"
+
+msgid "Unknown data format"
+msgstr "Unknown data format"
+
+msgid "Unknown title"
+msgstr "Unknown title"
+
+msgid "Video URL not available"
+msgstr "Video URL not available"
+
+msgid "Video URL not found"
+msgstr "Video URL not found"
+
+msgid "Video not available"
+msgstr "Video not available"
+
+msgid "View Full Archive"
+msgstr "View Full Archive"
+
+msgid "WELCOME TO RAI PLAY PLUGINS BY LULULLA"
+msgstr "WELCOME TO RAI PLAY PLUGINS BY LULULLA"
