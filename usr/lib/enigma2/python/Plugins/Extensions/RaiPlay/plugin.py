@@ -100,7 +100,7 @@ from enigma import (
 )
 
 # 🧱 LOCAL MODULES
-from . import _
+from . import _, __version__
 from . import Utils
 from .RaiPlayDownloadManager import RaiPlayDownloadManager
 from .lib.helpers.helper import Helper
@@ -217,8 +217,7 @@ def check_widevine_ready():
 
 
 name_plugin = 'TiVu Rai Play'
-currversion = '1.9'
-desc_plugin = '..:: TiVu Rai Play by Lululla %s ::.. ' % currversion
+desc_plugin = '..:: TiVu Rai Play by Lululla %s ::.. ' % __version__
 plugin_path = '/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay'
 plugin_res = join(plugin_path, "res", "pics")
 DEFAULT_ICON = join(plugin_path, "res/pics/icon.png")
@@ -9013,7 +9012,7 @@ class RaiPlayInfo(SafeScreen):
             "     Rai Play View Plugin     ",
             "==============================",
             "",
-            "Version: " + currversion,
+            "Version: " + __version__,
             "Created by: Lululla",
             "License: CC BY-NC-SA 4.0",
             "",
