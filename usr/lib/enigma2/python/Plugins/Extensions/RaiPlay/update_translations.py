@@ -3,9 +3,7 @@
 
 import os
 import re
-import sys
 import subprocess
-import codecs
 from xml.etree import ElementTree as ET
 
 """

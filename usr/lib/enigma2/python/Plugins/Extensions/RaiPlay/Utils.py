@@ -13,7 +13,6 @@ import datetime
 import re
 import ssl
 import sys
-import types
 import unicodedata
 from random import choice
 

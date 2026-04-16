@@ -12,8 +12,6 @@ __version__ = "1.9"
 from Components.Language import language
 from Tools.Directories import resolveFilename, SCOPE_PLUGINS
 import gettext
-from os import environ as os_environ
-import os
 
 PluginLanguageDomain = 'RaiPlay'
 PluginLanguagePath = 'Extensions/RaiPlay/res/locale'

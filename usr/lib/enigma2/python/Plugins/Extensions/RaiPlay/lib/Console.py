@@ -11,8 +11,6 @@ from Components.ScrollLabel import ScrollLabel
 
 from Screens.MessageBox import MessageBox
 from enigma import getDesktop
-import sys
-from .. import _
 
 
 def getDesktopSize():
