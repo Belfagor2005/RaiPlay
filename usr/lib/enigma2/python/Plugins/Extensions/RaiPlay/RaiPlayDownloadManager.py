@@ -1,5 +1,21 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+import json
+import math
+import time
+import threading
+from re import findall, search, sub
+from os import makedirs, statvfs
+from os.path import exists, getsize, join
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
+from Screens.MessageBox import MessageBox
+from Components.config import config
+from Components.Task import Task, Job, job_manager as JobManager
+import requests
+
+from .RaiPlayProgressParser import RaiPlayProgressParser
+from . import _
+
 """
 #########################################################
 #                                                       #
@@ -43,28 +59,6 @@ from __future__ import print_function
 #########################################################
 """
 __author__ = "Lululla"
-
-# 🧠 STANDARD LIBRARIES (Python built-ins)
-import json
-import math
-import time
-import threading
-from re import findall, search, sub
-from os import makedirs, statvfs
-from os.path import exists, getsize, join
-from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
-from Screens.MessageBox import MessageBox
-
-# 🧩 ENIGMA2 COMPONENTS
-from Components.config import config
-from Components.Task import Task, Job, job_manager as JobManager
-
-# 🌐 EXTERNAL LIBRARIES
-import requests
-
-# 🧱 LOCAL MODULES
-from .RaiPlayProgressParser import RaiPlayProgressParser
-from . import _
 
 # HTTP headers support - preso da IPTVPlayer
 HANDLED_HTTP_HEADER_PARAMS = [

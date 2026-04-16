@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+"""Widevine ARM support"""
+
 """
 #########################################################
 #                                                       #
@@ -30,8 +32,6 @@ from __future__ import absolute_import, division, unicode_literals
 #########################################################
 """
 __author__ = "Lululla"
-
-"""Widevine ARM support"""
 
 
 def install_widevine_arm(backup_path):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+"""Widevine main module"""
 """
 #########################################################
 #                                                       #
@@ -30,8 +31,6 @@ from __future__ import absolute_import, division, unicode_literals
 #########################################################
 """
 __author__ = "Lululla"
-"""Widevine main module"""
-
 
 def check_widevine_installed():
     """Stub: Check if Widevine is installed"""

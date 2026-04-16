@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 
+from Components.Label import Label
+from Screens.Screen import Screen
+from enigma import eTimer
+
+# import NavigationInstance
 """
 #########################################################
 #                                                       #
@@ -34,23 +38,6 @@ from __future__ import print_function
 """
 
 __author__ = "Lululla"
-
-# ======================== IMPORTS ========================
-# 🧩 ENIGMA2 COMPONENTS
-from Components.Label import Label
-
-# 🪟 ENIGMA2 SCREENS
-# from Screens.MessageBox import MessageBox
-from Screens.Screen import Screen
-
-# 🧰 ENIGMA2 TOOLS
-# from Tools.Notifications import AddNotification
-
-# 📺 ENIGMA2 CORE
-from enigma import eTimer
-
-# 🌐 EXTERNAL / SYSTEM
-# import NavigationInstance
 
 
 class SimpleNotifyWidget(Screen):

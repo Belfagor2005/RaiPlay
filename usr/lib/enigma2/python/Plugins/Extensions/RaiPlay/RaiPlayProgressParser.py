@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
+
+import datetime
+import re
+
 """
 #########################################################
 #                                                       #
@@ -43,12 +46,6 @@ from __future__ import print_function
 #########################################################
 """
 __author__ = "Lululla"
-
-# ======================== IMPORTS ========================
-
-# 🧠 STANDARD LIBRARIES
-import datetime
-import re
 
 
 class RaiPlayProgressParser:

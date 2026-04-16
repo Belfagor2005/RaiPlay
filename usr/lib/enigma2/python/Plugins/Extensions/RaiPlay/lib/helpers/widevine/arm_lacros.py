@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
-
+"""Widevine ARM Lacros ChromeOS support"""
 """
 #########################################################
 #                                                       #
@@ -30,8 +30,6 @@ from __future__ import absolute_import, division, unicode_literals
 #########################################################
 """
 __author__ = "Lululla"
-
-"""Widevine ARM Lacros ChromeOS support"""
 
 
 def extract_widevine_lacros(backup_path):

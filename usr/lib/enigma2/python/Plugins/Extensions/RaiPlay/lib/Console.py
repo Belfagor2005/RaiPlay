@@ -3,8 +3,6 @@
 # RAED & mfaraj57 &  (c) 2018
 # mod Lululla 20240720
 
-from __future__ import print_function
-
 from enigma import eConsoleAppContainer
 from Screens.Screen import Screen
 from Components.Label import Label
@@ -15,9 +13,6 @@ from Screens.MessageBox import MessageBox
 from enigma import getDesktop
 import sys
 from .. import _
-
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
 
 
 def getDesktopSize():
@@ -193,10 +188,7 @@ class Console(Screen):
             self.show()
 
     def dataAvail(self, str):
-        if PY3:
-            data = str.decode()
-        else:
-            data = str
+        data = str.decode()
         print("[Console] Data received: ", data)
         self['text'].appendText(data)
 

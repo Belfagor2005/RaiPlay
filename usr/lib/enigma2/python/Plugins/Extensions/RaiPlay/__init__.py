@@ -26,13 +26,7 @@ def paypal():
     return conthelp
 
 
-isDreambox = os.path.exists("/usr/bin/apt-get")
-
-
 def localeInit():
-    if isDreambox:
-        lang = language.getLanguage()[:2]
-        os_environ["LANGUAGE"] = lang
     if PluginLanguageDomain and PluginLanguagePath:
         gettext.bindtextdomain(
             PluginLanguageDomain,
@@ -41,21 +35,16 @@ def localeInit():
                 PluginLanguagePath))
 
 
-if isDreambox:
-    def _(txt):
-        return gettext.dgettext(PluginLanguageDomain, txt) if txt else ""
+def _(txt):
+    translated = gettext.dgettext(PluginLanguageDomain, txt)
+    if translated:
+        return translated
+    else:
+        print(
+            "[%s] fallback to default translation for %s" %
+            (PluginLanguageDomain, txt))
 
-else:
-    def _(txt):
-        translated = gettext.dgettext(PluginLanguageDomain, txt)
-        if translated:
-            return translated
-        else:
-            print(
-                "[%s] fallback to default translation for %s" %
-                (PluginLanguageDomain, txt))
-
-            return gettext.gettext(txt)
+        return gettext.gettext(txt)
 
 localeInit()
 language.addCallback(localeInit)

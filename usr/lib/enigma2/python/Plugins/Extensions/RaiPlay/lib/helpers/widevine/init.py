@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, unicode_literals
-
+"""Widevine package init"""
 """
 #########################################################
 #                                                       #
@@ -30,5 +29,3 @@ from __future__ import absolute_import, division, unicode_literals
 #########################################################
 """
 __author__ = "Lululla"
-
-"""Widevine package init"""

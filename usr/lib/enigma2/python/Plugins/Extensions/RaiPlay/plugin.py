@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 
 """
 #########################################################
@@ -36,7 +35,6 @@ from __future__ import print_function
 __author__ = "Lululla"
 
 # ======================== IMPORTS ========================
-# 🧠 STANDARD LIBRARIES
 import codecs
 import chardet
 import html as _html
@@ -51,11 +49,9 @@ from os.path import exists, isdir, join
 from re import DOTALL, findall, match, search
 from urllib.parse import parse_qs, urljoin, urlparse, urlencode, urlunparse
 
-# 🌐 EXTERNAL LIBRARIES
 import requests
 from twisted.web.client import downloadPage
 
-# 🧩 ENIGMA2 COMPONENTS
 from Components.ActionMap import ActionMap
 from Components.Label import Label
 from Components.MenuList import MenuList
@@ -69,7 +65,6 @@ try:
 except ImportError:
     from Components.AVSwitch import eAVControl as AVSwitch
 
-# 🪟 ENIGMA2 SCREENS
 from Screens.InfoBarGenerics import (
     InfoBarAudioSelection,
     InfoBarMenu,
@@ -82,10 +77,8 @@ from Screens.Screen import Screen
 from Screens.Setup import Setup
 from Screens.VirtualKeyBoard import VirtualKeyBoard
 
-# 🧰 ENIGMA2 TOOLS
 from Tools.Directories import SCOPE_PLUGINS, defaultRecordingLocation, resolveFilename
 
-# 📺 ENIGMA2 CORE
 from enigma import (
     RT_HALIGN_LEFT,
     RT_VALIGN_CENTER,
@@ -99,7 +92,6 @@ from enigma import (
     loadPNG,
 )
 
-# 🧱 LOCAL MODULES
 from . import _, __version__
 from . import Utils
 from .RaiPlayDownloadManager import RaiPlayDownloadManager
@@ -183,7 +175,6 @@ if config.plugins.raiplay.debug.value:
 
 
 aspect_manager = Utils.AspectManager()
-PY3 = sys.version_info.major >= 3
 if sys.version_info >= (2, 7, 9):
     try:
         import ssl
@@ -781,7 +772,7 @@ class SafeScreen(Screen):
         if self.closing:
             return
         try:
-            from six import PY3, ensure_binary
+            from six import ensure_binary
             pictmp = '/tmp/poster.png'
             idx = self["text"].getSelectionIndex()
             if idx is None or idx < 0 or idx >= len(self.icons):
@@ -801,8 +792,7 @@ class SafeScreen(Screen):
                 self.decodeImage(self.pixim)
                 return
 
-            if PY3:
-                self.pixim = ensure_binary(self.pixim)
+            self.pixim = ensure_binary(self.pixim)
             if self.pixim.startswith(b"https") and sslverify:
                 parsed_uri = urlparse(self.pixim)
                 domain = parsed_uri.hostname

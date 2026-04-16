@@ -4,9 +4,6 @@
 # 30.03.2024
 # a common tips used from Lululla
 
-# ======================== IMPORTS ========================
-
-# 🧠 STANDARD LIBRARIES
 import base64
 import datetime
 import re
@@ -16,17 +13,12 @@ import types
 import unicodedata
 from random import choice
 
-# 🧩 THIRD-PARTY LIBRARIES
 import requests
 import six
 from six import unichr, iteritems
 from six.moves import html_entities
-
-# 🧩 ENIGMA2 COMPONENTS
 from Components.config import config
 from enigma import getDesktop
-
-# 🪟 OS / FILE SYSTEM
 from os import system, stat, statvfs, listdir, remove, chmod, popen
 from os.path import isdir, exists, realpath, dirname, join, isfile
 
@@ -34,39 +26,21 @@ requests.packages.urllib3.disable_warnings(
     requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 screenwidth = getDesktop(0).size()
-pythonVer = sys.version_info.major
-PY2 = False
-PY3 = False
-PY34 = False
-PY39 = False
-PY2 = sys.version_info[0] == 2
-PY3 = sys.version_info[0] == 3
-PY34 = sys.version_info[0:2] >= (3, 4)
-PY39 = sys.version_info[0:2] >= (3, 9)
-PY3 = sys.version_info.major >= 3
 
+bytes = bytes
+unicode = str
+from urllib.parse import quote
+from urllib.request import urlopen
+from urllib.request import Request
+from urllib.error import HTTPError, URLError
+ssl_context = ssl.create_default_context()
+# Disabilita SSLv2, SSLv3, TLS1.0 e TLS1.1 esplicitamente
+ssl_context.options |= ssl.OP_NO_SSLv2
+ssl_context.options |= ssl.OP_NO_SSLv3
+ssl_context.options |= ssl.OP_NO_TLSv1
+ssl_context.options |= ssl.OP_NO_TLSv1_1
+unichr_func = unichr
 
-if PY3:
-    bytes = bytes
-    unicode = str
-    from urllib.parse import quote
-    from urllib.request import urlopen
-    from urllib.request import Request
-    from urllib.error import HTTPError, URLError
-    ssl_context = ssl.create_default_context()
-    # Disabilita SSLv2, SSLv3, TLS1.0 e TLS1.1 esplicitamente
-    ssl_context.options |= ssl.OP_NO_SSLv2
-    ssl_context.options |= ssl.OP_NO_SSLv3
-    ssl_context.options |= ssl.OP_NO_TLSv1
-    ssl_context.options |= ssl.OP_NO_TLSv1_1
-    unichr_func = unichr
-else:
-    str = str
-    from urllib import quote
-    from urllib2 import urlopen
-    from urllib2 import Request
-    from urllib2 import HTTPError, URLError
-    ssl_context = None
 
 try:
     from Components.AVSwitch import AVSwitch
@@ -74,7 +48,7 @@ except ImportError:
     from Components.AVSwitch import eAVControl as AVSwitch
 
 
-class_types = (type,) if six.PY3 else (type, types.ClassType)
+class_types = (type,)
 text_type = six.text_type  # unicode in Py2, str in Py3
 binary_type = six.binary_type  # str in Py2, bytes in Py3
 MAXSIZE = sys.maxsize  # Compatibile con entrambe le versioni
@@ -94,20 +68,9 @@ _ESCAPE_DICT = {
 }
 
 
-if sys.version_info[0] < 3:
-    # Python 2
-    def u(x):
-        return x.decode('utf-8')
-else:
-    # Python 3
-    def u(x):
-        return x
-
-if sys.version_info >= (2, 7, 9):
-    try:
-        sslContext = ssl._create_unverified_context()
-    except BaseException:
-        sslContext = None
+# Python 3
+def u(x):
+    return x
 
 
 def unicodify(s, encoding='utf-8', norm=None):
@@ -192,15 +155,9 @@ def checkGZIP(url):
         if response.info().get('Content-Encoding') == 'gzip':
             buffer = StringIO(response.read())
             deflatedContent = gzip.GzipFile(fileobj=buffer)
-            if pythonVer == 3:
-                return deflatedContent.read().decode('utf-8')
-            else:
-                return deflatedContent.read()
+            return deflatedContent.read().decode('utf-8')
         else:
-            if pythonVer == 3:
-                return response.read().decode('utf-8')
-            else:
-                return response.read()
+            return response.read().decode('utf-8')
     except Exception as e:
         print(e)
         return None
@@ -568,11 +525,7 @@ def downloadFile(url, target):
         response = urlopen(url, None, 15)
         with open(target, 'wb') as output:
             print('response: ', response)
-            if PY3:
-                output.write(response.read().decode('utf-8'))
-            else:
-                output.write(response.read())
-            # output.write(response.read())
+            output.write(response.read())
         response.close()
         return True
     except HTTPError:
@@ -595,10 +548,7 @@ def downloadFilest(url, target):
         # context=ssl._create_unverified_context()
         response = ssl_urlopen(req)
         with open(target, 'wb') as output:
-            if PY3:
-                output.write(response.read().decode('utf-8'))
-            else:
-                output.write(response.read())
+            output.write(response.read().decode('utf-8'))
             print('response: ', response)
         return True
     except HTTPError as e:
@@ -725,19 +675,12 @@ def testWebConnection(host='www.google.com', port=80, timeout=3):
 
 
 def checkStr(text, encoding='utf8'):
-    if PY3:
-        if isinstance(text, type(bytes())):
-            text = text.decode('utf-8')
-    else:
-        if isinstance(text, unicode):
-            text = text.encode(encoding)
+    if isinstance(text, type(bytes())):
+        text = text.decode('utf-8')
     return text
 
 
 def str_encode(text, encoding="utf8"):
-    if not PY3:
-        if isinstance(text, unicode):
-            return text.encode(encoding)
     return str(text)
 
 
@@ -775,8 +718,7 @@ def freespace():
 
 def b64encoder(source):
     import base64
-    if PY3:
-        source = source.encode('utf-8')
+    source = source.encode('utf-8')
     content = base64.b64encode(source).decode('utf-8')
     return content
 
@@ -791,7 +733,7 @@ def b64decoder(data):
         data += "=" * (4 - pad)
     try:
         decoded = base64.b64decode(data)
-        return decoded.decode('utf-8') if PY3 else decoded
+        return decoded.decode('utf-8')
     except Exception as e:
         print("Base64 decoding error: %s" % e)
         return ""
@@ -1297,10 +1239,7 @@ def getUrl(url):
     link = url
     try:
         response = urlopen(req, timeout=10)
-        if pythonVer == 3:
-            link = response.read().decode(errors='ignore')
-        else:
-            link = response.read()
+        link = response.read().decode(errors='ignore')
         response.close()
         return link
 
@@ -1310,10 +1249,7 @@ def getUrl(url):
             import ssl
             gcontext = ssl._create_unverified_context()
             response = urlopen(req, timeout=10, context=gcontext)
-            if pythonVer == 3:
-                link = response.read().decode(errors='ignore')
-            else:
-                link = response.read()
+            link = response.read().decode(errors='ignore')
             response.close()
             return link
 
@@ -1408,14 +1344,8 @@ def get_safe_filename(filename, fallback=''):
 
 
 def decodeHtml(text):
-    if PY3:
-        import html
-        text = html.unescape(text)
-    else:
-        from six.moves import html_parser
-        h = html_parser.HTMLParser()
-        text = h.unescape(text.decode('utf8')).encode('utf8')
-
+    import html
+    text = html.unescape(text)
     replacements = {
         '&amp;': '&', '&apos;': "'", '&lt;': '<', '&gt;': '>', '&ndash;': '-',
         '&quot;': '"', '&ntilde;': '~', '&rsquo;': "'", '&nbsp;': ' ',
@@ -1655,12 +1585,8 @@ def cleanName(name):
         if not isinstance(name, (str, bytes)):
             name = str(name)
 
-        if sys.version_info[0] < 3:
-            if not isinstance(name, unicode):
-                name = unicode(name, "utf-8")
-        else:
-            if isinstance(name, bytes):
-                name = name.decode("utf-8", "ignore")
+        if isinstance(name, bytes):
+            name = name.decode("utf-8", "ignore")
 
         name = unicodedata.normalize(
             "NFKD", name).encode(
@@ -2098,13 +2024,8 @@ def clean_filename(s):
 
 
 def cleantext(text):
-    if PY3:
-        import html
-        text = html.unescape(text)
-    else:
-        from six.moves import (html_parser)
-        h = html_parser.HTMLParser()
-        text = h.unescape(text.decode('utf8')).encode('utf8')
+    import html
+    text = html.unescape(text)
     text = text.replace('&amp;', '&')
     text = text.replace('&apos;', "'")
     text = text.replace('&lt;', '<')

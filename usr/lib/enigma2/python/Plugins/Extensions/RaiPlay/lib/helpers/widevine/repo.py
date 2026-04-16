@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, division, unicode_literals
 
+"""Widevine repository helper"""
+
 """
 #########################################################
 #                                                       #
@@ -30,8 +32,6 @@ from __future__ import absolute_import, division, unicode_literals
 #########################################################
 """
 __author__ = "Lululla"
-
-"""Widevine repository helper"""
 
 
 def get_widevine_version():

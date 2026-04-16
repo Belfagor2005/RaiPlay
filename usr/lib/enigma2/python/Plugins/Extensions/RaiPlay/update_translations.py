@@ -1,6 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import os
+import re
+import sys
+import subprocess
+import codecs
+from xml.etree import ElementTree as ET
+
 """
 ###########################################################
 #  RaiPlay for Enigma2                                    #
@@ -11,13 +18,6 @@ Credits: Lululla (modifications)
 Homepage: www.corvoboys.org www.linuxsat-support.com
 ###########################################################
 """
-from __future__ import print_function
-import os
-import re
-import sys
-import subprocess
-import codecs
-from xml.etree import ElementTree as ET
 
 PLUGIN_NAME = "RaiPlay"
 PLUGIN_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -674,8 +674,6 @@ def compile_mo_files():
 
             except Exception as e:
                 print("✗ ERROR compiling {}: {}".format(lang_code, e))
-
-# ===== MAIN =====
 
 
 def main():
