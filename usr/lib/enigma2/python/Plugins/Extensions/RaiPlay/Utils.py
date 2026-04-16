@@ -4,6 +4,10 @@
 # 30.03.2024
 # a common tips used from Lululla
 
+from urllib.error import HTTPError, URLError
+from urllib.request import Request
+from urllib.request import urlopen
+from urllib.parse import quote
 import base64
 import datetime
 import re
@@ -29,10 +33,6 @@ screenwidth = getDesktop(0).size()
 
 bytes = bytes
 unicode = str
-from urllib.parse import quote
-from urllib.request import urlopen
-from urllib.request import Request
-from urllib.error import HTTPError, URLError
 ssl_context = ssl.create_default_context()
 # Disabilita SSLv2, SSLv3, TLS1.0 e TLS1.1 esplicitamente
 ssl_context.options |= ssl.OP_NO_SSLv2

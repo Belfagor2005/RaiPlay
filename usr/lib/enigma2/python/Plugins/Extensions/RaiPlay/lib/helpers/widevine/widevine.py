@@ -32,6 +32,7 @@ from __future__ import absolute_import, division, unicode_literals
 """
 __author__ = "Lululla"
 
+
 def check_widevine_installed():
     """Stub: Check if Widevine is installed"""
     return True
