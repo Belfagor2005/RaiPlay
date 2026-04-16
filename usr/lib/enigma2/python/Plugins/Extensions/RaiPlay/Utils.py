@@ -184,10 +184,7 @@ if sslverify:
 
 
 def ssl_urlopen(url):
-    if sslContext:
-        return urlopen(url, context=sslContext)
-    else:
-        return urlopen(url)
+    return urlopen(url)
 
 
 class AspectManager:
