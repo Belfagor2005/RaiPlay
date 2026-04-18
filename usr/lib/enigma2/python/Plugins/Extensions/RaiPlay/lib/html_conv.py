@@ -8,7 +8,7 @@ from six.moves import html_entities
 try:
     unicode
 except NameError:
-    unicode = str  # Python 3
+    unicode = str  # Python 3 fallback
 
 try:
     basestring
@@ -33,7 +33,7 @@ else:
 
 class_types = (type,) if six.PY3 else (type, types.ClassType)
 # text_type = six.text_type  # unicode in Py2, str in Py3
-binary_type = bytes if sys.version_info[0] >= 3 else str
+binary_type = six.binary_type  # str in Py2, bytes in Py3
 MAXSIZE = sys.maxsize  # Compatibile con entrambe le versioni
 
 _UNICODE_MAP = {
@@ -63,8 +63,6 @@ def ensure_str(s, encoding="utf-8", errors="strict"):
     """
     if isinstance(s, str):
         return s
-    if isinstance(s, unicode):  # Python 2
-        return s.encode(encoding, errors)
     if isinstance(s, binary_type):
         return s.decode(encoding, errors)
     raise TypeError("not expecting type '%s'" % type(s))
@@ -76,7 +74,7 @@ def html_escape(value):
 
 
 def html_unescape(value):
-    return _UNESCAPE_RE.sub(_convert_entity, text_type(value).strip())
+    return _UNESCAPE_RE.sub(_convert_entity, ensure_str(value).strip())
 
 
 def _convert_entity(m):
