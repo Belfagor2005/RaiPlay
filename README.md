@@ -1,14 +1,17 @@
-![](https://komarev.com/ghpvc/?username=Belfagor2005)
+<h1 align="center">📺 Rai Play View Plugin</h1>
 
+![Visitors](https://komarev.com/ghpvc/?username=Belfagor2005&label=Repository%20Views&color=blueviolet)
+[![Version](https://img.shields.io/badge/Version-1.13-blue.svg)](https://github.com/Belfagor2005/tvRaiPreview)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC_BY_NC_SA_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Python](https://img.shields.io/badge/Python-3.x-yellow.svg)](https://python.org)
+[![Python package](https://github.com/Belfagor2005/tvRaiPreview/actions/workflows/pylint.yml/badge.svg)](https://github.com/Belfagor2005/tvRaiPreview/actions/workflows/pylint.yml)
+[![Donate](https://img.shields.io/badge/_-Donate-red.svg?logo=githubsponsors&labelColor=555555&style=for-the-badge)](Maintainers.md#maintainers "Donate")
 
-[![Python package](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml/badge.svg)](https://github.com/Belfagor2005/RaiPlay/actions/workflows/pylint.yml)
 
 <p align="center">
   <img src="https://github.com/Belfagor2005/tvRaiPreview/blob/main/usr/lib/enigma2/python/Plugins/Extensions/RaiPlay/logo.png" height="140">
 </p>
 
-# 📺 Rai Play View Plugin
 
 ## Overview
 
