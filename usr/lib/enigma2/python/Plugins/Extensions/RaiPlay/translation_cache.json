@@ -17762,5 +17762,9 @@
   "f1a6025f6d72fdd9c8f3870bbebd6a1f": "V tem arhivu ni bilo najdenih elementov",
   "01f03ffb826721c3f4d46f479c649806": "Neznana vrsta vsebine",
   "20c547245e81d9f49a32a56f89304b8c": "正在加载直播节目...",
-  "e4544c4efc5a3fd596a2b94236dfbfce": "可用空間：{free}，共 {total}"
+  "e4544c4efc5a3fd596a2b94236dfbfce": "可用空間：{free}，共 {total}",
+  "f241c6aaa033b265ddcf38c497415389": "Download removed: {str(item['title'])}",
+  "89f439650f10bf172e851e08a102306f": "Found {0} programs for: {1}",
+  "f91cc52058791551523264da1eba00fd": "Free Space: {free} of {total}",
+  "78e2a77606a509ce73876616e9c8c7c0": "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}"
 }
