@@ -477,10 +477,10 @@ msgid "Select channel"
 msgstr "בחר ערוץ"
 
 msgid "Select content set"
-msgstr ""
+msgstr "בחר ערכת תוכן"
 
 msgid "Select date"
-msgstr ""
+msgstr "בחר תאריך"
 
 msgid "Select edition"
 msgstr "בחר מהדורה"
@@ -552,7 +552,7 @@ msgid "Test download failed"
 msgstr "הורדת הבדיקה נכשלה"
 
 msgid "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}"
-msgstr "סה"כ: {סה"כ} | פעיל: {active} | בתור: {תור} | הושלם: {הושלם} | שגיאות: {errors}"
+msgstr "סה\\\\\\\"כ: {סה\\\\\\\"כ} | פעיל: {active} | בתור: {תור} | הושלם: {הושלם} | שגיאות: {errors}"
 
 msgid "Travel & Adventure"
 msgstr "נסיעות והרפתקאות"

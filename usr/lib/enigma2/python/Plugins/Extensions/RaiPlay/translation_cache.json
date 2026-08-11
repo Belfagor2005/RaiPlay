@@ -17766,5 +17766,7 @@
   "f241c6aaa033b265ddcf38c497415389": "Download removed: {str(item['title'])}",
   "89f439650f10bf172e851e08a102306f": "Found {0} programs for: {1}",
   "f91cc52058791551523264da1eba00fd": "Free Space: {free} of {total}",
-  "78e2a77606a509ce73876616e9c8c7c0": "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}"
+  "78e2a77606a509ce73876616e9c8c7c0": "Total: {total} | Active: {active} | Queued: {queued} | Completed: {completed} | Errors: {errors}",
+  "4cc0a217fcd244b7afdc7cf1ee987707": "בחר ערכת תוכן",
+  "55d1ca576e2503dfb302108760103979": "בחר תאריך"
 }

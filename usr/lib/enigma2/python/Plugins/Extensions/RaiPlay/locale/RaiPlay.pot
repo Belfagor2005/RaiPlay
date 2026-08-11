@@ -4,10 +4,6 @@
 # [lululla] <ekekaz@gmail.com>, 2025.
 #
 
-
-
-
-
 msgid "A-Z All Programs"
 msgstr ""
 
